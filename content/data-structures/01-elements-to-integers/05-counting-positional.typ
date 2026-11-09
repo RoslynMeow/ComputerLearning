@@ -31,7 +31,7 @@
 
   它的值是
 
-  $ y = sum_(i=0)^k d_i b^i $。
+  $ y = sum_(i=0)^k d_i b^i $
 
   例如 $b = 2$，$(1011)_2 = 1 dot 2^3 + 0 dot 2^2 + 1 dot 2^1 + 1 dot 2^0 = 11$。
 
@@ -51,7 +51,7 @@
 
   后继与加法也都是逐位进行的：
 
-  $ s_i = d_i + e_i + c_i, quad r_i = s_i mod b, quad c_(i+1) = floor(s_i / b) $。
+  $ s_i = d_i + e_i + c_i, quad r_i = s_i mod b, quad c_(i+1) = floor(s_i / b) $
 
   其中 $c_i$ 是进位。二进制加法就是 $b = 2$ 的特例。
 

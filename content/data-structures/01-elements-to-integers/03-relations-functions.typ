@@ -29,7 +29,7 @@
   *二元关系.* $R subset.eq A times B$。若 $(a,b) in R$，记作 $a R b$。
   关系也有定义域、值域、逆关系与复合：
 
-  $ "dom"(R) = {a mid exists b, (a,b) in R}, quad "ran"(R) = {b mid exists a, (a,b) in R} $。
+  $ "dom"(R) = {a mid exists b, (a,b) in R}, quad "ran"(R) = {b mid exists a, (a,b) in R} $
 
   *等价关系.* 若 $R subset.eq A times A$ 满足
 
@@ -64,7 +64,7 @@
 
   例如 $A = {1,2,3}$，$B = {a,b}$，$R = {(1,a), (2,a), (3,b)}$ 对应矩阵
 
-  $ M_R = mat(1, 0; 1, 0; 0, 1) $。
+  $ M_R = mat(1, 0; 1, 0; 0, 1) $
 
   关系矩阵适合稠密关系；稀疏关系更适合邻接表。函数则可以用表、公式或程序实现。
   这就是后面图结构、哈希表和函数式抽象的雏形。
