@@ -261,24 +261,12 @@ button.primary:hover {
   box-shadow: 0 10px 30px rgba(70, 50, 20, 0.06);
 }
 
-.pdf-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.pdf-header h2 {
-  margin: 2px 0 0;
-  font-size: 1.35rem;
-}
-
 .pdf-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 14px;
-  margin-top: 16px;
+  margin-top: 0;
   padding: 12px 14px;
   border-radius: 10px;
   background: #f7f2e8;
@@ -665,10 +653,6 @@ button.primary:hover {
 }
 
 @media (max-width: 640px) {
-  .pdf-actions {
-    flex-direction: column;
-  }
-
   .lab-player {
     padding: 18px 16px 20px;
   }
@@ -681,12 +665,7 @@ button.primary:hover {
 }
 
 @media (max-width: 640px) {
-.pdf-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.pdf-viewer {
+  .pdf-viewer {
     padding: 18px 16px 20px;
   }
 

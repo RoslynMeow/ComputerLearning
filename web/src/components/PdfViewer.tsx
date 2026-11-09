@@ -10,21 +10,9 @@ type Props = {
   subject: SubjectIndex;
   activeKuId: string | null;
   onKuChange: (id: string) => void;
-  onOpenExercise: (id: string) => void;
-  onOpenLab: (id: string) => void;
-  hasExercises: (id: string) => boolean;
-  hasLabs: (id: string) => boolean;
 };
 
-export function PdfViewer({
-  subject,
-  activeKuId,
-  onKuChange,
-  onOpenExercise,
-  onOpenLab,
-  hasExercises,
-  hasLabs,
-}: Props) {
+export function PdfViewer({ subject, activeKuId, onKuChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
@@ -99,30 +87,6 @@ export function PdfViewer({
 
   return (
     <section className="pdf-viewer">
-      <header className="pdf-header">
-        <div>
-          <p className="eyebrow">{subject.subject}</p>
-          <h2>{subject.title}</h2>
-        </div>
-        <div className="pdf-actions">
-          <button
-            type="button"
-            disabled={!activeKu || !hasLabs(activeKu.id)}
-            onClick={() => activeKu && onOpenLab(activeKu.id)}
-          >
-            打开实验
-          </button>
-          <button
-            type="button"
-            className="primary"
-            disabled={!activeKu || !hasExercises(activeKu.id)}
-            onClick={() => activeKu && onOpenExercise(activeKu.id)}
-          >
-            打开练习
-          </button>
-        </div>
-      </header>
-
       <div className="pdf-toolbar">
         <label>
           知识点

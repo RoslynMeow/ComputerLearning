@@ -86,7 +86,6 @@ export default function App() {
   return (
     <main className="app">
       <header className="site-header">
-        <p className="eyebrow">ComputerLearning</p>
         <h1>数据结构与算法</h1>
       </header>
 
@@ -101,26 +100,37 @@ export default function App() {
         <button
           type="button"
           className={route.view === "graph" ? "tab active" : "tab"}
-          onClick={() => navigate("graph", route.view === "graph" ? route.id : null)}
+          onClick={() =>
+            navigate("graph", route.view === "graph" ? route.id : activeKuId)
+          }
         >
           知识图谱
         </button>
         <button
           type="button"
           className={route.view === "lab" ? "tab active" : "tab"}
-          onClick={() => navigate("lab", route.view === "lab" ? route.id : labs[0].id)}
+          onClick={() => {
+            const lab = activeKuId ? getLabsForKu(activeKuId)[0] : null;
+            navigate(
+              "lab",
+              route.view === "lab" ? route.id : lab?.id ?? labs[0].id,
+            );
+          }}
         >
           实验
         </button>
         <button
           type="button"
           className={route.view === "exercise" ? "tab active" : "tab"}
-          onClick={() =>
+          onClick={() => {
+            const exercise = activeKuId ? getExercisesForKu(activeKuId)[0] : null;
             navigate(
               "exercise",
-              route.view === "exercise" ? route.id : exercises[0].id,
-            )
-          }
+              route.view === "exercise"
+                ? route.id
+                : exercise?.id ?? exercises[0].id,
+            );
+          }}
         >
           动态练习
         </button>
@@ -141,16 +151,6 @@ export default function App() {
               subject={subjectIndex}
               activeKuId={activeKuId}
               onKuChange={(id) => navigate("pdf", id)}
-              onOpenExercise={(kuId) => {
-                const exercise = getExercisesForKu(kuId)[0];
-                if (exercise) navigate("exercise", exercise.id);
-              }}
-              onOpenLab={(kuId) => {
-                const lab = getLabsForKu(kuId)[0];
-                if (lab) navigate("lab", lab.id);
-              }}
-              hasExercises={(kuId) => getExercisesForKu(kuId).length > 0}
-              hasLabs={(kuId) => getLabsForKu(kuId).length > 0}
             />
           ) : (
             <p className="pdf-status">正在加载阅读器…</p>
