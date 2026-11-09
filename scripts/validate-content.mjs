@@ -283,7 +283,11 @@ mkdirSync(generatedDir, { recursive: true });
 const nodes = allKus.map((ku) => ({
   id: ku.id,
   title: ku.title,
+  title_en: ku.title_en ?? null,
+  subject: ku.subject,
+  subjectTitle: configuredSubjects[ku.subject]?.title ?? ku.subject,
   chapter: ku.chapter,
+  chapterTitle: chapterMap.get(ku.chapter)?.chapter.title ?? ku.chapter,
   order: ku.order,
   prerequisites: ku.prerequisites,
   related: ku.related,
@@ -303,6 +307,20 @@ for (const ku of allKus) {
 writeFileSync(
   join(generatedDir, "graph.json"),
   `${JSON.stringify({ nodes, edges }, null, 2)}\n`,
+);
+
+const books = Object.entries(bibliography).map(([id, book]) => ({
+  id,
+  title: book.title,
+  author: book.author ?? [],
+  edition: book.edition ?? null,
+  date: book.date ?? null,
+  publisher: book.publisher ?? null,
+  url: book.url ?? null,
+}));
+writeFileSync(
+  join(generatedDir, "bibliography.json"),
+  `${JSON.stringify(books, null, 2)}\n`,
 );
 
 const coverage = {};

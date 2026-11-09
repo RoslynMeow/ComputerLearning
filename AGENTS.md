@@ -66,3 +66,15 @@ npm run build        # production build of the web app
 - Add a test in `web/src/labs/__tests__/` for every new lab.
 - The PDF page links to the first lab for the active KU.
 
+## Knowledge graph
+
+- `npm run validate` writes:
+  - `content/generated/graph.json` (nodes + prerequisite/related edges)
+  - `content/generated/bibliography.json`
+  - `content/generated/coverage.json`
+- `scripts/sync-data-assets.mjs` copies them to `web/public/data/`.
+- Web route: `#/graph` or `#/graph/<kuId>`.
+- The graph page highlights prerequisite edges by default; related edges are optional.
+- Book reverse lookup: select a book to highlight all KUs that cite it.
+
+

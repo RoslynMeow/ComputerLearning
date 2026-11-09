@@ -5,6 +5,7 @@ node_modules/
 dist/
 web/dist/
 web/public/pdfs/
+web/public/data/
 site/dist/
 site/.astro/
 pdf/out/
