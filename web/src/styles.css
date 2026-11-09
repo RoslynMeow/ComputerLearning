@@ -340,6 +340,136 @@ button.primary:hover {
   color: #a3382f;
 }
 
+.lab-player {
+  padding: 22px 24px 26px;
+  border: 1px solid #d8d0c2;
+  border-radius: 14px;
+  background: #fffdf9;
+  box-shadow: 0 10px 30px rgba(70, 50, 20, 0.06);
+}
+
+.lab-description {
+  margin: 10px 0 0;
+  color: #5f5545;
+}
+
+.lab-params {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f7f2e8;
+}
+
+.lab-param {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lab-param > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #5f5545;
+}
+
+.lab-param input[type="range"] {
+  width: 100%;
+  accent-color: #6d4f23;
+}
+
+.lab-param select {
+  padding: 8px 10px;
+  border: 1px solid #cfc5b4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.lab-summary {
+  margin: 18px 0;
+  padding: 14px 16px;
+  border-left: 4px solid #8a6a3b;
+  border-radius: 6px;
+  background: #f7f2e8;
+  font-size: 1.05rem;
+}
+
+.lab-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.lab-metric {
+  padding: 10px 12px;
+  border: 1px solid #e2d8c8;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.lab-metric span {
+  display: block;
+  color: #8a8172;
+  font-size: 0.78rem;
+}
+
+.lab-metric strong {
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.lab-trace {
+  margin-top: 18px;
+}
+
+.lab-trace h3,
+.lab-steps h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.lab-trace table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.lab-trace th,
+.lab-trace td {
+  padding: 7px 9px;
+  border-bottom: 1px solid #e7dfd2;
+  text-align: left;
+  vertical-align: top;
+}
+
+.lab-trace th {
+  color: #8a8172;
+  font-weight: 400;
+}
+
+.lab-steps {
+  margin-top: 16px;
+}
+
+.lab-steps ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+@media (max-width: 640px) {
+  .pdf-actions {
+    flex-direction: column;
+  }
+
+  .lab-player {
+    padding: 18px 16px 20px;
+  }
+}
+
 .pdf-footnote {
   margin: 12px 0 0;
   color: #8a8172;
@@ -347,7 +477,12 @@ button.primary:hover {
 }
 
 @media (max-width: 640px) {
-  .pdf-viewer {
+.pdf-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pdf-viewer {
     padding: 18px 16px 20px;
   }
 

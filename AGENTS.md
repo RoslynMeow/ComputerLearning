@@ -56,3 +56,13 @@ npm run build        # production build of the web app
 - `generate(rng)` returns `{ kind, prompt, answer, steps }`.
 - `check(input, instance)` normalizes and grades the answer.
 - Do not put static answer keys in the PDF; link to the web exercise instead.
+
+## Dynamic labs
+
+- Labs live in `web/src/labs/<subject>/`.
+- Lab ID matches the KU metadata `labs` entry, e.g. `lab.elements-sets`.
+- `run(params)` returns `{ summary, metrics, trace, steps }`.
+- Labs are deterministic and parameter-driven; `ExperimentPlayer` renders the controls.
+- Add a test in `web/src/labs/__tests__/` for every new lab.
+- The PDF page links to the first lab for the active KU.
+
