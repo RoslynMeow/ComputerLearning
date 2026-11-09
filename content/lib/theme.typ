@@ -19,7 +19,7 @@
     },
   )
   set text(
-    font: ("New Computer Modern", "SimSun"),
+    font: ("New Computer Modern", "SimSun", "Noto Serif CJK SC", "Source Han Serif SC"),
     size: 12pt,
     lang: "zh",
     region: "cn",
@@ -51,7 +51,7 @@
     set text(
       size: 22pt,
       weight: "bold",
-      font: ("New Computer Modern", "SimHei"),
+      font: ("New Computer Modern", "SimHei", "Noto Sans CJK SC"),
     )
     it
   }
@@ -61,7 +61,7 @@
     set text(
       size: 14pt,
       weight: "bold",
-      font: ("New Computer Modern", "SimHei"),
+      font: ("New Computer Modern", "SimHei", "Noto Sans CJK SC"),
     )
     it
     v(0.3em)
@@ -72,7 +72,7 @@
     set text(
       size: 12pt,
       weight: "bold",
-      font: ("New Computer Modern", "SimHei"),
+      font: ("New Computer Modern", "SimHei", "Noto Sans CJK SC"),
     )
     it
     v(0.2em)
@@ -85,7 +85,7 @@
       #text(
         size: 24pt,
         weight: "bold",
-        font: ("New Computer Modern", "SimSun"),
+        font: ("New Computer Modern", "SimSun", "Noto Serif CJK SC", "Source Han Serif SC"),
       )[#title]
       #if subtitle != none [
         #v(0.8em)
