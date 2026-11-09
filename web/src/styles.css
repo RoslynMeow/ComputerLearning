@@ -231,3 +231,132 @@ button.primary:hover {
     flex-basis: 100%;
   }
 }
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 16px;
+  border-bottom: 1px solid #d8d0c2;
+}
+
+.tab {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  padding: 10px 14px;
+}
+
+.tab.active {
+  border-bottom-color: #6d4f23;
+  color: #6d4f23;
+  font-weight: 700;
+}
+
+.pdf-viewer {
+  padding: 22px 24px 24px;
+  border: 1px solid #d8d0c2;
+  border-radius: 14px;
+  background: #fffdf9;
+  box-shadow: 0 10px 30px rgba(70, 50, 20, 0.06);
+}
+
+.pdf-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pdf-header h2 {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+}
+
+.pdf-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7f2e8;
+}
+
+.pdf-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pdf-toolbar select {
+  max-width: 260px;
+  padding: 8px 10px;
+  border: 1px solid #cfc5b4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.pdf-pager,
+.pdf-zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pdf-pager input {
+  width: 64px;
+  padding: 7px 8px;
+  border: 1px solid #cfc5b4;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.pdf-canvas-wrap {
+  max-height: 75vh;
+  margin-top: 14px;
+  padding: 16px;
+  overflow: auto;
+  border-radius: 10px;
+  background: #ece6db;
+  text-align: center;
+}
+
+.pdf-canvas-wrap canvas {
+  display: block;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(60, 45, 20, 0.18);
+}
+
+.pdf-status {
+  margin: 16px 0 0;
+  color: #5f5545;
+}
+
+.pdf-status.error {
+  color: #a3382f;
+}
+
+.pdf-footnote {
+  margin: 12px 0 0;
+  color: #8a8172;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .pdf-viewer {
+    padding: 18px 16px 20px;
+  }
+
+  .pdf-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pdf-toolbar select {
+    max-width: 100%;
+  }
+}
