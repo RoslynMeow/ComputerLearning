@@ -12,13 +12,25 @@ If `typst` is not on `PATH`, set `TYPST_BIN` to the executable path.
 
 ```bash
 npm install          # install root + web dependencies
-npm run dev          # Vite dev server for dynamic exercises
+npm run dev          # Vite dev server for reading, labs, exercises, graph
 npm run validate     # validate KU metadata, sources, graph, notes files
+npm run content:web  # Typst KU files -> HTML fragments for the web app
 npm run pdf          # compile content/<subject>/main.typ -> pdf/out/<subject>.pdf
 npm test             # Vitest
 npm run typecheck    # TypeScript
 npm run build        # production build of the web app
 ```
+
+## Web content
+
+- PDF entry: `content/<subject>/main.typ` (book layout).
+- Web entry: `content/<subject>/web.typ` (same KU files, simple headings).
+- `npm run content:web` runs Typst HTML export, splits `section.ku` by KU ID, and writes:
+  - `web/public/content/<subject>/<kuId>.html`
+  - `web/public/content/<subject>/index.json`
+  - `web/public/content/typst.css`
+- The web reading page renders these HTML fragments directly; MathML is native.
+- PDF is only a download/book artifact; it is no longer embedded in the web app.
 
 ## Project automation
 
@@ -55,7 +67,7 @@ npm run build        # production build of the web app
 - Use the seeded RNG in `web/src/exercises/rng.ts`; the same seed must reproduce the same instance.
 - `generate(rng)` returns `{ kind, prompt, answer, steps }`.
 - `check(input, instance)` normalizes and grades the answer.
-- Do not put static answer keys in the PDF; link to the web exercise instead.
+- The PDF appendix lists exercise IDs; grading and steps live on the web.
 
 ## Dynamic labs
 
@@ -64,7 +76,7 @@ npm run build        # production build of the web app
 - `run(params)` returns `{ summary, metrics, trace, steps }`.
 - Labs are deterministic and parameter-driven; `ExperimentPlayer` renders the controls.
 - Add a test in `web/src/labs/__tests__/` for every new lab.
-- The PDF page links to the first lab for the active KU.
+- The web reading page/tabs link to the first lab for the active KU.
 
 ## Knowledge graph
 

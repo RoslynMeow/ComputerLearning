@@ -1,19 +1,22 @@
-export type KuIndexEntry = {
+export type ContentKu = {
   id: string;
   title: string;
-  page: number;
+  title_en?: string | null;
+  chapter: string;
+  chapterTitle: string;
+  order: number;
+  file: string;
 };
 
-export type SubjectIndex = {
+export type SubjectContent = {
   subject: string;
   title: string;
   pdf: string;
-  kus: KuIndexEntry[];
+  kus: ContentKu[];
 };
 
-export type SubjectManifest = {
+export type ContentManifest = {
   subject: string;
   title: string;
-  pdf: string;
   index: string;
 };

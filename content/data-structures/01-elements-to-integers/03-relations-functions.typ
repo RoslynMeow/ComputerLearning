@@ -24,15 +24,15 @@
   === 形式化定义
   *有序对.* $(a,b)$ 的顺序重要：$(a,b) = (c,d)$ 当且仅当 $a = c$ 且 $b = d$。
 
-  *笛卡尔积.* $A times B = {(a,b) mid a in A, b in B}$。
+  *笛卡尔积.* $A times B = {(a,b) | a in A, b in B}$。
 
   *二元关系.* $R subset.eq A times B$。若 $(a,b) in R$，记作 $a R b$。
   关系也有定义域、值域、逆关系与复合：
 
-  $ "dom"(R) = {a mid exists b, (a,b) in R}, quad "ran"(R) = {b mid exists a, (a,b) in R} $
+  $ "dom"(R) = {a | exists b, (a,b) in R}, quad "ran"(R) = {b | exists a, (a,b) in R} $
 
-  逆关系把每个有序对反过来：$R^(-1) = {(b,a) mid (a,b) in R}$。
-  复合关系沿着中间元素接起来：$S compose R = {(a,c) mid exists b, (a,b) in R and (b,c) in S}$。
+  逆关系把每个有序对反过来：$R^(-1) = {(b,a) | (a,b) in R}$。
+  复合关系沿着中间元素接起来：$S compose R = {(a,c) | exists b, (a,b) in R and (b,c) in S}$。
 
   *等价关系.* 若 $R subset.eq A times A$ 满足
 
@@ -40,7 +40,7 @@
   + 对称：$a R b -> b R a$；
   + 传递：$a R b and b R c -> a R c$，
 
-  则称 $R$ 是等价关系。$a$ 的等价类记作 $[a] = {x mid x R a}$。
+  则称 $R$ 是等价关系。$a$ 的等价类记作 $[a] = {x | x R a}$。
 
   *偏序.* 若 $R$ 自反、反对称、传递，则称 $R$ 是偏序关系。
   反对称指：$a R b$ 且 $b R a$ 时必有 $a = b$。

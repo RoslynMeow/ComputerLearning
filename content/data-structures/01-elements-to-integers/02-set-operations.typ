@@ -22,9 +22,9 @@
   === 形式化定义
   设 $A, B$ 是全集 $U$ 的子集：
 
-  - 并：$A union B = {x mid x in A or x in B}$；
-  - 交：$A inter B = {x mid x in A and x in B}$；
-  - 差：$A - B = {x mid x in A and x in.not B}$；
+  - 并：$A union B = {x | x in A or x in B}$；
+  - 交：$A inter B = {x | x in A and x in B}$；
+  - 差：$A - B = {x | x in A and x in.not B}$；
   - 补：$A^c = U - A$；
   - 对称差：$A triangle B = (A - B) union (B - A)$。
 

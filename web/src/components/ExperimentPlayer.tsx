@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Lab, LabParams } from "../labs/types";
+import { NumberStepper } from "./NumberStepper";
 
 type Props = {
   lab: Lab;
@@ -23,7 +24,6 @@ export function ExperimentPlayer({ lab }: Props) {
     <section className="lab-player">
       <header className="player-header">
         <div>
-          <p className="eyebrow">{lab.ku}</p>
           <h2>{lab.title}</h2>
         </div>
         <button type="button" onClick={() => setParams(initialParams(lab))}>
@@ -59,20 +59,16 @@ export function ExperimentPlayer({ lab }: Props) {
           }
 
           return (
-            <label key={parameter.name} className="lab-param">
-              <span>
-                {parameter.label}
-                <strong>{params[parameter.name]}</strong>
-              </span>
-              <input
-                type="range"
+            <div key={parameter.name} className="lab-param">
+              <span>{parameter.label}</span>
+              <NumberStepper
+                value={Number(params[parameter.name])}
                 min={parameter.min}
                 max={parameter.max}
                 step={parameter.step ?? 1}
-                value={Number(params[parameter.name])}
-                onChange={(event) => setParam(parameter.name, Number(event.target.value))}
+                onChange={(value) => setParam(parameter.name, value)}
               />
-            </label>
+            </div>
           );
         })}
       </div>

@@ -6,6 +6,7 @@ dist/
 web/dist/
 web/public/pdfs/
 web/public/data/
+web/public/content/
 site/dist/
 site/.astro/
 pdf/out/

@@ -28,7 +28,7 @@
 
   例如二叉树可以定义为
 
-  $ T ::= "Leaf" mid "Node"(T, T) $
+  $ T ::= "Leaf" | "Node"(T, T) $
 
   这里 `Leaf` 是基例，`Node` 把两棵子树组合成一棵新树。
 

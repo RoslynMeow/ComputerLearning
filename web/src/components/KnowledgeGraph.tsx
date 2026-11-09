@@ -11,7 +11,7 @@ import {
 type Props = {
   selectedKuId: string | null;
   onSelectKu: (id: string) => void;
-  onOpenPdf: (id: string) => void;
+  onOpenContent: (id: string) => void;
   onOpenLab: (id: string) => void;
   onOpenExercise: (id: string) => void;
 };
@@ -19,7 +19,7 @@ type Props = {
 export function KnowledgeGraph({
   selectedKuId,
   onSelectKu,
-  onOpenPdf,
+  onOpenContent,
   onOpenLab,
   onOpenExercise,
 }: Props) {
@@ -247,8 +247,8 @@ export function KnowledgeGraph({
               )}
 
               <div className="graph-actions">
-                <button type="button" onClick={() => onOpenPdf(selected.id)}>
-                  打开 PDF
+                <button type="button" onClick={() => onOpenContent(selected.id)}>
+                  打开阅读
                 </button>
                 <button
                   type="button"

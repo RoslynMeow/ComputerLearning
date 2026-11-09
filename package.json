@@ -2,18 +2,22 @@
   "name": "computer-learning",
   "private": true,
   "type": "module",
-  "workspaces": ["web"],
+  "workspaces": [
+    "web"
+  ],
   "scripts": {
     "dev": "npm --workspace web run dev",
-    "predev": "node scripts/sync-pdf-assets.mjs && node scripts/sync-data-assets.mjs",
+    "predev": "node scripts/sync-pdf-assets.mjs && node scripts/sync-data-assets.mjs && node scripts/build-web-content.mjs",
     "build": "npm --workspace web run build",
-    "prebuild": "node scripts/sync-pdf-assets.mjs && node scripts/sync-data-assets.mjs",
+    "prebuild": "node scripts/sync-pdf-assets.mjs && node scripts/sync-data-assets.mjs && node scripts/build-web-content.mjs",
     "typecheck": "npm --workspace web run typecheck",
     "test": "npm --workspace web run test",
     "validate": "node scripts/validate-content.mjs",
+    "content:web": "node scripts/build-web-content.mjs",
     "pdf": "node scripts/build-pdf.mjs"
   },
   "devDependencies": {
+    "node-html-parser": "^9.0.7",
     "yaml": "^2.5.1"
   }
 }
