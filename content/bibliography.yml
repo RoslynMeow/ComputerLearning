@@ -1,0 +1,120 @@
+clrs:
+  type: book
+  title: Introduction to Algorithms
+  author:
+    - "Cormen, Thomas H."
+    - "Leiserson, Charles E."
+    - "Rivest, Ronald L."
+    - "Stein, Clifford"
+  edition: 4
+  date: 2022
+  publisher: MIT Press
+  location: Cambridge, MA
+  isbn: 978-0-262-04630-5
+
+rosen:
+  type: book
+  title: Discrete Mathematics and Its Applications
+  author:
+    - "Rosen, Kenneth H."
+  edition: 8
+  date: 2018
+  publisher: McGraw-Hill Education
+  location: New York, NY
+
+sipser:
+  type: book
+  title: Introduction to the Theory of Computation
+  author:
+    - "Sipser, Michael"
+  edition: 3
+  date: 2012
+  publisher: Cengage Learning
+  location: Boston, MA
+  isbn: 978-1-133-18779-0
+
+cod:
+  type: book
+  title: Computer Organization and Design
+  author:
+    - "Patterson, David A."
+    - "Hennessy, John L."
+  edition: 5
+  date: 2013
+  publisher: Morgan Kaufmann
+  location: Waltham, MA
+
+csapp:
+  type: book
+  title: Computer Systems - A Programmer's Perspective
+  author:
+    - "Bryant, Randal E."
+    - "O'Hallaron, David R."
+  edition: 3
+  date: 2015
+  publisher: Pearson
+  location: Boston, MA
+
+kurose:
+  type: book
+  title: Computer Networking - A Top-Down Approach
+  author:
+    - "Kurose, James F."
+    - "Ross, Keith W."
+  edition: 8
+  date: 2020
+  publisher: Pearson
+  location: Hoboken, NJ
+
+ostep:
+  type: book
+  title: Operating Systems - Three Easy Pieces
+  author:
+    - "Arpaci-Dusseau, Remzi H."
+    - "Arpaci-Dusseau, Andrea C."
+  date: 2018
+  publisher: Arpaci-Dusseau Books
+  url: https://pages.cs.wisc.edu/~remzi/OSTEP/
+
+silberschatz:
+  type: book
+  title: Operating System Concepts
+  author:
+    - "Silberschatz, Abraham"
+    - "Galvin, Peter B."
+    - "Gagne, Greg"
+  edition: 10
+  date: 2018
+  publisher: Wiley
+  location: Hoboken, NJ
+
+sommerville:
+  type: book
+  title: Software Engineering
+  author:
+    - "Sommerville, Ian"
+  edition: 10
+  date: 2015
+  publisher: Pearson
+  location: Boston, MA
+
+sedgewick:
+  type: book
+  title: Algorithms
+  author:
+    - "Sedgewick, Robert"
+    - "Wayne, Kevin"
+  edition: 4
+  date: 2011
+  publisher: Addison-Wesley
+  location: Upper Saddle River, NJ
+
+yanweimin:
+  type: book
+  title: 数据结构（C语言版）
+  author:
+    - "严蔚敏"
+    - "吴伟民"
+  date: 2007
+  publisher: 清华大学出版社
+  location: 北京

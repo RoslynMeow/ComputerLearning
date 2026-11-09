@@ -1,0 +1,17 @@
+subjects:
+  data-structures:
+    title: 数据结构与算法
+    title_en: Data Structures and Algorithms
+    chapters:
+      - id: 01-computation-and-world
+        title: 计算与描述世界
+        title_en: Computation and Modeling the World
+        kus:
+          - ds.01.01.problem-to-model
+          - ds.01.02.logic
+          - ds.01.03.proof
+          - ds.01.04.state-invariant
+          - ds.01.05.recursion-induction
+          - ds.01.06.computation
+          - ds.01.07.cost
+          - ds.01.08.abstract-representation
