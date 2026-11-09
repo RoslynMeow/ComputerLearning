@@ -4,6 +4,7 @@ node_modules/
 # Build output
 dist/
 web/dist/
+web/public/pdfs/
 site/dist/
 site/.astro/
 pdf/out/
