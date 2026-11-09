@@ -40,8 +40,9 @@
   === 证明与推导
   自然数可以具体地“做成”集合（von Neumann 构造）：
 
-  $ 0 = emptyset, quad 1 = {0} = {emptyset}, quad 2 = {0,1} = {emptyset, {emptyset}}, quad dots $
+  $ 0 = emptyset, quad 1 = {0}, quad 2 = {0,1}, quad dots $
 
+  把 $0$ 展开就是 $emptyset$，所以 $1 = {emptyset}$、$2 = {emptyset, {emptyset}}$。
   一般地，$n + 1 = n union {n}$。于是“数”本身也是集合，“小于”就是属于关系：
   $m < n$ 当且仅当 $m in n$。
 
@@ -51,6 +52,9 @@
 
   于是
   $ 1 + 1 = S(0) + S(0) = S(0 + S(0)) = S(S(0)) = 2 $
+
+  用同样的递归定义可以证明 $0 + 1 + dots + n = n(n+1)/2$；
+  这里先记住“基例 + 归纳步”的结构，详细证明见 2.2。
 
   这就是“从 $0$ 到 $1$ 再到整数”的第一步：$1$ 不是凭空出现的，它是 $0$ 的后继。
 
