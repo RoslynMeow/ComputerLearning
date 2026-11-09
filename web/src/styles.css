@@ -376,9 +376,40 @@ button.primary:hover {
   color: #5f5545;
 }
 
-.lab-param input[type="range"] {
-  width: 100%;
-  accent-color: #6d4f23;
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepper button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.stepper input {
+  width: 86px;
+  padding: 7px 8px;
+  border: 1px solid #cfc5b4;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
 }
 
 .lab-param select {
