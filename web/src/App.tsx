@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import { ContentReader } from "./components/ContentReader";
 import { ExercisePlayer } from "./components/ExercisePlayer";
 import { ExperimentPlayer } from "./components/ExperimentPlayer";
 import { KnowledgeGraph } from "./components/KnowledgeGraph";
-import { PdfViewer } from "./components/PdfViewer";
-import type { SubjectIndex, SubjectManifest } from "./data/types";
+import type { ContentManifest, SubjectContent } from "./data/types";
 import { exercises, getExercisesForKu } from "./exercises/registry";
 import { getLabsForKu, labs } from "./labs/registry";
 
-type View = "pdf" | "graph" | "exercise" | "lab";
+type View = "read" | "graph" | "exercise" | "lab";
 
 type Route = {
   view: View;
@@ -21,13 +21,13 @@ function parseHash(): Route {
   if (view === "exercise") return { view: "exercise", id };
   if (view === "lab") return { view: "lab", id };
   if (view === "graph") return { view: "graph", id };
-  return { view: "pdf", id };
+  return { view: "read", id };
 }
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash());
-  const [subjectIndex, setSubjectIndex] = useState<SubjectIndex | null>(null);
-  const [pdfError, setPdfError] = useState<string | null>(null);
+  const [subjectContent, setSubjectContent] = useState<SubjectContent | null>(null);
+  const [contentError, setContentError] = useState<string | null>(null);
 
   useEffect(() => {
     const sync = () => setRoute(parseHash());
@@ -38,25 +38,25 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadPdfAssets() {
+    async function loadContent() {
       try {
-        const manifestResponse = await fetch("/pdfs/index.json");
-        if (!manifestResponse.ok) throw new Error("PDF 资源未生成");
-        const manifestData = (await manifestResponse.json()) as SubjectManifest[];
+        const manifestResponse = await fetch("/content/index.json");
+        if (!manifestResponse.ok) throw new Error("内容未生成");
+        const manifestData = (await manifestResponse.json()) as ContentManifest[];
         if (cancelled) return;
-        if (!manifestData[0]) throw new Error("没有可用的 PDF 主题");
+        if (!manifestData[0]) throw new Error("没有可展示的科目");
         const indexResponse = await fetch(manifestData[0].index);
-        if (!indexResponse.ok) throw new Error("PDF 索引未生成");
-        const indexData = (await indexResponse.json()) as SubjectIndex;
-        if (!cancelled) setSubjectIndex(indexData);
+        if (!indexResponse.ok) throw new Error("内容索引未生成");
+        const indexData = (await indexResponse.json()) as SubjectContent;
+        if (!cancelled) setSubjectContent(indexData);
       } catch (reason) {
         if (!cancelled) {
-          setPdfError(reason instanceof Error ? reason.message : String(reason));
+          setContentError(reason instanceof Error ? reason.message : String(reason));
         }
       }
     }
 
-    loadPdfAssets();
+    loadContent();
     return () => {
       cancelled = true;
     };
@@ -72,6 +72,8 @@ export default function App() {
     return labs.find((lab) => lab.id === route.id) ?? labs[0];
   }, [route]);
 
+  const activeKuId = route.view === "read" ? route.id : null;
+
   function navigate(view: View, id: string | null) {
     const next = id ? `#/${view}/${id}` : `#/${view}`;
     if (window.location.hash === next) {
@@ -80,8 +82,6 @@ export default function App() {
       window.location.hash = next;
     }
   }
-
-  const activeKuId = route.view === "pdf" ? route.id : null;
 
   return (
     <main className="app">
@@ -92,10 +92,10 @@ export default function App() {
       <nav className="tabs" aria-label="视图">
         <button
           type="button"
-          className={route.view === "pdf" ? "tab active" : "tab"}
-          onClick={() => navigate("pdf", route.view === "pdf" ? route.id : null)}
+          className={route.view === "read" ? "tab active" : "tab"}
+          onClick={() => navigate("read", route.view === "read" ? route.id : null)}
         >
-          PDF 阅读
+          阅读
         </button>
         <button
           type="button"
@@ -136,24 +136,24 @@ export default function App() {
         </button>
       </nav>
 
-      {route.view === "pdf" && (
+      {route.view === "read" && (
         <>
-          {pdfError ? (
+          {contentError ? (
             <section className="player">
-              <h2>PDF 还没生成</h2>
+              <h2>内容还没生成</h2>
               <p>
-                先运行 <code>npm run pdf</code>，再刷新页面。构建产物会同步到
-                <code> web/public/pdfs</code>。
+                先运行 <code>npm run content:web</code>，再刷新页面。内容会同步到
+                <code> web/public/content</code>。
               </p>
             </section>
-          ) : subjectIndex ? (
-            <PdfViewer
-              subject={subjectIndex}
+          ) : subjectContent ? (
+            <ContentReader
+              subject={subjectContent}
               activeKuId={activeKuId}
-              onKuChange={(id) => navigate("pdf", id)}
+              onKuChange={(id) => navigate("read", id)}
             />
           ) : (
-            <p className="pdf-status">正在加载阅读器…</p>
+            <p className="reader-status">正在加载内容…</p>
           )}
         </>
       )}
@@ -162,7 +162,7 @@ export default function App() {
         <KnowledgeGraph
           selectedKuId={route.id}
           onSelectKu={(id) => navigate("graph", id)}
-          onOpenPdf={(id) => navigate("pdf", id)}
+          onOpenContent={(id) => navigate("read", id)}
           onOpenLab={(kuId) => {
             const lab = getLabsForKu(kuId)[0];
             if (lab) navigate("lab", lab.id);

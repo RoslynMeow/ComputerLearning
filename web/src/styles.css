@@ -253,81 +253,6 @@ button.primary:hover {
   font-weight: 700;
 }
 
-.pdf-viewer {
-  padding: 22px 24px 24px;
-  border: 1px solid #d8d0c2;
-  border-radius: 14px;
-  background: #fffdf9;
-  box-shadow: 0 10px 30px rgba(70, 50, 20, 0.06);
-}
-
-.pdf-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 14px;
-  margin-top: 0;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: #f7f2e8;
-}
-
-.pdf-toolbar label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pdf-toolbar select {
-  max-width: 260px;
-  padding: 8px 10px;
-  border: 1px solid #cfc5b4;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.pdf-pager,
-.pdf-zoom {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pdf-pager input {
-  width: 64px;
-  padding: 7px 8px;
-  border: 1px solid #cfc5b4;
-  border-radius: 8px;
-  background: #fff;
-  text-align: center;
-}
-
-.pdf-canvas-wrap {
-  max-height: 75vh;
-  margin-top: 14px;
-  padding: 16px;
-  overflow: auto;
-  border-radius: 10px;
-  background: #ece6db;
-  text-align: center;
-}
-
-.pdf-canvas-wrap canvas {
-  display: block;
-  margin: 0 auto;
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(60, 45, 20, 0.18);
-}
-
-.pdf-status {
-  margin: 16px 0 0;
-  color: #5f5545;
-}
-
-.pdf-status.error {
-  color: #a3382f;
-}
-
 .lab-player {
   padding: 22px 24px 26px;
   border: 1px solid #d8d0c2;
@@ -658,23 +583,145 @@ button.primary:hover {
   }
 }
 
-.pdf-footnote {
-  margin: 12px 0 0;
+.reader {
+  padding: 22px 24px 28px;
+  border: 1px solid #d8d0c2;
+  border-radius: 14px;
+  background: #fffdf9;
+  box-shadow: 0 10px 30px rgba(70, 50, 20, 0.06);
+}
+
+.reader-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7f2e8;
+}
+
+.reader-toolbar label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.reader-toolbar select {
+  max-width: 280px;
+  padding: 8px 10px;
+  border: 1px solid #cfc5b4;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.reader-pager {
+  display: flex;
+  gap: 6px;
+}
+
+.reader-pdf {
+  margin-left: auto;
+  color: #6d4f23;
+}
+
+.reader-breadcrumb {
+  margin: 16px 0 0;
   color: #8a8172;
   font-size: 0.85rem;
 }
 
+.reader-status {
+  margin: 16px 0 0;
+  color: #5f5545;
+}
+
+.reader-status.error {
+  color: #a3382f;
+}
+
+.reader-content {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.reader-content h3 {
+  margin: 1.2rem 0 0.8rem;
+  font-size: 1.5rem;
+}
+
+.reader-content h4 {
+  margin: 1.4rem 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.reader-content p,
+.reader-content li {
+  line-height: 1.75;
+}
+
+.reader-content p {
+  margin: 0.6rem 0;
+}
+
+.reader-content ul,
+.reader-content ol {
+  padding-left: 1.4rem;
+}
+
+.reader-content table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.reader-content th,
+.reader-content td {
+  padding: 6px 8px;
+  border: 1px solid #d8d0c2;
+  text-align: center;
+}
+
+.reader-content math {
+  font-family: "Latin Modern Math", "Cambria Math", serif;
+}
+
+.reader-content code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #f3eee4;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.ku-notes {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #d8d0c2;
+  color: #5f5545;
+  font-size: 0.9rem;
+}
+
+.ku-notes h4 {
+  font-size: 0.95rem;
+}
+
 @media (max-width: 640px) {
-  .pdf-viewer {
-    padding: 18px 16px 20px;
+  .reader {
+    padding: 18px 16px 22px;
   }
 
-  .pdf-toolbar {
+  .reader-pdf {
+    margin-left: 0;
+  }
+
+  .reader-toolbar {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .pdf-toolbar select {
+  .reader-toolbar select {
     max-width: 100%;
   }
 }
