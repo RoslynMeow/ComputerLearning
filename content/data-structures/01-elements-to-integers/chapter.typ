@@ -17,3 +17,5 @@
   #include "07-computer-representation.typ"
   #include "08-abstract-representation.typ"
 ]
+
+#include "appendix.typ"

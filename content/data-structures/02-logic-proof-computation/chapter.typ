@@ -15,3 +15,5 @@
   #include "05-computation.typ"
   #include "06-cost.typ"
 ]
+
+#include "appendix.typ"
