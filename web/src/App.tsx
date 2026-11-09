@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { ExercisePlayer } from "./components/ExercisePlayer";
+import { ExperimentPlayer } from "./components/ExperimentPlayer";
 import { PdfViewer } from "./components/PdfViewer";
 import type { SubjectIndex, SubjectManifest } from "./data/types";
 import { exercises, getExercisesForKu } from "./exercises/registry";
+import { getLabsForKu, labs } from "./labs/registry";
 
-type View = "pdf" | "exercise";
+type View = "pdf" | "exercise" | "lab";
 
 type Route = {
   view: View;
@@ -16,6 +18,7 @@ function parseHash(): Route {
   const [view, ...rest] = raw.split("/");
   const id = rest.join("/") || null;
   if (view === "exercise") return { view: "exercise", id };
+  if (view === "lab") return { view: "lab", id };
   return { view: "pdf", id };
 }
 
@@ -62,6 +65,11 @@ export default function App() {
     return exercises.find((exercise) => exercise.id === route.id) ?? exercises[0];
   }, [route]);
 
+  const activeLab = useMemo(() => {
+    if (route.view !== "lab") return labs[0];
+    return labs.find((lab) => lab.id === route.id) ?? labs[0];
+  }, [route]);
+
   function navigate(view: View, id: string | null) {
     const next = id ? `#/${view}/${id}` : `#/${view}`;
     if (window.location.hash === next) {
@@ -79,7 +87,7 @@ export default function App() {
         <p className="eyebrow">ComputerLearning</p>
         <h1>数据结构与算法</h1>
         <p>
-          先读 PDF，再做实验与练习；每个知识点都有稳定的 KU ID，可以直接深链。
+          读 PDF、做实验、做练习；每个知识点都有稳定的 KU ID，可以直接深链。
         </p>
       </header>
 
@@ -90,6 +98,13 @@ export default function App() {
           onClick={() => navigate("pdf", route.view === "pdf" ? route.id : null)}
         >
           PDF 阅读
+        </button>
+        <button
+          type="button"
+          className={route.view === "lab" ? "tab active" : "tab"}
+          onClick={() => navigate("lab", route.view === "lab" ? route.id : labs[0].id)}
+        >
+          实验
         </button>
         <button
           type="button"
@@ -124,11 +139,36 @@ export default function App() {
                 const exercise = getExercisesForKu(kuId)[0];
                 if (exercise) navigate("exercise", exercise.id);
               }}
+              onOpenLab={(kuId) => {
+                const lab = getLabsForKu(kuId)[0];
+                if (lab) navigate("lab", lab.id);
+              }}
               hasExercises={(kuId) => getExercisesForKu(kuId).length > 0}
+              hasLabs={(kuId) => getLabsForKu(kuId).length > 0}
             />
           ) : (
             <p className="pdf-status">正在加载阅读器…</p>
           )}
+        </>
+      )}
+
+      {route.view === "lab" && (
+        <>
+          <nav className="exercise-list" aria-label="实验列表">
+            {labs.map((lab) => (
+              <button
+                key={lab.id}
+                type="button"
+                className={lab.id === activeLab.id ? "active" : ""}
+                onClick={() => navigate("lab", lab.id)}
+              >
+                <span>{lab.ku}</span>
+                <strong>{lab.title}</strong>
+              </button>
+            ))}
+          </nav>
+
+          <ExperimentPlayer key={activeLab.id} lab={activeLab} />
         </>
       )}
 
