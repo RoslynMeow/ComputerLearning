@@ -96,15 +96,10 @@ export function KnowledgeGraph({
 
   return (
     <section className="graph-page">
-      <header className="graph-header">
-        <div>
-          <p className="eyebrow">knowledge graph</p>
-          <h2>知识图谱与书目反查</h2>
-          <p>
-            {graph.nodes.length} 个知识点，{prerequisiteEdges.length} 条先修边，
-            {booksWithNodes.length} 本被引用的书。
-          </p>
-        </div>
+      <div className="graph-toolbar">
+        <span className="graph-stats">
+          {graph.nodes.length} 个知识点 · {prerequisiteEdges.length} 条先修 · {booksWithNodes.length} 本书
+        </span>
         <label className="graph-filter">
           按书目反查
           <select value={bookFilter} onChange={(event) => setBookFilter(event.target.value)}>
@@ -124,7 +119,7 @@ export function KnowledgeGraph({
           />
           显示相关边
         </label>
-      </header>
+      </div>
 
       <div className="graph-layout">
         <div className="graph-canvas">
