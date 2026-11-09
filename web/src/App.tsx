@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { ExercisePlayer } from "./components/ExercisePlayer";
 import { ExperimentPlayer } from "./components/ExperimentPlayer";
+import { KnowledgeGraph } from "./components/KnowledgeGraph";
 import { PdfViewer } from "./components/PdfViewer";
 import type { SubjectIndex, SubjectManifest } from "./data/types";
 import { exercises, getExercisesForKu } from "./exercises/registry";
 import { getLabsForKu, labs } from "./labs/registry";
 
-type View = "pdf" | "exercise" | "lab";
+type View = "pdf" | "graph" | "exercise" | "lab";
 
 type Route = {
   view: View;
@@ -19,6 +20,7 @@ function parseHash(): Route {
   const id = rest.join("/") || null;
   if (view === "exercise") return { view: "exercise", id };
   if (view === "lab") return { view: "lab", id };
+  if (view === "graph") return { view: "graph", id };
   return { view: "pdf", id };
 }
 
@@ -101,6 +103,13 @@ export default function App() {
         </button>
         <button
           type="button"
+          className={route.view === "graph" ? "tab active" : "tab"}
+          onClick={() => navigate("graph", route.view === "graph" ? route.id : null)}
+        >
+          知识图谱
+        </button>
+        <button
+          type="button"
           className={route.view === "lab" ? "tab active" : "tab"}
           onClick={() => navigate("lab", route.view === "lab" ? route.id : labs[0].id)}
         >
@@ -150,6 +159,22 @@ export default function App() {
             <p className="pdf-status">正在加载阅读器…</p>
           )}
         </>
+      )}
+
+      {route.view === "graph" && (
+        <KnowledgeGraph
+          selectedKuId={route.id}
+          onSelectKu={(id) => navigate("graph", id)}
+          onOpenPdf={(id) => navigate("pdf", id)}
+          onOpenLab={(kuId) => {
+            const lab = getLabsForKu(kuId)[0];
+            if (lab) navigate("lab", lab.id);
+          }}
+          onOpenExercise={(kuId) => {
+            const exercise = getExercisesForKu(kuId)[0];
+            if (exercise) navigate("exercise", exercise.id);
+          }}
+        />
       )}
 
       {route.view === "lab" && (

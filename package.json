@@ -5,9 +5,9 @@
   "workspaces": ["web"],
   "scripts": {
     "dev": "npm --workspace web run dev",
-    "predev": "node scripts/sync-pdf-assets.mjs",
+    "predev": "node scripts/sync-pdf-assets.mjs && node scripts/sync-data-assets.mjs",
     "build": "npm --workspace web run build",
-    "prebuild": "node scripts/sync-pdf-assets.mjs",
+    "prebuild": "node scripts/sync-pdf-assets.mjs && node scripts/sync-data-assets.mjs",
     "typecheck": "npm --workspace web run typecheck",
     "test": "npm --workspace web run test",
     "validate": "node scripts/validate-content.mjs",
