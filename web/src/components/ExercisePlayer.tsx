@@ -43,7 +43,6 @@ export function ExercisePlayer({ exercise }: Props) {
     <section className="player">
       <header className="player-header">
         <div>
-          <p className="eyebrow">{exercise.ku}</p>
           <h2>{exercise.title}</h2>
         </div>
         <span className="seed">种子 {seed}</span>

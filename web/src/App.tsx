@@ -88,9 +88,6 @@ export default function App() {
       <header className="site-header">
         <p className="eyebrow">ComputerLearning</p>
         <h1>数据结构与算法</h1>
-        <p>
-          读 PDF、做实验、做练习；每个知识点都有稳定的 KU ID，可以直接深链。
-        </p>
       </header>
 
       <nav className="tabs" aria-label="视图">
@@ -187,7 +184,6 @@ export default function App() {
                 className={lab.id === activeLab.id ? "active" : ""}
                 onClick={() => navigate("lab", lab.id)}
               >
-                <span>{lab.ku}</span>
                 <strong>{lab.title}</strong>
               </button>
             ))}
@@ -207,7 +203,6 @@ export default function App() {
                 className={exercise.id === activeExercise.id ? "active" : ""}
                 onClick={() => navigate("exercise", exercise.id)}
               >
-                <span>{exercise.ku}</span>
                 <strong>{exercise.title}</strong>
               </button>
             ))}

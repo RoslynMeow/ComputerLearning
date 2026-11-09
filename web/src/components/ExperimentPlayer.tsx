@@ -24,7 +24,6 @@ export function ExperimentPlayer({ lab }: Props) {
     <section className="lab-player">
       <header className="player-header">
         <div>
-          <p className="eyebrow">{lab.ku}</p>
           <h2>{lab.title}</h2>
         </div>
         <button type="button" onClick={() => setParams(initialParams(lab))}>
