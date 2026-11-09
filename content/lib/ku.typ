@@ -8,6 +8,7 @@
   related: (),
   sources: (),
   labs: (),
+  exercises: (),
   body,
 ) = {
   [#metadata((
@@ -21,6 +22,7 @@
     related: related,
     sources: sources,
     labs: labs,
+    exercises: exercises,
   )) <ku>]
 
   let suffix = if title_en != none and title_en != "" {

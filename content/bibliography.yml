@@ -118,3 +118,21 @@ yanweimin:
   date: 2007
   publisher: 清华大学出版社
   location: 北京
+
+halmos:
+  type: book
+  title: Naive Set Theory
+  author:
+    - "Halmos, Paul R."
+  date: 1960
+  publisher: Van Nostrand
+  location: Princeton, NJ
+
+enderton:
+  type: book
+  title: Elements of Set Theory
+  author:
+    - "Enderton, Herbert B."
+  date: 1977
+  publisher: Academic Press
+  location: New York, NY
