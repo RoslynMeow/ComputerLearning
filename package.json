@@ -1,0 +1,17 @@
+{
+  "name": "computer-learning",
+  "private": true,
+  "type": "module",
+  "workspaces": ["web"],
+  "scripts": {
+    "dev": "npm --workspace web run dev",
+    "build": "npm --workspace web run build",
+    "typecheck": "npm --workspace web run typecheck",
+    "test": "npm --workspace web run test",
+    "validate": "node scripts/validate-content.mjs",
+    "pdf": "node scripts/build-pdf.mjs"
+  },
+  "devDependencies": {
+    "yaml": "^2.5.1"
+  }
+}

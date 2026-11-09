@@ -14,6 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Typst
+        uses: typst-community/setup-typst@v4
+        with:
+          typst-version: "0.15.1"
+
+      - name: Install CJK fonts
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+
       - name: Setup Node
         if: ${{ hashFiles('package.json') != '' }}
         uses: actions/setup-node@v4
@@ -23,6 +31,10 @@ jobs:
       - name: Install
         if: ${{ hashFiles('package.json') != '' }}
         run: npm ci || npm install
+
+      - name: Validate content
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run validate --if-present
 
       - name: Typecheck
         if: ${{ hashFiles('package.json') != '' }}
@@ -35,3 +47,11 @@ jobs:
       - name: Test
         if: ${{ hashFiles('package.json') != '' }}
         run: npm test --if-present
+
+      - name: Build
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run build --if-present
+
+      - name: Build PDF
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm run pdf --if-present

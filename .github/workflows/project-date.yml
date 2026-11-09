@@ -1,58 +1,87 @@
 name: project-date
 
-# Sets the Project "Date" (latest commit date) and "Start date" (earliest commit
-# date) when a pull request is opened or updated.
+# Sets Project "Start date" from the item's creation time and "Date" from its
+# close/merge time. Issues and pull requests are both supported.
 #
-# Requires a repository secret PROJECT_TOKEN: a classic PAT with `repo` + `project`
-# scopes (the default GITHUB_TOKEN cannot access Projects v2).
+# Requires a repository secret PROJECT_TOKEN: a classic PAT with `repo` +
+# `project` scopes (the default GITHUB_TOKEN cannot access Projects v2).
 # Optional repository variable PROJECT_TITLE (default: "<repo> Roadmap").
 
 on:
+  issues:
+    types: [opened, reopened, closed]
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [opened, reopened, ready_for_review, closed]
+  workflow_dispatch:
+    inputs:
+      content_type:
+        description: Issue or pull request
+        required: true
+        default: issue
+        type: choice
+        options: [issue, pull_request]
+      number:
+        description: Issue or pull request number
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  set-date:
+  set-dates:
     runs-on: ubuntu-latest
     env:
       PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
       PROJECT_TITLE: ${{ vars.PROJECT_TITLE }}
     steps:
-      - name: Set project date fields
+      - name: Set project dates
         if: ${{ env.PROJECT_TOKEN != '' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.PROJECT_TOKEN }}
           script: |
             const projectTitle = process.env.PROJECT_TITLE || `${context.repo.repo} Roadmap`;
-            const prNumber = context.payload.pull_request.number;
+            let isIssue = context.eventName === 'issues';
+            let payload = isIssue ? context.payload.issue : context.payload.pull_request;
+            let action = context.payload.action;
 
-            const prData = await github.graphql(
-              `query($owner:String!,$repo:String!,$number:Int!){
-                repository(owner:$owner,name:$repo){
-                  pullRequest(number:$number){
-                    id
-                    createdAt
-                    commits(first:100){ nodes { commit { committedDate } } }
-                  }
-                }
-              }`,
-              { owner: context.repo.owner, repo: context.repo.repo, number: prNumber },
-            );
-            const pr = prData.repository.pullRequest;
+            if (context.eventName === 'workflow_dispatch') {
+              const type = context.payload.inputs.content_type;
+              const number = Number(context.payload.inputs.number);
+              if (type === 'pull_request') {
+                const data = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: number,
+                });
+                isIssue = false;
+                payload = data.data;
+              } else {
+                const data = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: number,
+                });
+                isIssue = true;
+                payload = data.data;
+              }
+              action = 'dispatch';
+            }
 
-            const dates = pr.commits.nodes
-              .map((n) => n.commit.committedDate)
-              .filter(Boolean)
-              .sort();
-            const startDate = (dates[0] || pr.createdAt).slice(0, 10);
-            const endDate = (dates[dates.length - 1] || pr.createdAt).slice(0, 10);
+            if (!payload) {
+              core.info('no issue or pull request payload');
+              return;
+            }
+
+            const contentId = payload.node_id;
+            const startDate = payload.created_at.slice(0, 10);
+            const closeDate = isIssue
+              ? (payload.closed_at ? payload.closed_at.slice(0, 10) : null)
+              : ((payload.merged_at || payload.closed_at || '').slice(0, 10) || null);
 
             const projects = await github.graphql(
-              `query { viewer { projectsV2(first:100) { nodes { id title } } } }`,
+              `query { viewer { projectsV2(first: 100) { nodes { id title } } } }`,
             );
             const project = projects.viewer.projectsV2.nodes.find((p) => p.title === projectTitle);
             if (!project) {
@@ -60,31 +89,70 @@ jobs:
               return;
             }
 
-            const items = await github.graphql(
-              `query($p:ID!){ node(id:$p){ ... on ProjectV2 { items(first:100){ nodes { id content { ... on PullRequest { number } } } } } } }`,
-              { p: project.id },
+            const fields = await github.graphql(
+              `query($id:ID!){ node(id:$id){ ... on ProjectV2 { fields(first: 50){ nodes { ... on ProjectV2FieldCommon { id name dataType } } } } } }`,
+              { id: project.id },
             );
-            let item = items.node.items.nodes.find((i) => i.content && i.content.number === prNumber);
-            if (!item) {
+            const startField = fields.node.fields.nodes.find((f) => f.name === 'Start date');
+            const dateField = fields.node.fields.nodes.find((f) => f.name === 'Date');
+            if (!startField && !dateField) {
+              core.warning('Project has neither Start date nor Date field');
+              return;
+            }
+
+            async function ensureItem(id) {
               const added = await github.graphql(
                 `mutation($p:ID!,$c:ID!){ addProjectV2ItemById(input:{projectId:$p,contentId:$c}){ item { id } } }`,
-                { p: project.id, c: pr.id },
+                { p: project.id, c: id },
               );
-              item = added.addProjectV2ItemById.item;
+              return added.addProjectV2ItemById.item.id;
             }
 
-            const fields = await github.graphql(
-              `query($p:ID!){ node(id:$p){ ... on ProjectV2 { fields(first:50){ nodes { ... on ProjectV2FieldCommon { id name dataType } } } } } }`,
-              { p: project.id },
+            async function setDate(itemId, field, value) {
+              if (!field || !value) return;
+              await github.graphql(
+                `mutation($p:ID!,$i:ID!,$f:ID!,$d:Date!){ updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{date:$d}}){ projectV2Item { id } } }`,
+                { p: project.id, i: itemId, f: field.id, d: value },
+              );
+            }
+
+            async function clearDate(itemId, field) {
+              if (!field) return;
+              try {
+                await github.graphql(
+                  `mutation($p:ID!,$i:ID!,$f:ID!){ clearProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f}){ projectV2Item { id } } }`,
+                  { p: project.id, i: itemId, f: field.id },
+                );
+              } catch (error) {
+                core.info(`could not clear date: ${error.message}`);
+              }
+            }
+
+            const itemId = await ensureItem(contentId);
+            await setDate(itemId, startField, startDate);
+            if (closeDate) {
+              await setDate(itemId, dateField, closeDate);
+            } else {
+              await clearDate(itemId, dateField);
+            }
+
+            core.info(
+              `${isIssue ? 'issue' : 'pull request'} #${payload.number}: start=${startDate}, date=${closeDate || '-'}`,
             );
-            const dateField = fields.node.fields.nodes.find((f) => f.name === 'Date');
-            const startField = fields.node.fields.nodes.find((f) => f.name === 'Start date');
 
-            const mutation = `mutation($p:ID!,$i:ID!,$f:ID!,$d:Date!){ updateProjectV2ItemFieldValue(input:{projectId:$p,itemId:$i,fieldId:$f,value:{date:$d}}){ projectV2Item { id } } }`;
-            if (dateField) {
-              await github.graphql(mutation, { p: project.id, i: item.id, f: dateField.id, d: endDate });
+            if (!isIssue && ['opened', 'reopened', 'closed', 'dispatch'].includes(action)) {
+              const linked = await github.graphql(
+                `query($owner:String!,$repo:String!,$number:Int!){ repository(owner:$owner,name:$repo){ pullRequest(number:$number){ closingIssuesReferences(first: 10){ nodes { id number createdAt closedAt } } } } }`,
+                { owner: context.repo.owner, repo: context.repo.repo, number: payload.number },
+              );
+              const issues = linked.repository.pullRequest.closingIssuesReferences.nodes;
+              for (const issue of issues) {
+                const issueItemId = await ensureItem(issue.id);
+                await setDate(issueItemId, startField, issue.createdAt.slice(0, 10));
+                if (issue.closedAt) {
+                  await setDate(issueItemId, dateField, issue.closedAt.slice(0, 10));
+                } else {
+                  await clearDate(issueItemId, dateField);
+                }
+              }
             }
-            if (startField) {
-              await github.graphql(mutation, { p: project.id, i: item.id, f: startField.id, d: startDate });
-            }
-            core.info(`project dates: ${startDate} -> ${endDate}`);

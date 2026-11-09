@@ -1,0 +1,27 @@
+subjects:
+  data-structures:
+    title: 数据结构与算法
+    title_en: Data Structures and Algorithms
+    chapters:
+      - id: 01-elements-to-integers
+        title: 从元素到整数
+        title_en: From Elements to Integers
+        kus:
+          - ds.01.01.elements-sets
+          - ds.01.02.set-operations
+          - ds.01.03.relations-functions
+          - ds.01.04.natural-numbers
+          - ds.01.05.counting-positional
+          - ds.01.06.integers-twos-complement
+          - ds.01.07.computer-representation
+          - ds.01.08.abstract-representation
+      - id: 02-logic-proof-computation
+        title: 逻辑、证明与计算
+        title_en: Logic, Proof, and Computation
+        kus:
+          - ds.02.01.logic
+          - ds.02.02.proof
+          - ds.02.03.state-invariant
+          - ds.02.04.recursion-induction
+          - ds.02.05.computation
+          - ds.02.06.cost
