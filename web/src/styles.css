@@ -695,6 +695,21 @@ button.primary:hover {
   font-size: 0.9em;
 }
 
+.reader-content .ku-jump {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f1e2c6;
+  color: #6d4f23;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 0.85em;
+  text-decoration: none;
+}
+
+.reader-content .ku-jump:hover {
+  background: #e8d5b0;
+}
+
 .ku-notes {
   margin-top: 2rem;
   padding-top: 1rem;
