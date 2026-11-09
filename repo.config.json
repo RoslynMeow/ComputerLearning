@@ -1,0 +1,14 @@
+{
+  "owner": "RoslynMeow",
+  "repo": "ComputerLearning",
+  "name": "ComputerLearning",
+  "description": "从数学模型到可执行实验的计算机学习库。",
+  "defaultLocale": "zh-CN",
+  "locales": ["zh-CN", "en"],
+  "tier": "full",
+  "projectTitle": "ComputerLearning Roadmap",
+  "requiredChecks": ["check"],
+  "strictChecks": false,
+  "pages": false,
+  "wiki": true
+}

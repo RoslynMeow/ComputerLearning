@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+site/dist/
+site/.astro/
+pdf/out/
+content/generated/
+.astro/
+.vite/
+
+# Generated / local
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Online books / copyrighted PDFs must never be committed
+books/
+*.pdf
+!pdf/out/.gitkeep
