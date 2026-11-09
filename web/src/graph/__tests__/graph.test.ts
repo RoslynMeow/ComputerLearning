@@ -75,14 +75,25 @@ describe("graph utils", () => {
     expect(groups[0].nodes.map((node) => node.order)).toEqual([1, 2]);
   });
 
-  it("lays out nodes, clusters and edges", () => {
+  it("lays out chapters in fixed columns", () => {
     const layout = layoutGraph(nodes, edges);
     expect(Object.keys(layout.nodes)).toHaveLength(nodes.length);
     expect(layout.clusters).toHaveLength(2);
     expect(layout.edges).toHaveLength(2);
     expect(layout.width).toBeGreaterThan(0);
     expect(layout.height).toBeGreaterThan(0);
-    expect(layout.nodes["ds.01.01.elements-sets"].width).toBeGreaterThan(0);
+    expect(layout.nodes["ds.01.01.elements-sets"].x).toBe(
+      layout.nodes["ds.01.02.set-operations"].x,
+    );
+  });
+
+  it("draws adjacent prerequisites as a straight vertical line", () => {
+    const layout = layoutGraph(nodes, edges);
+    const edge = layout.edges[0];
+    expect(edge.kind).toBe("prerequisite");
+    expect(edge.points).toHaveLength(2);
+    expect(edge.points[0].x).toBe(edge.points[1].x);
+    expect(edge.points[0].y).toBeLessThan(edge.points[1].y);
   });
 
   it("builds a book reverse index", () => {
