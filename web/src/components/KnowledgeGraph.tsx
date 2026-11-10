@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import type { Book, GraphData, GraphNode } from "../graph/types";
 import {
   bookTitle,
@@ -27,6 +27,15 @@ export function KnowledgeGraph({
   const [books, setBooks] = useState<Book[]>([]);
   const [bookFilter, setBookFilter] = useState("all");
   const [error, setError] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    scrollLeft: number;
+    scrollTop: number;
+    pointerId: number;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +102,43 @@ export function KnowledgeGraph({
       .join("、");
   }
 
+  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "mouse") return;
+    const target = event.target as Element;
+    if (target.closest(".graph-node")) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    dragRef.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      scrollLeft: canvas.scrollLeft,
+      scrollTop: canvas.scrollTop,
+      pointerId: event.pointerId,
+    };
+    setDragging(true);
+    canvas.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const canvas = canvasRef.current;
+    if (!drag || !canvas) return;
+    canvas.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX);
+    canvas.scrollTop = drag.scrollTop - (event.clientY - drag.startY);
+  }
+
+  function endDrag(_event: PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const canvas = canvasRef.current;
+    if (!drag || !canvas) return;
+    if (canvas.hasPointerCapture(drag.pointerId)) {
+      canvas.releasePointerCapture(drag.pointerId);
+    }
+    dragRef.current = null;
+    setDragging(false);
+  }
+
   return (
     <section className="graph-page">
       <div className="graph-toolbar">
@@ -114,10 +160,18 @@ export function KnowledgeGraph({
           <span className="legend-line solid" /> 先修
           <span className="legend-line dashed" /> 相关
         </span>
+        <span className="graph-hint">拖动查看</span>
       </div>
 
       <div className="graph-layout">
-        <div className="graph-canvas">
+        <div
+          ref={canvasRef}
+          className={`graph-canvas${dragging ? " dragging" : ""}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+        >
           <svg
             viewBox={`0 0 ${layout.width} ${layout.height}`}
             width={layout.width}
