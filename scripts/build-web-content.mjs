@@ -66,7 +66,7 @@ for (const subject of subjects) {
     execFileSync(
       typst,
       ["compile", "--features", "html", "--root", root, webFile, htmlPath],
-      { stdio: ["ignore", "pipe", "inherit"] },
+      { stdio: ["ignore", "pipe", "pipe"] },
     );
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -75,7 +75,8 @@ for (const subject of subjects) {
       );
       process.exit(0);
     }
-    throw error;
+    console.error(String(error.stderr || error.message));
+    process.exit(1);
   }
 
   const html = readFileSync(htmlPath, "utf8");

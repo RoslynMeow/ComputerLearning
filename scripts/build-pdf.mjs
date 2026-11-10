@@ -47,7 +47,7 @@ for (const subject of subjects) {
   console.log(`[pdf] ${subject} -> ${output}`);
   try {
     execFileSync(typst, ["compile", "--root", root, main, output], {
-      stdio: "inherit",
+      stdio: ["ignore", "pipe", "pipe"],
     });
   } catch (error) {
     if (error.code === "ENOENT") {
@@ -56,7 +56,8 @@ for (const subject of subjects) {
       );
       process.exit(1);
     }
-    throw error;
+    console.error(String(error.stderr || error.message));
+    process.exit(1);
   }
 
   let kus;
