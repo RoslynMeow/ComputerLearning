@@ -1,3 +1,9 @@
+export type ContentHeading = {
+  id: string;
+  text: string;
+  level: number;
+};
+
 export type ContentKu = {
   id: string;
   title: string;
@@ -6,6 +12,7 @@ export type ContentKu = {
   chapterTitle: string;
   order: number;
   file: string;
+  toc?: ContentHeading[];
 };
 
 export type SubjectContent = {

@@ -27,9 +27,11 @@ npm run build        # production build of the web app
 - Web entry: `content/<subject>/web.typ` (same KU files, simple headings).
 - `npm run content:web` runs Typst HTML export, splits `section.ku` by KU ID, and writes:
   - `web/public/content/<subject>/<kuId>.html`
-  - `web/public/content/<subject>/index.json`
+  - `web/public/content/<subject>/index.json` (KU metadata + per-KU `toc` headings)
   - `web/public/content/typst.css`
 - The web reading page renders these HTML fragments directly; MathML is native.
+- Reading pages use the generated `toc` for the in-page table of contents and
+  highlight the current section while scrolling.
 - PDF is only a download/book artifact; it is no longer embedded in the web app.
 
 ## Project automation

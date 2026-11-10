@@ -29,6 +29,12 @@ function linkJumpIds(html) {
     );
 }
 
+function wrapTables(html) {
+  return html
+    .replace(/<table>/g, '<div class="table-scroll"><table>')
+    .replace(/<\/table>/g, "</table></div>");
+}
+
 const curriculumPath = join(contentDir, "curriculum.yml");
 const curriculum = existsSync(curriculumPath)
   ? parseYaml(readFileSync(curriculumPath, "utf8"))
@@ -124,9 +130,20 @@ for (const subject of subjects) {
       continue;
     }
     const file = `${ku.id}.html`;
+    const toc = [];
+    section.querySelectorAll("h4").forEach((heading, position) => {
+      if (heading.closest?.(".ku-notes")) return;
+      const id = `${ku.id}-s${position + 1}`;
+      heading.setAttribute("id", id);
+      toc.push({
+        id,
+        text: heading.textContent.replace(/\s+/g, " ").trim(),
+        level: 4,
+      });
+    });
     writeFileSync(
       join(subjectOutDir, file),
-      `${linkJumpIds(section.innerHTML)}\n`,
+      `${wrapTables(linkJumpIds(section.innerHTML))}\n`,
       "utf8",
     );
     kus.push({
@@ -137,6 +154,7 @@ for (const subject of subjects) {
       chapterTitle: chapterTitles.get(ku.chapter) ?? ku.chapter,
       order: ku.order,
       file: `/content/${subject}/${file}`,
+      toc,
     });
   }
 
