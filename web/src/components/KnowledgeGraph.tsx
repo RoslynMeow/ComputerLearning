@@ -16,6 +16,14 @@ type Props = {
   onOpenExercise: (id: string) => void;
 };
 
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 2.5;
+const ZOOM_STEP = 0.2;
+
+function clampZoom(value: number): number {
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(value * 100) / 100));
+}
+
 export function KnowledgeGraph({
   selectedKuId,
   onSelectKu,
@@ -28,13 +36,19 @@ export function KnowledgeGraph({
   const [bookFilter, setBookFilter] = useState("all");
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const suppressClickRef = useRef(false);
+  const zoomRef = useRef(1);
+  const pendingScrollRef = useRef<{ left: number; top: number } | null>(null);
   const dragRef = useRef<{
     startX: number;
     startY: number;
     scrollLeft: number;
     scrollTop: number;
     pointerId: number;
+    active: boolean;
+    nodeId: string | null;
   } | null>(null);
 
   useEffect(() => {
@@ -75,6 +89,32 @@ export function KnowledgeGraph({
     [graph],
   );
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    function handleWheel(event: WheelEvent) {
+      event.preventDefault();
+      const factor = Math.exp(-event.deltaY * 0.0015);
+      applyZoom(zoomRef.current * factor, {
+        clientX: event.clientX,
+        clientY: event.clientY,
+      });
+    }
+
+    canvas.addEventListener("wheel", handleWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", handleWheel);
+  }, [graph]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const pending = pendingScrollRef.current;
+    if (!canvas || !pending) return;
+    canvas.scrollLeft = pending.left;
+    canvas.scrollTop = pending.top;
+    pendingScrollRef.current = null;
+  }, [zoom]);
+
   if (error) {
     return (
       <section className="player">
@@ -102,21 +142,72 @@ export function KnowledgeGraph({
       .join("、");
   }
 
-  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== "mouse") return;
-    const target = event.target as Element;
-    if (target.closest(".graph-node")) return;
+  function applyZoom(
+    next: number,
+    anchor?: { clientX: number; clientY: number },
+  ) {
+    const canvas = canvasRef.current;
+    const current = zoomRef.current;
+    const target = clampZoom(next);
+    if (!canvas || target === current) return;
+
+    if (anchor) {
+      const rect = canvas.getBoundingClientRect();
+      const offsetX = anchor.clientX - rect.left;
+      const offsetY = anchor.clientY - rect.top;
+      const contentX = canvas.scrollLeft + offsetX;
+      const contentY = canvas.scrollTop + offsetY;
+      const ratio = target / current;
+      pendingScrollRef.current = {
+        left: contentX * ratio - offsetX,
+        top: contentY * ratio - offsetY,
+      };
+    }
+
+    zoomRef.current = target;
+    setZoom(target);
+  }
+
+  function zoomBy(delta: number) {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    applyZoom(zoomRef.current + delta, {
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2,
+    });
+  }
+
+  function resetZoom() {
+    zoomRef.current = 1;
+    pendingScrollRef.current = { left: 0, top: 0 };
+    setZoom(1);
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.scrollLeft = 0;
+      canvas.scrollTop = 0;
+    }
+  }
+
+  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "touch") return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const node = (event.target as Element).closest?.(".graph-node");
     dragRef.current = {
       startX: event.clientX,
       startY: event.clientY,
       scrollLeft: canvas.scrollLeft,
       scrollTop: canvas.scrollTop,
       pointerId: event.pointerId,
+      active: false,
+      nodeId: node?.getAttribute("data-node-id") ?? null,
     };
-    setDragging(true);
-    canvas.setPointerCapture(event.pointerId);
+    try {
+      canvas.setPointerCapture(event.pointerId);
+    } catch {
+      // Synthetic events and some input devices cannot be captured.
+    }
     event.preventDefault();
   }
 
@@ -124,14 +215,34 @@ export function KnowledgeGraph({
     const drag = dragRef.current;
     const canvas = canvasRef.current;
     if (!drag || !canvas) return;
-    canvas.scrollLeft = drag.scrollLeft - (event.clientX - drag.startX);
-    canvas.scrollTop = drag.scrollTop - (event.clientY - drag.startY);
+
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+    if (!drag.active) {
+      if (Math.hypot(deltaX, deltaY) < 4) return;
+      drag.active = true;
+      setDragging(true);
+    }
+
+    canvas.scrollLeft = drag.scrollLeft - deltaX;
+    canvas.scrollTop = drag.scrollTop - deltaY;
+    event.preventDefault();
   }
 
   function endDrag(_event: PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
     const canvas = canvasRef.current;
     if (!drag || !canvas) return;
+
+    if (drag.active) {
+      suppressClickRef.current = true;
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+    } else if (drag.nodeId) {
+      onSelectKu(drag.nodeId);
+    }
+
     if (canvas.hasPointerCapture(drag.pointerId)) {
       canvas.releasePointerCapture(drag.pointerId);
     }
@@ -156,29 +267,32 @@ export function KnowledgeGraph({
             ))}
           </select>
         </label>
-        <span className="graph-legend">
-          <span className="legend-line solid" /> 先修
-          <span className="legend-line dashed" /> 相关
+        <span className="graph-toolbar-row">
+          <span className="graph-legend">
+            <span className="legend-line solid" /> 先修
+            <span className="legend-line dashed" /> 相关
+          </span>
+          <span className="graph-hint">拖动查看 · 支持缩放</span>
         </span>
-        <span className="graph-hint">拖动查看</span>
       </div>
 
       <div className="graph-layout">
-        <div
-          ref={canvasRef}
-          className={`graph-canvas${dragging ? " dragging" : ""}`}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-        >
-          <svg
-            viewBox={`0 0 ${layout.width} ${layout.height}`}
-            width={layout.width}
-            height={layout.height}
-            role="img"
-            aria-label="知识点先修关系图"
+        <div className="graph-canvas-wrap">
+          <div
+            ref={canvasRef}
+            className={`graph-canvas${dragging ? " dragging" : ""}`}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
           >
+            <svg
+              viewBox={`0 0 ${layout.width} ${layout.height}`}
+              width={layout.width * zoom}
+              height={layout.height * zoom}
+              role="img"
+              aria-label="知识点先修关系图"
+            >
             <defs>
               <marker
                 id="arrow"
@@ -233,8 +347,12 @@ export function KnowledgeGraph({
               return (
                 <g
                   key={node.id}
+                  data-node-id={node.id}
                   className={`graph-node${isSelected ? " selected" : ""}${isHighlighted ? " highlight" : ""}`}
-                  onClick={() => onSelectKu(node.id)}
+                  onClick={() => {
+                    if (suppressClickRef.current) return;
+                    onSelectKu(node.id);
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
@@ -262,6 +380,29 @@ export function KnowledgeGraph({
               );
             })}
           </svg>
+          </div>
+          <div className="graph-zoom-controls" role="group" aria-label="缩放">
+            <button
+              type="button"
+              onClick={() => zoomBy(-ZOOM_STEP)}
+              disabled={zoom <= MIN_ZOOM}
+              aria-label="缩小"
+            >
+              −
+            </button>
+            <span>{Math.round(zoom * 100)}%</span>
+            <button
+              type="button"
+              onClick={() => zoomBy(ZOOM_STEP)}
+              disabled={zoom >= MAX_ZOOM}
+              aria-label="放大"
+            >
+              +
+            </button>
+            <button type="button" onClick={resetZoom}>
+              重置
+            </button>
+          </div>
         </div>
 
         <aside className="graph-details">

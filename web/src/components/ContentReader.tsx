@@ -1,31 +1,134 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import type { SubjectContent } from "../data/types";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
+import type { ContentKu, SubjectContent } from "../data/types";
 
 type Props = {
-  subject: SubjectContent;
+  subjects: SubjectContent[];
   activeKuId: string | null;
   onKuChange: (id: string) => void;
 };
 
-function initialTocOpen(): boolean {
-  if (typeof window === "undefined") return true;
-  return window.matchMedia("(min-width: 901px)").matches;
+type TocChapter = {
+  id: string;
+  title: string;
+  kus: ContentKu[];
+};
+
+type TocBook = {
+  id: string;
+  title: string;
+  subject: SubjectContent;
+  chapters: TocChapter[];
+};
+
+function buildTocBooks(subjects: SubjectContent[]): TocBook[] {
+  return subjects.map((subject) => {
+    const chapters: TocChapter[] = [];
+    for (const ku of subject.kus) {
+      let chapter = chapters.find((item) => item.id === ku.chapter);
+      if (!chapter) {
+        chapter = { id: ku.chapter, title: ku.chapterTitle, kus: [] };
+        chapters.push(chapter);
+      }
+      chapter.kus.push(ku);
+    }
+    return { id: subject.subject, title: subject.title, subject, chapters };
+  });
 }
 
-export function ContentReader({ subject, activeKuId, onKuChange }: Props) {
+function initialTocOpen(): boolean {
+  if (typeof window === "undefined") return true;
+  return window.matchMedia("(min-width: 761px)").matches;
+}
+
+const TOC_WIDTH_KEY = "computer-learning.toc-width";
+const DEFAULT_TOC_WIDTH = 25;
+const MIN_TOC_WIDTH = 15;
+const MAX_TOC_WIDTH = 50;
+
+function clampTocWidth(value: number): number {
+  return Math.min(MAX_TOC_WIDTH, Math.max(MIN_TOC_WIDTH, Math.round(value * 10) / 10));
+}
+
+function initialTocWidth(): number {
+  if (typeof window === "undefined") return DEFAULT_TOC_WIDTH;
+  const stored = Number(window.localStorage.getItem(TOC_WIDTH_KEY));
+  return Number.isFinite(stored) && stored > 0
+    ? clampTocWidth(stored)
+    : DEFAULT_TOC_WIDTH;
+}
+
+export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
   const [html, setHtml] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
   const [tocOpen, setTocOpen] = useState(initialTocOpen);
+  const [tocWidth, setTocWidth] = useState(initialTocWidth);
+  const [resizing, setResizing] = useState(false);
+  const [openBooks, setOpenBooks] = useState<Set<string>>(() => new Set());
+  const [openChapters, setOpenChapters] = useState<Set<string>>(() => new Set());
   const contentRef = useRef<HTMLElement | null>(null);
+  const layoutRef = useRef<HTMLDivElement | null>(null);
+  const resizingRef = useRef(false);
 
-  const activeKu = useMemo(
-    () => subject.kus.find((ku) => ku.id === activeKuId) ?? subject.kus[0],
-    [subject, activeKuId],
-  );
-  const index = activeKu ? subject.kus.indexOf(activeKu) : 0;
+  const tocBooks = useMemo(() => buildTocBooks(subjects), [subjects]);
+
+  const activeEntry = useMemo(() => {
+    for (const book of tocBooks) {
+      for (const chapter of book.chapters) {
+        const ku = chapter.kus.find((item) => item.id === activeKuId);
+        if (ku) return { book, chapter, ku };
+      }
+    }
+    const firstBook = tocBooks[0];
+    const firstChapter = firstBook?.chapters[0];
+    const firstKu = firstChapter?.kus[0];
+    if (firstBook && firstChapter && firstKu) {
+      return { book: firstBook, chapter: firstChapter, ku: firstKu };
+    }
+    return null;
+  }, [tocBooks, activeKuId]);
+
+  const activeKu = activeEntry?.ku ?? null;
   const toc = activeKu?.toc ?? [];
+  const activeChapterKey = activeEntry
+    ? `${activeEntry.book.id}:${activeEntry.chapter.id}`
+    : null;
+
+  useEffect(() => {
+    if (!activeEntry || !activeChapterKey) return;
+    setOpenBooks((current) => {
+      if (current.has(activeEntry.book.id)) return current;
+      const next = new Set(current);
+      next.add(activeEntry.book.id);
+      return next;
+    });
+    setOpenChapters((current) => {
+      if (current.has(activeChapterKey)) return current;
+      const next = new Set(current);
+      next.add(activeChapterKey);
+      return next;
+    });
+  }, [activeChapterKey, activeEntry?.book.id]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try {
+        window.localStorage.setItem(TOC_WIDTH_KEY, String(tocWidth));
+      } catch {
+        // Storage may be unavailable in private browsing.
+      }
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [tocWidth]);
 
   useEffect(() => {
     if (!activeKu) return;
@@ -41,7 +144,8 @@ export function ContentReader({ subject, activeKuId, onKuChange }: Props) {
         if (cancelled) return;
         setHtml(text);
         setLoading(false);
-        contentRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+        const article = contentRef.current;
+        if (article) article.scrollTop = 0;
       })
       .catch((reason) => {
         if (cancelled) return;
@@ -75,7 +179,11 @@ export function ContentReader({ subject, activeKuId, onKuChange }: Props) {
           );
         if (visible[0]) setActiveHeading(visible[0].target.id);
       },
-      { rootMargin: "-88px 0px -62% 0px", threshold: 0 },
+      {
+        root: contentRef.current,
+        rootMargin: "-8px 0px -68% 0px",
+        threshold: 0,
+      },
     );
 
     headings.forEach((heading) => observer.observe(heading));
@@ -86,86 +194,181 @@ export function ContentReader({ subject, activeKuId, onKuChange }: Props) {
     return <p className="reader-status">没有可展示的内容。</p>;
   }
 
-  function go(delta: number) {
-    const next = subject.kus[Math.min(subject.kus.length - 1, Math.max(0, index + delta))];
-    if (next) onKuChange(next.id);
-  }
-
   function jumpTo(id: string) {
     const element = document.getElementById(id);
     if (!element) return;
     element.scrollIntoView({ behavior: "smooth", block: "start" });
     setActiveHeading(id);
-    if (window.matchMedia("(max-width: 900px)").matches) {
+    if (window.matchMedia("(max-width: 760px)").matches) {
       setTocOpen(false);
+    }
+  }
+
+  function setBookState(id: string, open: boolean) {
+    setOpenBooks((current) => {
+      const next = new Set(current);
+      if (open) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function setChapterState(key: string, open: boolean) {
+    setOpenChapters((current) => {
+      const next = new Set(current);
+      if (open) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }
+
+  function onResizerPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0) return;
+    resizingRef.current = true;
+    setResizing(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }
+
+  function onResizerPointerMove(event: PointerEvent<HTMLDivElement>) {
+    if (!resizingRef.current) return;
+    const layout = layoutRef.current;
+    if (!layout) return;
+    const rect = layout.getBoundingClientRect();
+    setTocWidth(clampTocWidth(((event.clientX - rect.left) / rect.width) * 100));
+  }
+
+  function onResizerPointerUp(event: PointerEvent<HTMLDivElement>) {
+    if (!resizingRef.current) return;
+    resizingRef.current = false;
+    setResizing(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  function onResizerKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      const delta = event.key === "ArrowLeft" ? -2 : 2;
+      setTocWidth((current) => clampTocWidth(current + delta));
+    }
+    if (event.key === "Home") {
+      event.preventDefault();
+      setTocWidth(DEFAULT_TOC_WIDTH);
     }
   }
 
   return (
     <section className="reader">
-      <div className="reader-toolbar">
-        <label>
-          知识点
-          <select
-            value={activeKu.id}
-            onChange={(event) => onKuChange(event.target.value)}
-          >
-            {subject.kus.map((ku) => (
-              <option key={ku.id} value={ku.id}>
-                {ku.title}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="reader-pager">
-          <button type="button" disabled={index <= 0} onClick={() => go(-1)}>
-            上一节
-          </button>
-          <button
-            type="button"
-            disabled={index >= subject.kus.length - 1}
-            onClick={() => go(1)}
-          >
-            下一节
-          </button>
-        </div>
-
-        <a className="reader-pdf" href={subject.pdf} target="_blank" rel="noreferrer">
-          下载 PDF
-        </a>
-      </div>
-
-      <p className="reader-breadcrumb">{activeKu.chapterTitle}</p>
-
       {loading && <p className="reader-status">正在加载内容…</p>}
       {error && <p className="reader-status error">内容加载失败：{error}</p>}
 
-      <div className="reader-layout">
-        {toc.length > 0 && (
-          <aside className="reader-toc" aria-label="本节目录">
-            <details
-              open={tocOpen}
-              onToggle={(event) => setTocOpen(event.currentTarget.open)}
-            >
-              <summary>本节目录</summary>
-              <ol>
-                {toc.map((item) => (
-                  <li key={item.id}>
-                    <button
-                      type="button"
-                      className={item.id === activeHeading ? "active" : ""}
-                      aria-current={item.id === activeHeading ? "true" : undefined}
-                      onClick={() => jumpTo(item.id)}
-                    >
-                      {item.text}
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            </details>
-          </aside>
-        )}
+      <div
+        ref={layoutRef}
+        className="reader-layout"
+        style={{ "--toc-width": `${tocWidth}%` } as CSSProperties}
+      >
+        <aside className="reader-toc" aria-label="目录">
+          <details
+            className="reader-toc-shell"
+            open={tocOpen}
+            onToggle={(event) => setTocOpen(event.currentTarget.open)}
+          >
+            <summary>目录</summary>
+            <div className="reader-toc-tree">
+              {tocBooks.map((book) => (
+                <details
+                  key={book.id}
+                  className="reader-toc-book"
+                  open={openBooks.has(book.id)}
+                  onToggle={(event) => setBookState(book.id, event.currentTarget.open)}
+                >
+                  <summary>{book.title}</summary>
+                  <a
+                    className="reader-toc-pdf"
+                    href={book.subject.pdf}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    下载 PDF
+                  </a>
+                  {book.chapters.map((chapter) => {
+                    const chapterKey = `${book.id}:${chapter.id}`;
+                    return (
+                      <details
+                        key={chapterKey}
+                        className="reader-toc-chapter"
+                        open={openChapters.has(chapterKey)}
+                        onToggle={(event) =>
+                          setChapterState(chapterKey, event.currentTarget.open)
+                        }
+                      >
+                        <summary>{chapter.title}</summary>
+                        <ul className="reader-toc-kus">
+                          {chapter.kus.map((ku) => (
+                            <li key={ku.id}>
+                              <button
+                                type="button"
+                                className={ku.id === activeKu.id ? "active" : ""}
+                                aria-current={ku.id === activeKu.id ? "true" : undefined}
+                                onClick={() => {
+                                  onKuChange(ku.id);
+                                  if (window.matchMedia("(max-width: 760px)").matches) {
+                                    setTocOpen(false);
+                                  }
+                                }}
+                              >
+                                <span className="reader-toc-order">{ku.order}.</span>
+                                {ku.title}
+                              </button>
+                              {ku.id === activeKu.id && toc.length > 0 && (
+                                <ul className="reader-toc-sections">
+                                  {toc.map((item) => (
+                                    <li key={item.id}>
+                                      <button
+                                        type="button"
+                                        className={item.id === activeHeading ? "active" : ""}
+                                        aria-current={
+                                          item.id === activeHeading ? "true" : undefined
+                                        }
+                                        onClick={() => jumpTo(item.id)}
+                                      >
+                                        {item.text}
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    );
+                  })}
+                </details>
+              ))}
+            </div>
+          </details>
+        </aside>
+
+        <div
+          className={`reader-resizer${resizing ? " dragging" : ""}`}
+          role="separator"
+          aria-label="调整目录宽度"
+          aria-orientation="vertical"
+          aria-valuemin={MIN_TOC_WIDTH}
+          aria-valuemax={MAX_TOC_WIDTH}
+          aria-valuenow={Math.round(tocWidth)}
+          tabIndex={0}
+          title="拖动调整目录宽度，双击恢复默认"
+          onPointerDown={onResizerPointerDown}
+          onPointerMove={onResizerPointerMove}
+          onPointerUp={onResizerPointerUp}
+          onPointerCancel={onResizerPointerUp}
+          onDoubleClick={() => setTocWidth(DEFAULT_TOC_WIDTH)}
+          onKeyDown={onResizerKeyDown}
+        />
 
         <article
           ref={contentRef}

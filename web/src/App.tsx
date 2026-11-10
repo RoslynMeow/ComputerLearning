@@ -21,12 +21,13 @@ function parseHash(): Route {
   if (view === "exercise") return { view: "exercise", id };
   if (view === "lab") return { view: "lab", id };
   if (view === "graph") return { view: "graph", id };
-  return { view: "read", id };
+  if (view === "read") return { view: "read", id };
+  return { view: "graph", id: null };
 }
 
 export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash());
-  const [subjectContent, setSubjectContent] = useState<SubjectContent | null>(null);
+  const [subjects, setSubjects] = useState<SubjectContent[] | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,11 +45,15 @@ export default function App() {
         if (!manifestResponse.ok) throw new Error("内容未生成");
         const manifestData = (await manifestResponse.json()) as ContentManifest[];
         if (cancelled) return;
-        if (!manifestData[0]) throw new Error("没有可展示的科目");
-        const indexResponse = await fetch(manifestData[0].index);
-        if (!indexResponse.ok) throw new Error("内容索引未生成");
-        const indexData = (await indexResponse.json()) as SubjectContent;
-        if (!cancelled) setSubjectContent(indexData);
+        if (!manifestData.length) throw new Error("没有可展示的科目");
+        const indexData = await Promise.all(
+          manifestData.map(async (manifest) => {
+            const response = await fetch(manifest.index);
+            if (!response.ok) throw new Error("内容索引未生成");
+            return (await response.json()) as SubjectContent;
+          }),
+        );
+        if (!cancelled) setSubjects(indexData);
       } catch (reason) {
         if (!cancelled) {
           setContentError(reason instanceof Error ? reason.message : String(reason));
@@ -84,17 +89,10 @@ export default function App() {
   }
 
   return (
-    <div className="app">
+    <div className={`app view-${route.view}`}>
       <header className="topbar">
         <div className="brand">数据结构与算法</div>
         <nav className="tabs" aria-label="视图">
-        <button
-          type="button"
-          className={route.view === "read" ? "tab active" : "tab"}
-          onClick={() => navigate("read", route.view === "read" ? route.id : null)}
-        >
-          阅读
-        </button>
         <button
           type="button"
           className={route.view === "graph" ? "tab active" : "tab"}
@@ -103,6 +101,13 @@ export default function App() {
           }
         >
           知识图谱
+        </button>
+        <button
+          type="button"
+          className={route.view === "read" ? "tab active" : "tab"}
+          onClick={() => navigate("read", route.view === "read" ? route.id : null)}
+        >
+          阅读
         </button>
         <button
           type="button"
@@ -146,9 +151,9 @@ export default function App() {
                 <code> web/public/content</code>。
               </p>
             </section>
-          ) : subjectContent ? (
+          ) : subjects ? (
             <ContentReader
-              subject={subjectContent}
+              subjects={subjects}
               activeKuId={activeKuId}
               onKuChange={(id) => navigate("read", id)}
             />

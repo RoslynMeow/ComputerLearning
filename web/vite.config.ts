@@ -70,6 +70,28 @@ function contentWatcher(): Plugin {
   };
 }
 
+const tunnelMode =
+  process.env.VITE_TUNNEL === "1" || process.env.VITE_TUNNEL === "true";
+
+const allowedHosts = ["devp.electronicute.cn"];
+
 export default defineConfig({
   plugins: [react(), contentWatcher()],
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: true,
+    allowedHosts: tunnelMode ? true : allowedHosts,
+    ...(tunnelMode
+      ? {
+          hmr: { protocol: "wss" as const, clientPort: 443 },
+        }
+      : {}),
+  },
+  preview: {
+    host: true,
+    port: 4173,
+    strictPort: true,
+    allowedHosts: tunnelMode ? true : allowedHosts,
+  },
 });
