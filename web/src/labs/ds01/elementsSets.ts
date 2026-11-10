@@ -6,7 +6,8 @@ export const elementsSetsLab: Lab = {
   id: "lab.elements-sets",
   ku: "ds.01.01.elements-sets",
   title: "集合与位向量",
-  description: "改变全集大小和掩码，观察集合、位向量与幂集大小如何一起变化。",
+  description: "点击元素，把它加入或移出集合 A；观察集合、位向量和幂集大小如何一起变化。",
+  custom: "set-builder",
   parameters: [
     { kind: "number", name: "size", label: "全集大小", min: 4, max: 8, step: 1, default: 6 },
     { kind: "number", name: "mask", label: "掩码", min: 0, max: 255, step: 1, default: 21 },
@@ -23,7 +24,7 @@ export const elementsSetsLab: Lab = {
     ).join("");
 
     return {
-      summary: `全集 U = {0, ..., ${size - 1}}，掩码 ${mask} 对应集合 ${formatSet(values)}。`,
+      summary: `全集 U = {0, ..., ${size - 1}}，A = ${formatSet(values)}。`,
       metrics: [
         { label: "位向量", value: bits },
         { label: "集合大小", value: String(values.length) },

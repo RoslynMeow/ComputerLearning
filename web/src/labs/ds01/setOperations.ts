@@ -28,7 +28,8 @@ export const setOperationsLab: Lab = {
   id: "lab.set-operations",
   ku: "ds.01.02.set-operations",
   title: "集合运算",
-  description: "切换并、交、差、对称差，观察结果集合与位运算如何对应。",
+  description: "在 A / B 两行点击元素，切换并、交、差、对称差，观察结果集合和位运算如何对应。",
+  custom: "set-operations",
   parameters: [
     { kind: "number", name: "size", label: "全集大小", min: 4, max: 7, step: 1, default: 5 },
     { kind: "number", name: "a", label: "A 的掩码", min: 0, max: 127, step: 1, default: 21 },

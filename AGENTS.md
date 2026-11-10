@@ -44,6 +44,8 @@ npm run build        # production build of the web app
 - Manual backfill:
   `gh workflow run project-date.yml --ref dev -f content_type=issue -f number=<N>`
   or `-f content_type=pull_request`.
+- Project views: `List` / `Roadmap` / `Board` are filtered to `is:issue`;
+  `CI / PR` is filtered to `is:pr`.
 
 ## Content conventions
 
@@ -75,6 +77,7 @@ npm run build        # production build of the web app
 - Lab ID matches the KU metadata `labs` entry, e.g. `lab.elements-sets`.
 - `run(params)` returns `{ summary, metrics, trace, steps }`.
 - Labs are deterministic and parameter-driven; `ExperimentPlayer` renders the controls.
+- Custom click-based labs live in `web/src/components/labs/` and are selected by `Lab.custom`.
 - Add a test in `web/src/labs/__tests__/` for every new lab.
 - The web reading page/tabs link to the first lab for the active KU.
 

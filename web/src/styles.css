@@ -374,6 +374,165 @@ button.primary:hover {
   background: #fff;
 }
 
+.lab-interactive {
+  margin-top: 16px;
+}
+
+.lab-play-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7f2e8;
+}
+
+.lab-play-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lab-help {
+  color: #8a8172;
+  font-size: 0.85rem;
+}
+
+.lab-elements,
+.lab-set-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.lab-element {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid #d8d0c2;
+  border-radius: 50%;
+  background: #fff;
+  color: #8a8172;
+  font-size: 0.95rem;
+}
+
+.lab-element.selected {
+  border-color: #6d4f23;
+  background: #e8d5b0;
+  color: #5a401c;
+  font-weight: 700;
+}
+
+.lab-bits {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.lab-bit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d8d0c2;
+  border-radius: 6px;
+  font-family: "Cascadia Mono", Consolas, monospace;
+}
+
+.lab-bit.on {
+  border-color: #8a6a3b;
+  background: #f1e2c6;
+  color: #5a401c;
+}
+
+.lab-bit.off {
+  background: #fff;
+  color: #8a8172;
+}
+
+.lab-bit-caption {
+  margin: 6px 0 0;
+  color: #8a8172;
+  font-size: 0.78rem;
+}
+
+.lab-set-editor {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7f2e8;
+}
+
+.lab-set-row {
+  margin: 6px 0;
+}
+
+.lab-set-label {
+  width: 24px;
+  color: #5f5545;
+  font-weight: 700;
+}
+
+.lab-operation-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.lab-chip {
+  padding: 7px 10px;
+  border: 1px solid #d8d0c2;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.82rem;
+}
+
+.lab-chip.active {
+  border-color: #6d4f23;
+  background: #e8d5b0;
+  color: #5a401c;
+  font-weight: 700;
+}
+
+.lab-relation-grid {
+  display: grid;
+  grid-template-columns: 32px repeat(3, 46px);
+  gap: 6px;
+  align-items: center;
+  margin: 14px 0;
+}
+
+.lab-relation-col,
+.lab-relation-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a8172;
+  font-size: 0.8rem;
+}
+
+.lab-cell {
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid #d8d0c2;
+  border-radius: 8px;
+  background: #fff;
+  color: #8a8172;
+  font-family: "Cascadia Mono", Consolas, monospace;
+}
+
+.lab-cell.on {
+  border-color: #8a6a3b;
+  background: #e8d5b0;
+  color: #5a401c;
+  font-weight: 700;
+}
+
 .lab-summary {
   margin: 18px 0;
   padding: 14px 16px;

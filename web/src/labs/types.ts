@@ -42,5 +42,6 @@ export type Lab = {
   title: string;
   description: string;
   parameters: LabParameter[];
+  custom?: "set-builder" | "set-operations" | "relation-matrix";
   run: (params: LabParams) => LabResult;
 };

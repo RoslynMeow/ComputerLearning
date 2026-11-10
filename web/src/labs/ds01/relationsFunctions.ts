@@ -13,7 +13,8 @@ export const relationsFunctionsLab: Lab = {
   id: "lab.relations-functions",
   ku: "ds.01.03.relations-functions",
   title: "关系矩阵与性质",
-  description: "用 9 位掩码构造 3×3 关系矩阵，实时检查自反、对称、传递、偏序。",
+  description: "点击 3×3 格子添加或删除有序对，观察自反、对称、传递、偏序如何变化。",
+  custom: "relation-matrix",
   parameters: [
     { kind: "number", name: "mask", label: "关系掩码（9 位）", min: 0, max: 511, step: 1, default: 73 },
   ],
