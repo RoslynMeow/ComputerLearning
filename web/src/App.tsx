@@ -84,12 +84,10 @@ export default function App() {
   }
 
   return (
-    <main className="app">
-      <header className="site-header">
-        <h1>数据结构与算法</h1>
-      </header>
-
-      <nav className="tabs" aria-label="视图">
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">数据结构与算法</div>
+        <nav className="tabs" aria-label="视图">
         <button
           type="button"
           className={route.view === "read" ? "tab active" : "tab"}
@@ -134,8 +132,10 @@ export default function App() {
         >
           动态练习
         </button>
-      </nav>
+        </nav>
+      </header>
 
+      <main className="content">
       {route.view === "read" && (
         <>
           {contentError ? (
@@ -211,6 +211,7 @@ export default function App() {
           <ExercisePlayer key={activeExercise.id} exercise={activeExercise} />
         </>
       )}
-    </main>
+      </main>
+    </div>
   );
 }

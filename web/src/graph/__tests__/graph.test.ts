@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { GraphNode } from "../types";
+import type { GraphEdge, GraphNode } from "../types";
 import {
   bookTitle,
   buildBookIndex,
   buildNodeIndex,
-  edgePath,
   groupByChapter,
-  layoutNodes,
+  layoutGraph,
+  pointsPath,
 } from "../utils";
 
 const nodes: GraphNode[] = [
@@ -54,6 +54,19 @@ const nodes: GraphNode[] = [
   },
 ];
 
+const edges: GraphEdge[] = [
+  {
+    from: "ds.01.01.elements-sets",
+    to: "ds.01.02.set-operations",
+    kind: "prerequisite",
+  },
+  {
+    from: "ds.01.02.set-operations",
+    to: "ds.02.01.logic",
+    kind: "related",
+  },
+];
+
 describe("graph utils", () => {
   it("groups by chapter and sorts by order", () => {
     const groups = groupByChapter(nodes);
@@ -62,15 +75,25 @@ describe("graph utils", () => {
     expect(groups[0].nodes.map((node) => node.order)).toEqual([1, 2]);
   });
 
-  it("lays out nodes in chapter columns", () => {
-    const layout = layoutNodes(nodes);
-    const first = layout.positions["ds.01.01.elements-sets"];
-    const second = layout.positions["ds.01.02.set-operations"];
-    const third = layout.positions["ds.02.01.logic"];
-    expect(first.x).toBeLessThan(third.x);
-    expect(second.y).toBeGreaterThan(first.y);
+  it("lays out chapters in fixed columns", () => {
+    const layout = layoutGraph(nodes, edges);
+    expect(Object.keys(layout.nodes)).toHaveLength(nodes.length);
+    expect(layout.clusters).toHaveLength(2);
+    expect(layout.edges).toHaveLength(2);
     expect(layout.width).toBeGreaterThan(0);
     expect(layout.height).toBeGreaterThan(0);
+    expect(layout.nodes["ds.01.01.elements-sets"].x).toBe(
+      layout.nodes["ds.01.02.set-operations"].x,
+    );
+  });
+
+  it("draws adjacent prerequisites as a straight vertical line", () => {
+    const layout = layoutGraph(nodes, edges);
+    const edge = layout.edges[0];
+    expect(edge.kind).toBe("prerequisite");
+    expect(edge.points).toHaveLength(2);
+    expect(edge.points[0].x).toBe(edge.points[1].x);
+    expect(edge.points[0].y).toBeLessThan(edge.points[1].y);
   });
 
   it("builds a book reverse index", () => {
@@ -89,14 +112,10 @@ describe("graph utils", () => {
     expect(bookTitle([{ id: "rosen", title: "Rosen", author: [] }], "rosen")).toBe("Rosen");
   });
 
-  it("draws an edge path between two nodes", () => {
-    const layout = layoutNodes(nodes);
-    const path = edgePath(
-      "ds.01.01.elements-sets",
-      "ds.01.02.set-operations",
-      layout.positions,
-    );
+  it("turns routed edge points into an SVG path", () => {
+    const layout = layoutGraph(nodes, edges);
+    const path = pointsPath(layout.edges[0].points);
     expect(path.startsWith("M ")).toBe(true);
-    expect(path.includes("C ")).toBe(true);
+    expect(path.includes("L ")).toBe(true);
   });
 });

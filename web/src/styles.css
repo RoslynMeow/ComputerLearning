@@ -19,24 +19,51 @@ input {
 }
 
 .app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: rgba(244, 241, 234, 0.96);
+  border-bottom: 1px solid #d8d0c2;
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 48px;
+}
+
+.content > .player,
+.content > .lab-player,
+.content > .exercise-list {
+  width: 100%;
   max-width: 980px;
-  margin: 0 auto;
-  padding: 32px 20px 64px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.site-header {
-  max-width: 720px;
-  margin-bottom: 24px;
-}
-
-.site-header h1 {
-  margin: 4px 0 8px;
-  font-size: 2rem;
-}
-
-.site-header p {
+.topbar .tabs {
+  flex: 1;
   margin: 0;
-  color: #555;
+  border-bottom: 0;
 }
 
 .eyebrow {
@@ -219,8 +246,23 @@ button.primary:hover {
 }
 
 @media (max-width: 560px) {
-  .app {
-    padding: 20px 12px 48px;
+  .topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .topbar .tabs {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .brand {
+    font-size: 1rem;
+  }
+
+  .content {
+    padding: 16px 12px 32px;
   }
 
   .player {
@@ -404,6 +446,26 @@ button.primary:hover {
   padding-left: 1.2rem;
 }
 
+.graph-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.graph-stats {
+  color: #8a8172;
+  font-size: 0.85rem;
+}
+
+.graph-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .graph-header {
   display: flex;
   flex-wrap: wrap;
@@ -443,14 +505,38 @@ button.primary:hover {
   white-space: nowrap;
 }
 
+.graph-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a8172;
+  font-size: 0.8rem;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 22px;
+  height: 0;
+  border-top: 2px solid #8a6a3b;
+}
+
+.legend-line.dashed {
+  border-top-color: #b9ae9c;
+  border-top-style: dashed;
+}
+
 .graph-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 .graph-canvas {
+  height: 100%;
+  min-height: 0;
   overflow: auto;
   padding: 12px;
   border: 1px solid #d8d0c2;
@@ -462,8 +548,14 @@ button.primary:hover {
   display: block;
 }
 
-.graph-chapter {
-  font-size: 14px;
+.graph-cluster rect {
+  fill: #f8f3e9;
+  stroke: #e2d8c8;
+  stroke-width: 1;
+}
+
+.graph-cluster-title {
+  font-size: 13px;
   font-weight: 700;
   fill: #5f5545;
 }
@@ -471,15 +563,20 @@ button.primary:hover {
 .graph-edge {
   fill: none;
   stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .graph-edge.prerequisite {
   stroke: #8a6a3b;
+  stroke-width: 1.7;
 }
 
 .graph-edge.related {
-  stroke: #b9ae9c;
+  stroke: #c9c0b2;
+  stroke-width: 1.2;
   stroke-dasharray: 4 4;
+  stroke-opacity: 0.7;
 }
 
 .graph-node {
@@ -519,6 +616,8 @@ button.primary:hover {
 }
 
 .graph-details {
+  max-height: 100%;
+  overflow: auto;
   padding: 18px;
   border: 1px solid #d8d0c2;
   border-radius: 14px;
@@ -575,6 +674,14 @@ button.primary:hover {
   .graph-layout {
     grid-template-columns: 1fr;
   }
+
+  .graph-canvas {
+    height: 60vh;
+  }
+
+  .graph-details {
+    max-height: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -584,6 +691,9 @@ button.primary:hover {
 }
 
 .reader {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
   padding: 22px 24px 28px;
   border: 1px solid #d8d0c2;
   border-radius: 14px;
@@ -693,6 +803,21 @@ button.primary:hover {
   background: #f3eee4;
   font-family: "Cascadia Mono", Consolas, monospace;
   font-size: 0.9em;
+}
+
+.reader-content .ku-jump {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #f1e2c6;
+  color: #6d4f23;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 0.85em;
+  text-decoration: none;
+}
+
+.reader-content .ku-jump:hover {
+  background: #e8d5b0;
 }
 
 .ku-notes {

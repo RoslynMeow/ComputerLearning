@@ -4,8 +4,8 @@ import {
   bookTitle,
   buildBookIndex,
   buildNodeIndex,
-  edgePath,
-  layoutNodes,
+  layoutGraph,
+  pointsPath,
 } from "../graph/utils";
 
 type Props = {
@@ -26,7 +26,6 @@ export function KnowledgeGraph({
   const [graph, setGraph] = useState<GraphData | null>(null);
   const [books, setBooks] = useState<Book[]>([]);
   const [bookFilter, setBookFilter] = useState("all");
-  const [showRelated, setShowRelated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,7 +53,10 @@ export function KnowledgeGraph({
     };
   }, []);
 
-  const layout = useMemo(() => (graph ? layoutNodes(graph.nodes) : null), [graph]);
+  const layout = useMemo(
+    () => (graph ? layoutGraph(graph.nodes, graph.edges) : null),
+    [graph],
+  );
   const nodeIndex = useMemo(
     () => (graph ? buildNodeIndex(graph.nodes) : ({} as Record<string, GraphNode>)),
     [graph],
@@ -84,9 +86,6 @@ export function KnowledgeGraph({
   const highlightIds = bookFilter === "all" ? [] : bookIndex[bookFilter] ?? [];
   const booksWithNodes = books.filter((book) => (bookIndex[book.id]?.length ?? 0) > 0);
   const prerequisiteEdges = graph.edges.filter((edge) => edge.kind === "prerequisite");
-  const visibleEdges = graph.edges.filter(
-    (edge) => edge.kind === "prerequisite" || showRelated,
-  );
 
   function relatedTitles(ids: string[]): string {
     return ids
@@ -96,15 +95,10 @@ export function KnowledgeGraph({
 
   return (
     <section className="graph-page">
-      <header className="graph-header">
-        <div>
-          <p className="eyebrow">knowledge graph</p>
-          <h2>知识图谱与书目反查</h2>
-          <p>
-            {graph.nodes.length} 个知识点，{prerequisiteEdges.length} 条先修边，
-            {booksWithNodes.length} 本被引用的书。
-          </p>
-        </div>
+      <div className="graph-toolbar">
+        <span className="graph-stats">
+          {graph.nodes.length} 个知识点 · {prerequisiteEdges.length} 条先修 · {booksWithNodes.length} 本书
+        </span>
         <label className="graph-filter">
           按书目反查
           <select value={bookFilter} onChange={(event) => setBookFilter(event.target.value)}>
@@ -116,15 +110,11 @@ export function KnowledgeGraph({
             ))}
           </select>
         </label>
-        <label className="graph-toggle">
-          <input
-            type="checkbox"
-            checked={showRelated}
-            onChange={(event) => setShowRelated(event.target.checked)}
-          />
-          显示相关边
-        </label>
-      </header>
+        <span className="graph-legend">
+          <span className="legend-line solid" /> 先修
+          <span className="legend-line dashed" /> 相关
+        </span>
+      </div>
 
       <div className="graph-layout">
         <div className="graph-canvas">
@@ -149,18 +139,31 @@ export function KnowledgeGraph({
               </marker>
             </defs>
 
-            {layout.groups.map((group) => (
-              <text key={group.id} className="graph-chapter" x={group.x} y={28}>
-                {group.title}
-              </text>
+            {layout.clusters.map((cluster) => (
+              <g key={cluster.id} className="graph-cluster">
+                <rect
+                  x={cluster.x}
+                  y={cluster.y}
+                  width={cluster.width}
+                  height={cluster.height}
+                  rx={16}
+                />
+                <text
+                  x={cluster.x + 16}
+                  y={cluster.y + 24}
+                  className="graph-cluster-title"
+                >
+                  {cluster.title}
+                </text>
+              </g>
             ))}
 
-            {visibleEdges.map((edge) => {
-              const path = edgePath(edge.from, edge.to, layout.positions);
+            {layout.edges.map((edge, index) => {
+              const path = pointsPath(edge.points);
               if (!path) return null;
               return (
                 <path
-                  key={`${edge.kind}-${edge.from}-${edge.to}`}
+                  key={`${edge.kind}-${edge.from}-${edge.to}-${index}`}
                   d={path}
                   className={edge.kind === "prerequisite" ? "graph-edge prerequisite" : "graph-edge related"}
                   markerEnd={edge.kind === "prerequisite" ? "url(#arrow)" : undefined}
@@ -169,7 +172,7 @@ export function KnowledgeGraph({
             })}
 
             {graph.nodes.map((node) => {
-              const position = layout.positions[node.id];
+              const position = layout.nodes[node.id];
               if (!position) return null;
               const isSelected = selected?.id === node.id;
               const isHighlighted = highlightIds.includes(node.id);

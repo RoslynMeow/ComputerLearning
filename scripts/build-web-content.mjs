@@ -17,6 +17,18 @@ const outDir = join(root, "web", "public", "content");
 const pdfOutDir = join(root, "pdf", "out");
 const typst = process.env.TYPST_BIN || "typst";
 
+function linkJumpIds(html) {
+  return html
+    .replace(
+      /<code>(lab\.[^<]+)<\/code>/g,
+      '<a class="ku-jump" href="#/lab/$1">$1</a>',
+    )
+    .replace(
+      /<code>(ex\.[^<]+)<\/code>/g,
+      '<a class="ku-jump" href="#/exercise/$1">$1</a>',
+    );
+}
+
 const curriculumPath = join(contentDir, "curriculum.yml");
 const curriculum = existsSync(curriculumPath)
   ? parseYaml(readFileSync(curriculumPath, "utf8"))
@@ -111,7 +123,11 @@ for (const subject of subjects) {
       continue;
     }
     const file = `${ku.id}.html`;
-    writeFileSync(join(subjectOutDir, file), `${section.innerHTML}\n`, "utf8");
+    writeFileSync(
+      join(subjectOutDir, file),
+      `${linkJumpIds(section.innerHTML)}\n`,
+      "utf8",
+    );
     kus.push({
       id: ku.id,
       title: ku.title,
