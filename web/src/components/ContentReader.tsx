@@ -344,7 +344,7 @@ export function ContentReader({
         <aside className="reader-toc" aria-label="目录">
           <div className="reader-nav">
             <a className="reader-nav-brand" href="#/read">
-              数据结构与算法
+              计算机学习
             </a>
             <div className="reader-nav-links">
               <a href={`#/graph/${activeKu.id}`} title="知识图谱">

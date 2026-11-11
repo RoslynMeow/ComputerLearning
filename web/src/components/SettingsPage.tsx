@@ -3,6 +3,8 @@ import { faGear } from "@fortawesome/free-solid-svg-icons/faGear";
 import { faRotateLeft } from "@fortawesome/free-solid-svg-icons/faRotateLeft";
 import {
   DEFAULT_READING_SETTINGS,
+  FONT_OPTIONS,
+  type FontFamilyKey,
   type ReadingSettings,
 } from "../settings";
 
@@ -20,7 +22,7 @@ export function SettingsPage({ settings, onChange, onReset }: Props) {
         <h2>
           <FontAwesomeIcon icon={faGear} /> 设置
         </h2>
-        <p>调整阅读正文的字号和行距，设置会保存在当前浏览器。</p>
+        <p>调整界面字体、阅读字号和行距，设置会保存在当前浏览器。</p>
       </header>
 
       <div className="settings-field">
@@ -61,10 +63,36 @@ export function SettingsPage({ settings, onChange, onReset }: Props) {
         <p className="settings-hint">范围 1.40–2.20，默认 1.75。</p>
       </div>
 
+      <div className="settings-field">
+        <label htmlFor="settings-font-family">
+          <span>字体</span>
+        </label>
+        <select
+          id="settings-font-family"
+          value={settings.fontFamily}
+          onChange={(event) =>
+            onChange({
+              ...settings,
+              fontFamily: event.target.value as FontFamilyKey,
+            })
+          }
+        >
+          {Object.entries(FONT_OPTIONS).map(([key, option]) => (
+            <option key={key} value={key}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <p className="settings-hint">
+          使用系统已安装字体；缺失时自动回退到同类的标准字体。
+        </p>
+      </div>
+
       <div className="settings-preview">
         <p className="eyebrow">预览</p>
         <p
           style={{
+            fontFamily: FONT_OPTIONS[settings.fontFamily].stack,
             fontSize: `${settings.fontSize}px`,
             lineHeight: settings.lineHeight,
           }}

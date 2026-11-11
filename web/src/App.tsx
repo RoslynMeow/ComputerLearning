@@ -8,6 +8,7 @@ import { exercises, getExercisesForKu } from "./exercises/registry";
 import { getLabsForKu, labs } from "./labs/registry";
 import {
   DEFAULT_READING_SETTINGS,
+  FONT_OPTIONS,
   loadReadingSettings,
   saveReadingSettings,
   type ReadingSettings,
@@ -114,6 +115,7 @@ export default function App() {
         {
           "--reader-font-size": `${settings.fontSize}px`,
           "--reader-line-height": String(settings.lineHeight),
+          "--app-font-family": FONT_OPTIONS[settings.fontFamily].stack,
         } as CSSProperties
       }
     >

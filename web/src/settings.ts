@@ -1,11 +1,42 @@
+export type FontFamilyKey = "sans" | "serif" | "kai" | "fangsong" | "system";
+
+export const FONT_OPTIONS: Record<
+  FontFamilyKey,
+  { label: string; stack: string }
+> = {
+  sans: {
+    label: "黑体（默认）",
+    stack:
+      '"Noto Sans SC", "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif',
+  },
+  serif: {
+    label: "宋体",
+    stack: '"Noto Serif SC", "Songti SC", SimSun, Georgia, serif',
+  },
+  kai: {
+    label: "楷体",
+    stack: '"KaiTi", "Kaiti SC", STKaiti, "Noto Serif SC", serif',
+  },
+  fangsong: {
+    label: "仿宋",
+    stack: '"FangSong", "FangSong_GB2312", STFangsong, "Noto Serif SC", serif',
+  },
+  system: {
+    label: "系统默认",
+    stack: 'system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif',
+  },
+};
+
 export type ReadingSettings = {
   fontSize: number;
   lineHeight: number;
+  fontFamily: FontFamilyKey;
 };
 
 export const DEFAULT_READING_SETTINGS: ReadingSettings = {
   fontSize: 16,
   lineHeight: 1.75,
+  fontFamily: "sans",
 };
 
 const SETTINGS_KEY = "computer-learning.reading-settings";
@@ -13,6 +44,10 @@ const SETTINGS_KEY = "computer-learning.reading-settings";
 function clamp(value: number, min: number, max: number, fallback: number): number {
   if (!Number.isFinite(value)) return fallback;
   return Math.min(max, Math.max(min, value));
+}
+
+function isFontFamily(value: unknown): value is FontFamilyKey {
+  return typeof value === "string" && value in FONT_OPTIONS;
 }
 
 export function loadReadingSettings(): ReadingSettings {
@@ -29,6 +64,9 @@ export function loadReadingSettings(): ReadingSettings {
         2.2,
         DEFAULT_READING_SETTINGS.lineHeight,
       ),
+      fontFamily: isFontFamily(parsed.fontFamily)
+        ? parsed.fontFamily
+        : DEFAULT_READING_SETTINGS.fontFamily,
     };
   } catch {
     return DEFAULT_READING_SETTINGS;
