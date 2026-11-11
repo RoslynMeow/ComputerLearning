@@ -1,3 +1,5 @@
+import { abstractRepresentation } from "./ds01/abstractRepresentation";
+import { computerRepresentation } from "./ds01/computerRepresentation";
 import { countingPositional } from "./ds01/countingPositional";
 import { elementsSets } from "./ds01/elementsSets";
 import { integersTwosComplement } from "./ds01/integersTwosComplement";
@@ -13,6 +15,8 @@ export const exercises: Exercise[] = [
   naturalNumbers,
   countingPositional,
   integersTwosComplement,
+  computerRepresentation,
+  abstractRepresentation,
 ];
 
 export const exercisesByKu: Record<string, Exercise[]> = {};
