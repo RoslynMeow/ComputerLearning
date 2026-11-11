@@ -1,8 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ActivityWorkbench } from "./components/ActivityWorkbench";
-import { ContentReader } from "./components/ContentReader";
-import { ExercisePlayer } from "./components/ExercisePlayer";
-import { ExperimentPlayer } from "./components/ExperimentPlayer";
+import { useEffect, useState } from "react";
+import { ContentReader, type ActivityKind } from "./components/ContentReader";
 import { KnowledgeGraph } from "./components/KnowledgeGraph";
 import type { ContentManifest, SubjectContent } from "./data/types";
 import { exercises, getExercisesForKu } from "./exercises/registry";
@@ -30,9 +27,6 @@ export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash());
   const [subjects, setSubjects] = useState<SubjectContent[] | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
-  const [lastActivity, setLastActivity] = useState<{ view: "lab" | "exercise"; id: string }>(
-    () => ({ view: "lab", id: labs[0].id }),
-  );
 
   useEffect(() => {
     const sync = () => setRoute(parseHash());
@@ -71,56 +65,19 @@ export default function App() {
     };
   }, []);
 
-  const activityEntries = useMemo(
-    () => [
-      ...labs.map((lab) => ({
-        id: lab.id,
-        title: lab.title,
-        ku: lab.ku,
-        kind: "lab" as const,
-        lab,
-      })),
-      ...exercises.map((exercise) => ({
-        id: exercise.id,
-        title: exercise.title,
-        ku: exercise.ku,
-        kind: "exercise" as const,
-        exercise,
-      })),
-    ],
-    [],
-  );
+  const activityRoute = route.view === "lab" || route.view === "exercise";
+  const routeActivity =
+    route.view === "lab"
+      ? labs.find((lab) => lab.id === route.id) ?? null
+      : route.view === "exercise"
+        ? exercises.find((exercise) => exercise.id === route.id) ?? null
+        : null;
 
-  const activeActivity = useMemo(() => {
-    if (route.view === "lab") {
-      return (
-        activityEntries.find((entry) => entry.kind === "lab" && entry.id === route.id) ??
-        activityEntries.find((entry) => entry.kind === "lab") ??
-        activityEntries[0]
-      );
-    }
-    if (route.view === "exercise") {
-      return (
-        activityEntries.find(
-          (entry) => entry.kind === "exercise" && entry.id === route.id,
-        ) ??
-        activityEntries.find((entry) => entry.kind === "exercise") ??
-        activityEntries[0]
-      );
-    }
-    return activityEntries[0];
-  }, [activityEntries, route.view, route.id]);
-
-  useEffect(() => {
-    if (route.view === "lab" && route.id) {
-      setLastActivity({ view: "lab", id: route.id });
-    } else if (route.view === "exercise" && route.id) {
-      setLastActivity({ view: "exercise", id: route.id });
-    }
-  }, [route.view, route.id]);
-
-  const activeKuId = route.view === "read" ? route.id : null;
-  const activityActive = route.view === "lab" || route.view === "exercise";
+  const readingKuId = route.view === "read" ? route.id : routeActivity?.ku ?? null;
+  const initialActivity: ActivityKind | null =
+    route.view === "lab" ? "lab" : route.view === "exercise" ? "exercise" : null;
+  const readingActive = route.view === "read" || activityRoute;
+  const activeKuId = readingKuId;
 
   function navigate(view: View, id: string | null) {
     const next = id ? `#/${view}/${id}` : `#/${view}`;
@@ -132,7 +89,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app view-${route.view}`}>
+    <div className={`app view-${readingActive ? "read" : route.view}`}>
       <header className="topbar">
         <div className="brand">数据结构与算法</div>
         <nav className="tabs" aria-label="视图">
@@ -147,29 +104,16 @@ export default function App() {
         </button>
         <button
           type="button"
-          className={route.view === "read" ? "tab active" : "tab"}
-          onClick={() => navigate("read", route.view === "read" ? route.id : null)}
+          className={readingActive ? "tab active" : "tab"}
+          onClick={() => navigate("read", readingKuId)}
         >
           阅读
-        </button>
-        <button
-          type="button"
-          className={activityActive ? "tab active" : "tab"}
-          onClick={() => {
-            if (activityActive) return;
-            const target = lastActivity.id
-              ? lastActivity
-              : { view: "lab" as const, id: labs[0].id };
-            navigate(target.view, target.id);
-          }}
-        >
-          实验与练习
         </button>
         </nav>
       </header>
 
       <main className="content">
-      {route.view === "read" && (
+      {readingActive && (
         <>
           {contentError ? (
             <section className="player">
@@ -183,6 +127,7 @@ export default function App() {
             <ContentReader
               subjects={subjects}
               activeKuId={activeKuId}
+              initialActivity={initialActivity}
               onKuChange={(id) => navigate("read", id)}
             />
           ) : (
@@ -205,25 +150,6 @@ export default function App() {
             if (exercise) navigate("exercise", exercise.id);
           }}
         />
-      )}
-
-      {activityActive && activeActivity && (
-        <ActivityWorkbench
-          label="实验与练习"
-          items={activityEntries}
-          subjects={subjects ?? []}
-          activeId={activeActivity.id}
-          onSelect={(item) => navigate(item.kind === "lab" ? "lab" : "exercise", item.id)}
-        >
-          {activeActivity.kind === "lab" ? (
-            <ExperimentPlayer key={activeActivity.id} lab={activeActivity.lab} />
-          ) : (
-            <ExercisePlayer
-              key={activeActivity.id}
-              exercise={activeActivity.exercise}
-            />
-          )}
-        </ActivityWorkbench>
       )}
       </main>
     </div>

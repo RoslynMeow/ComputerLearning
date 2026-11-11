@@ -1581,6 +1581,90 @@ button.primary:hover {
   font-weight: 700;
 }
 
+.reader-toc-activity {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed #e2d8c8;
+}
+
+.reader-toc-activity button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #6d4f23;
+}
+
+.reader-toc-badge {
+  margin-left: auto;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #f1e2c6;
+  color: #6d4f23;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.reader-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reader-activity-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2d8c8;
+}
+
+.reader-activity-header h3 {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+}
+
+.reader-activity-switch {
+  display: flex;
+  gap: 6px;
+}
+
+.reader-activity-switch button {
+  padding: 6px 10px;
+  border: 1px solid #e2d8c8;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.82rem;
+}
+
+.reader-activity-switch button.active {
+  border-color: #6d4f23;
+  background: #e8d5b0;
+  color: #5a401c;
+  font-weight: 700;
+}
+
+.reader-activity-switch span {
+  margin-left: 3px;
+  color: #8a8172;
+  font-size: 0.72rem;
+}
+
+.reader-activity-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reader-activity .player,
+.reader-activity .lab-player {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
 .app.view-read .reader-layout {
   flex: 1;
   min-height: 0;

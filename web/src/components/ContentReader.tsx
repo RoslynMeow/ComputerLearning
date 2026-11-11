@@ -8,10 +8,17 @@ import {
   type PointerEvent,
 } from "react";
 import type { ContentKu, SubjectContent } from "../data/types";
+import { getExercisesForKu } from "../exercises/registry";
+import { getLabsForKu } from "../labs/registry";
+import { ExercisePlayer } from "./ExercisePlayer";
+import { ExperimentPlayer } from "./ExperimentPlayer";
+
+export type ActivityKind = "lab" | "exercise";
 
 type Props = {
   subjects: SubjectContent[];
   activeKuId: string | null;
+  initialActivity: ActivityKind | null;
   onKuChange: (id: string) => void;
 };
 
@@ -65,11 +72,17 @@ function initialTocWidth(): number {
     : DEFAULT_TOC_WIDTH;
 }
 
-export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
+export function ContentReader({
+  subjects,
+  activeKuId,
+  initialActivity,
+  onKuChange,
+}: Props) {
   const [html, setHtml] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeHeading, setActiveHeading] = useState<string | null>(null);
+  const [activityKind, setActivityKind] = useState<ActivityKind | null>(null);
   const [tocOpen, setTocOpen] = useState(initialTocOpen);
   const [tocWidth, setTocWidth] = useState(initialTocWidth);
   const [resizing, setResizing] = useState(false);
@@ -78,6 +91,7 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
   const contentRef = useRef<HTMLElement | null>(null);
   const layoutRef = useRef<HTMLDivElement | null>(null);
   const resizingRef = useRef(false);
+  const pendingHeadingRef = useRef<string | null>(null);
 
   const tocBooks = useMemo(() => buildTocBooks(subjects), [subjects]);
 
@@ -99,6 +113,9 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
 
   const activeKu = activeEntry?.ku ?? null;
   const toc = activeKu?.toc ?? [];
+  const labs = activeKu ? getLabsForKu(activeKu.id) : [];
+  const exercises = activeKu ? getExercisesForKu(activeKu.id) : [];
+  const hasActivities = labs.length + exercises.length > 0;
   const activeChapterKey = activeEntry
     ? `${activeEntry.book.id}:${activeEntry.chapter.id}`
     : null;
@@ -118,6 +135,30 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
       return next;
     });
   }, [activeChapterKey, activeEntry?.book.id]);
+
+  useEffect(() => {
+    if (!initialActivity) {
+      setActivityKind(null);
+      return;
+    }
+    if (initialActivity === "lab") {
+      setActivityKind(labs.length > 0 ? "lab" : null);
+    } else {
+      setActivityKind(exercises.length > 0 ? "exercise" : null);
+    }
+  }, [activeKu?.id, initialActivity]);
+
+  useEffect(() => {
+    if (activityKind || !pendingHeadingRef.current) return;
+    const id = pendingHeadingRef.current;
+    pendingHeadingRef.current = null;
+    requestAnimationFrame(() => {
+      const element = document.getElementById(id);
+      if (!element) return;
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveHeading(id);
+    });
+  }, [activityKind]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -158,6 +199,10 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
   }, [activeKu?.id]);
 
   useEffect(() => {
+    if (activityKind) {
+      setActiveHeading(null);
+      return;
+    }
     if (!toc.length) {
       setActiveHeading(null);
       return;
@@ -188,20 +233,44 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
 
     headings.forEach((heading) => observer.observe(heading));
     return () => observer.disconnect();
-  }, [html, toc]);
+  }, [html, toc, activityKind]);
 
   if (!activeKu) {
     return <p className="reader-status">没有可展示的内容。</p>;
   }
 
   function jumpTo(id: string) {
-    const element = document.getElementById(id);
-    if (!element) return;
-    element.scrollIntoView({ behavior: "smooth", block: "start" });
-    setActiveHeading(id);
+    if (activityKind) {
+      pendingHeadingRef.current = id;
+      setActivityKind(null);
+    } else {
+      const element = document.getElementById(id);
+      if (!element) return;
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveHeading(id);
+    }
     if (window.matchMedia("(max-width: 760px)").matches) {
       setTocOpen(false);
     }
+  }
+
+  function toggleActivity() {
+    if (activityKind) {
+      setActivityKind(null);
+      return;
+    }
+    const next: ActivityKind = labs.length > 0 ? "lab" : "exercise";
+    setActivityKind(next);
+    setActiveHeading(null);
+    contentRef.current?.scrollTo({ top: 0 });
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      setTocOpen(false);
+    }
+  }
+
+  function switchActivity(kind: ActivityKind) {
+    setActivityKind(kind);
+    contentRef.current?.scrollTo({ top: 0 });
   }
 
   function setBookState(id: string, open: boolean) {
@@ -313,6 +382,7 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
                                 className={ku.id === activeKu.id ? "active" : ""}
                                 aria-current={ku.id === activeKu.id ? "true" : undefined}
                                 onClick={() => {
+                                  setActivityKind(null);
                                   onKuChange(ku.id);
                                   if (window.matchMedia("(max-width: 760px)").matches) {
                                     setTocOpen(false);
@@ -322,15 +392,21 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
                                 <span className="reader-toc-order">{ku.order}.</span>
                                 {ku.title}
                               </button>
-                              {ku.id === activeKu.id && toc.length > 0 && (
+                              {ku.id === activeKu.id && (toc.length > 0 || hasActivities) && (
                                 <ul className="reader-toc-sections">
                                   {toc.map((item) => (
                                     <li key={item.id}>
                                       <button
                                         type="button"
-                                        className={item.id === activeHeading ? "active" : ""}
+                                        className={
+                                          !activityKind && item.id === activeHeading
+                                            ? "active"
+                                            : ""
+                                        }
                                         aria-current={
-                                          item.id === activeHeading ? "true" : undefined
+                                          !activityKind && item.id === activeHeading
+                                            ? "true"
+                                            : undefined
                                         }
                                         onClick={() => jumpTo(item.id)}
                                       >
@@ -338,6 +414,21 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
                                       </button>
                                     </li>
                                   ))}
+                                  {hasActivities && (
+                                    <li className="reader-toc-activity">
+                                      <button
+                                        type="button"
+                                        className={activityKind ? "active" : ""}
+                                        aria-current={activityKind ? "true" : undefined}
+                                        onClick={toggleActivity}
+                                      >
+                                        实验与练习
+                                        <span className="reader-toc-badge">
+                                          {labs.length + exercises.length}
+                                        </span>
+                                      </button>
+                                    </li>
+                                  )}
                                 </ul>
                               )}
                             </li>
@@ -370,11 +461,59 @@ export function ContentReader({ subjects, activeKuId, onKuChange }: Props) {
           onKeyDown={onResizerKeyDown}
         />
 
-        <article
-          ref={contentRef}
-          className="reader-content"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        {activityKind ? (
+          <div
+            ref={(element) => {
+              contentRef.current = element;
+            }}
+            className="reader-content reader-activity"
+          >
+            <header className="reader-activity-header">
+              <div>
+                <p className="eyebrow">{activeKu.chapterTitle} · 实验与练习</p>
+                <h3>{activeKu.title}</h3>
+              </div>
+              {labs.length > 0 && exercises.length > 0 && (
+                <div
+                  className="reader-activity-switch"
+                  role="group"
+                  aria-label="切换实验和练习"
+                >
+                  <button
+                    type="button"
+                    className={activityKind === "lab" ? "active" : ""}
+                    onClick={() => switchActivity("lab")}
+                  >
+                    实验 <span>{labs.length}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={activityKind === "exercise" ? "active" : ""}
+                    onClick={() => switchActivity("exercise")}
+                  >
+                    练习 <span>{exercises.length}</span>
+                  </button>
+                </div>
+              )}
+            </header>
+
+            <div className="reader-activity-body">
+              {activityKind === "lab"
+                ? labs.map((lab) => <ExperimentPlayer key={lab.id} lab={lab} />)
+                : exercises.map((exercise) => (
+                    <ExercisePlayer key={exercise.id} exercise={exercise} />
+                  ))}
+            </div>
+          </div>
+        ) : (
+          <article
+            ref={(element) => {
+              contentRef.current = element;
+            }}
+            className="reader-content"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        )}
       </div>
     </section>
   );
