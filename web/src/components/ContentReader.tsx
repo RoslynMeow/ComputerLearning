@@ -7,6 +7,9 @@ import {
   type KeyboardEvent,
   type PointerEvent,
 } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGear } from "@fortawesome/free-solid-svg-icons/faGear";
+import { faSitemap } from "@fortawesome/free-solid-svg-icons/faSitemap";
 import type { ContentKu, SubjectContent } from "../data/types";
 import { getExercisesForKu } from "../exercises/registry";
 import { getLabsForKu } from "../labs/registry";
@@ -339,6 +342,21 @@ export function ContentReader({
         style={{ "--toc-width": `${tocWidth}%` } as CSSProperties}
       >
         <aside className="reader-toc" aria-label="目录">
+          <div className="reader-nav">
+            <a className="reader-nav-brand" href="#/read">
+              数据结构与算法
+            </a>
+            <div className="reader-nav-links">
+              <a href={`#/graph/${activeKu.id}`} title="知识图谱">
+                <FontAwesomeIcon icon={faSitemap} />
+                <span>知识图谱</span>
+              </a>
+              <a href="#/settings" title="设置">
+                <FontAwesomeIcon icon={faGear} />
+                <span>设置</span>
+              </a>
+            </div>
+          </div>
           <details
             className="reader-toc-shell"
             open={tocOpen}

@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { AppRail } from "./components/AppRail";
 import { ContentReader, type ActivityKind } from "./components/ContentReader";
 import { KnowledgeGraph } from "./components/KnowledgeGraph";
+import { SettingsPage } from "./components/SettingsPage";
 import type { ContentManifest, SubjectContent } from "./data/types";
 import { exercises, getExercisesForKu } from "./exercises/registry";
 import { getLabsForKu, labs } from "./labs/registry";
+import {
+  DEFAULT_READING_SETTINGS,
+  loadReadingSettings,
+  saveReadingSettings,
+  type ReadingSettings,
+} from "./settings";
 
-type View = "read" | "graph" | "exercise" | "lab";
+type View = "read" | "graph" | "exercise" | "lab" | "settings";
 
 type Route = {
   view: View;
@@ -20,6 +28,7 @@ function parseHash(): Route {
   if (view === "lab") return { view: "lab", id };
   if (view === "graph") return { view: "graph", id };
   if (view === "read") return { view: "read", id };
+  if (view === "settings") return { view: "settings", id: null };
   return { view: "graph", id: null };
 }
 
@@ -27,6 +36,12 @@ export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash());
   const [subjects, setSubjects] = useState<SubjectContent[] | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
+  const [settings, setSettings] = useState<ReadingSettings>(loadReadingSettings);
+  const [lastReadId, setLastReadId] = useState<string | null>(null);
+
+  useEffect(() => {
+    saveReadingSettings(settings);
+  }, [settings]);
 
   useEffect(() => {
     const sync = () => setRoute(parseHash());
@@ -79,6 +94,10 @@ export default function App() {
   const readingActive = route.view === "read" || activityRoute;
   const activeKuId = readingKuId;
 
+  useEffect(() => {
+    if (readingKuId) setLastReadId(readingKuId);
+  }, [readingKuId]);
+
   function navigate(view: View, id: string | null) {
     const next = id ? `#/${view}/${id}` : `#/${view}`;
     if (window.location.hash === next) {
@@ -89,29 +108,15 @@ export default function App() {
   }
 
   return (
-    <div className={`app view-${readingActive ? "read" : route.view}`}>
-      <header className="topbar">
-        <div className="brand">数据结构与算法</div>
-        <nav className="tabs" aria-label="视图">
-        <button
-          type="button"
-          className={route.view === "graph" ? "tab active" : "tab"}
-          onClick={() =>
-            navigate("graph", route.view === "graph" ? route.id : activeKuId)
-          }
-        >
-          知识图谱
-        </button>
-        <button
-          type="button"
-          className={readingActive ? "tab active" : "tab"}
-          onClick={() => navigate("read", readingKuId)}
-        >
-          阅读
-        </button>
-        </nav>
-      </header>
-
+    <div
+      className={`app view-${readingActive ? "read" : route.view}`}
+      style={
+        {
+          "--reader-font-size": `${settings.fontSize}px`,
+          "--reader-line-height": String(settings.lineHeight),
+        } as CSSProperties
+      }
+    >
       <main className="content">
       {readingActive && (
         <>
@@ -137,19 +142,45 @@ export default function App() {
       )}
 
       {route.view === "graph" && (
-        <KnowledgeGraph
-          selectedKuId={route.id}
-          onSelectKu={(id) => navigate("graph", id)}
-          onOpenContent={(id) => navigate("read", id)}
-          onOpenLab={(kuId) => {
-            const lab = getLabsForKu(kuId)[0];
-            if (lab) navigate("lab", lab.id);
-          }}
-          onOpenExercise={(kuId) => {
-            const exercise = getExercisesForKu(kuId)[0];
-            if (exercise) navigate("exercise", exercise.id);
-          }}
-        />
+        <div className="standalone-layout">
+          <AppRail
+            active="graph"
+            readHref={route.id ? `#/read/${route.id}` : "#/read"}
+            graphHref={route.id ? `#/graph/${route.id}` : "#/graph"}
+          />
+          <div className="standalone-main">
+            <KnowledgeGraph
+              selectedKuId={route.id}
+              onSelectKu={(id) => navigate("graph", id)}
+              onOpenContent={(id) => navigate("read", id)}
+              onOpenLab={(kuId) => {
+                const lab = getLabsForKu(kuId)[0];
+                if (lab) navigate("lab", lab.id);
+              }}
+              onOpenExercise={(kuId) => {
+                const exercise = getExercisesForKu(kuId)[0];
+                if (exercise) navigate("exercise", exercise.id);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {route.view === "settings" && (
+        <div className="standalone-layout">
+          <AppRail
+            active="settings"
+            readHref={lastReadId ? `#/read/${lastReadId}` : "#/read"}
+            graphHref="#/graph"
+          />
+          <div className="standalone-main">
+            <SettingsPage
+              settings={settings}
+              onChange={setSettings}
+              onReset={() => setSettings(DEFAULT_READING_SETTINGS)}
+            />
+          </div>
+        </div>
       )}
       </main>
     </div>
