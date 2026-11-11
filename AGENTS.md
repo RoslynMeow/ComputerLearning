@@ -36,18 +36,17 @@ npm run build        # production build of the web app
 
 ## Project automation
 
-- `.github/workflows/project-date.yml` sets `Start date` / `Date` from lifecycle:
+- Project items are **Issues only**. Pull requests are implementation records and are
+  not added to the Project.
+- `.github/workflows/project-date.yml` sets `Start date` / `Date` from issue lifecycle:
   - Issue opened → `Start date` = issue created date
   - Issue closed → `Date` = issue closed date
-  - PR opened → `Start date` = PR created date
-  - PR merged/closed → `Date` = merge/close date
-  - Linked issue (`Closes #N`) is updated alongside the PR
+  - Issue reopened → `Date` cleared
 - Requires the `PROJECT_TOKEN` repository secret (classic PAT, `repo` + `project`).
 - Manual backfill:
-  `gh workflow run project-date.yml --ref dev -f content_type=issue -f number=<N>`
-  or `-f content_type=pull_request`.
-- Project views: `List` / `Roadmap` / `Board` are filtered to `is:issue`;
-  `CI / PR` is filtered to `is:pr`.
+  `gh workflow run project-date.yml --ref dev -f number=<N>`
+- Project views: `List` / `Roadmap` / `Board` are all filtered to `is:issue`;
+  there is no PR view.
 
 ## Content conventions
 
