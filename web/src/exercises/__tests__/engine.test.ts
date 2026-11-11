@@ -31,6 +31,15 @@ for (const exercise of exercises) {
       }
     });
 
+    it("keeps the answer inside the choice list", () => {
+      for (let seed = 1; seed <= 30; seed += 1) {
+        const instance = exercise.generate(mulberry32(seed));
+        if (instance.choices) {
+          expect(instance.choices).toContain(instance.answer);
+        }
+      }
+    });
+
     it("rejects a clearly wrong answer", () => {
       const instance = exercise.generate(mulberry32(7));
       expect(exercise.check("__wrong__", instance)).toBe(false);

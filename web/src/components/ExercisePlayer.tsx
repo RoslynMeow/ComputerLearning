@@ -69,7 +69,10 @@ export function ExercisePlayer({ exercise }: Props) {
         <input
           value={input}
           inputMode={inputMode}
-          placeholder={instance.placeholder ?? "在这里输入答案"}
+          placeholder={
+            instance.placeholder ??
+            (instance.choices ? "点击上面的选项" : "在这里输入答案")
+          }
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") submit();
