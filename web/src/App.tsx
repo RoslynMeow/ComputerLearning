@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ActivityWorkbench } from "./components/ActivityWorkbench";
 import { ContentReader } from "./components/ContentReader";
 import { ExercisePlayer } from "./components/ExercisePlayer";
 import { ExperimentPlayer } from "./components/ExperimentPlayer";
@@ -29,6 +30,9 @@ export default function App() {
   const [route, setRoute] = useState<Route>(() => parseHash());
   const [subjects, setSubjects] = useState<SubjectContent[] | null>(null);
   const [contentError, setContentError] = useState<string | null>(null);
+  const [lastActivity, setLastActivity] = useState<{ view: "lab" | "exercise"; id: string }>(
+    () => ({ view: "lab", id: labs[0].id }),
+  );
 
   useEffect(() => {
     const sync = () => setRoute(parseHash());
@@ -67,17 +71,56 @@ export default function App() {
     };
   }, []);
 
-  const activeExercise = useMemo(() => {
-    if (route.view !== "exercise") return exercises[0];
-    return exercises.find((exercise) => exercise.id === route.id) ?? exercises[0];
-  }, [route]);
+  const activityEntries = useMemo(
+    () => [
+      ...labs.map((lab) => ({
+        id: lab.id,
+        title: lab.title,
+        ku: lab.ku,
+        kind: "lab" as const,
+        lab,
+      })),
+      ...exercises.map((exercise) => ({
+        id: exercise.id,
+        title: exercise.title,
+        ku: exercise.ku,
+        kind: "exercise" as const,
+        exercise,
+      })),
+    ],
+    [],
+  );
 
-  const activeLab = useMemo(() => {
-    if (route.view !== "lab") return labs[0];
-    return labs.find((lab) => lab.id === route.id) ?? labs[0];
-  }, [route]);
+  const activeActivity = useMemo(() => {
+    if (route.view === "lab") {
+      return (
+        activityEntries.find((entry) => entry.kind === "lab" && entry.id === route.id) ??
+        activityEntries.find((entry) => entry.kind === "lab") ??
+        activityEntries[0]
+      );
+    }
+    if (route.view === "exercise") {
+      return (
+        activityEntries.find(
+          (entry) => entry.kind === "exercise" && entry.id === route.id,
+        ) ??
+        activityEntries.find((entry) => entry.kind === "exercise") ??
+        activityEntries[0]
+      );
+    }
+    return activityEntries[0];
+  }, [activityEntries, route.view, route.id]);
+
+  useEffect(() => {
+    if (route.view === "lab" && route.id) {
+      setLastActivity({ view: "lab", id: route.id });
+    } else if (route.view === "exercise" && route.id) {
+      setLastActivity({ view: "exercise", id: route.id });
+    }
+  }, [route.view, route.id]);
 
   const activeKuId = route.view === "read" ? route.id : null;
+  const activityActive = route.view === "lab" || route.view === "exercise";
 
   function navigate(view: View, id: string | null) {
     const next = id ? `#/${view}/${id}` : `#/${view}`;
@@ -111,31 +154,16 @@ export default function App() {
         </button>
         <button
           type="button"
-          className={route.view === "lab" ? "tab active" : "tab"}
+          className={activityActive ? "tab active" : "tab"}
           onClick={() => {
-            const lab = activeKuId ? getLabsForKu(activeKuId)[0] : null;
-            navigate(
-              "lab",
-              route.view === "lab" ? route.id : lab?.id ?? labs[0].id,
-            );
+            if (activityActive) return;
+            const target = lastActivity.id
+              ? lastActivity
+              : { view: "lab" as const, id: labs[0].id };
+            navigate(target.view, target.id);
           }}
         >
-          实验
-        </button>
-        <button
-          type="button"
-          className={route.view === "exercise" ? "tab active" : "tab"}
-          onClick={() => {
-            const exercise = activeKuId ? getExercisesForKu(activeKuId)[0] : null;
-            navigate(
-              "exercise",
-              route.view === "exercise"
-                ? route.id
-                : exercise?.id ?? exercises[0].id,
-            );
-          }}
-        >
-          动态练习
+          实验与练习
         </button>
         </nav>
       </header>
@@ -179,42 +207,23 @@ export default function App() {
         />
       )}
 
-      {route.view === "lab" && (
-        <>
-          <nav className="exercise-list" aria-label="实验列表">
-            {labs.map((lab) => (
-              <button
-                key={lab.id}
-                type="button"
-                className={lab.id === activeLab.id ? "active" : ""}
-                onClick={() => navigate("lab", lab.id)}
-              >
-                <strong>{lab.title}</strong>
-              </button>
-            ))}
-          </nav>
-
-          <ExperimentPlayer key={activeLab.id} lab={activeLab} />
-        </>
-      )}
-
-      {route.view === "exercise" && (
-        <>
-          <nav className="exercise-list" aria-label="练习列表">
-            {exercises.map((exercise) => (
-              <button
-                key={exercise.id}
-                type="button"
-                className={exercise.id === activeExercise.id ? "active" : ""}
-                onClick={() => navigate("exercise", exercise.id)}
-              >
-                <strong>{exercise.title}</strong>
-              </button>
-            ))}
-          </nav>
-
-          <ExercisePlayer key={activeExercise.id} exercise={activeExercise} />
-        </>
+      {activityActive && activeActivity && (
+        <ActivityWorkbench
+          label="实验与练习"
+          items={activityEntries}
+          subjects={subjects ?? []}
+          activeId={activeActivity.id}
+          onSelect={(item) => navigate(item.kind === "lab" ? "lab" : "exercise", item.id)}
+        >
+          {activeActivity.kind === "lab" ? (
+            <ExperimentPlayer key={activeActivity.id} lab={activeActivity.lab} />
+          ) : (
+            <ExercisePlayer
+              key={activeActivity.id}
+              exercise={activeActivity.exercise}
+            />
+          )}
+        </ActivityWorkbench>
       )}
       </main>
     </div>
