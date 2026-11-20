@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\geometry{margin=2.5cm}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\newtheorem{definition}{定义}
+\setlength{\parskip}{0.35em}
+
+\title{从数到比特：计算机如何表示信息}
+\author{计算机学习 · 教材草稿}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{quote}
+\textbf{本节目标}
+\begin{itemize}
+    \item 理解位置记数法，并能把小的十进制整数转换为二进制。
+    \item 解释为什么二进制数可以成为计算机内部表示信息的一种方式。
+    \item 区分数学上的 $0,1$ 与电路中代表这两个符号的物理信号。
+\end{itemize}
+\textbf{先修知识：}整数加法、乘法和乘方。
+\end{quote}
+
+\section{一个问题：机器怎样“记住”数字？}
+
+假设我们要让一台机器记住数字 $13$。人可以写下「十三」，也可以写成十进制的 $13$。但机器内部没有纸面上的数字符号；它需要某种可以稳定区分的物理状态，并约定这些状态分别代表什么。
+
+一种简单的抽象是只使用两个符号：$0$ 和 $1$。这引出了两个不同的问题：
+\begin{enumerate}
+    \item 如何用 $0$ 和 $1$ 写出数字 $13$？
+    \item 机器用什么物理状态来实现这两个符号？
+\end{enumerate}
+
+本节先回答第一个问题。第二个问题会在数字逻辑与计算机组成中继续展开。
+
+\section{位置记数法}
+
+日常使用的十进制是一种位置记数系统。同一个数字符号放在不同位置，代表的数值不同。例如
+\[
+    583 = 5\times 10^2 + 8\times 10^1 + 3\times 10^0.
+\]
+这里每个位置都是一个十的幂。
+
+\begin{definition}[基数为 $b$ 的位置记数法]
+设 $b\ge 2$ 为整数，数字 $d_i$ 满足 $0\le d_i<b$。一个有限的非负整数可以写成
+\[
+    (d_kd_{k-1}\cdots d_1d_0)_b
+    =\sum_{i=0}^{k} d_i b^i.
+\]
+整数 $b$ 称为该记数系统的\textbf{基数}。每一位的权值由它的位置决定。
+\end{definition}
+
+十进制的基数是 $10$，可用数字 $0$ 到 $9$；二进制的基数是 $2$，只能用 $0$ 和 $1$。
+因此
+\[
+    (1101)_2
+    =1\times 2^3+1\times 2^2+0\times 2^1+1\times 2^0
+    =8+4+0+1
+    =13.
+\]
+所以 $(13)_{10}=(1101)_2$。
+
+\subsection{用除基取余法转换}
+
+把十进制整数转换成二进制，可以不断除以 $2$，记录每次的余数：
+\[
+\begin{aligned}
+13 &= 2\times 6 + 1,\\
+ 6 &= 2\times 3 + 0,\\
+ 3 &= 2\times 1 + 1,\\
+ 1 &= 2\times 0 + 1.
+\end{aligned}
+\]
+从最后一个余数向上读，得到 $1101$。为什么要倒着读？第一次得到的余数是最低位，之后的余数依次对应更高的位置。
+
+\begin{quote}
+\textbf{检查理解：}如果余数是从高位到低位读，得到的会是 $1011$，其值为 $11$，并不是 $13$。转换时不仅要算对余数，也要注意排列方向。
+\end{quote}
+
+\section{历史插页：二进制早于电子计算机}
+
+二进制不是为现代计算机才发明的。1703 年，莱布尼茨发表了关于二进制算术的论文，系统讨论了只用 $0$ 和 $1$ 表示数及进行运算的方法 \cite{leibniz1703}。当时并没有今天这样的电子数字计算机；这说明一种数学表示法，可以先于它后来重要的工程应用而存在。
+
+到了 20 世纪，工程师需要把逻辑关系落实为可工作的电路。克劳德·香农在 1937 年的硕士论文中，展示了布尔代数与继电器开关电路之间的联系；相关成果随后发表于 1938 年 \cite{shannon1938}。这条联系让「符号运算」与「电路状态」之间有了清晰的数学桥梁。
+
+\begin{quote}
+\textbf{历史带来的问题：}数学上写下 $0$ 和 $1$，并不等于电路中存在完美的、只有两种取值的电压。真实电路会有噪声和制造误差。现代数字电路通过规定电压范围来识别逻辑 $0$ 与逻辑 $1$，从而让信号在一定范围内波动时仍能可靠工作。后续学习数字逻辑时，我们会再分析这种抽象如何实现。
+\end{quote}
+
+\section{为什么这对计算机有用？}
+
+位置记数法使数字可以由有限个符号组成；二进制则只需要两种符号。电路可以把不同的物理状态映射为这两种符号，并通过电路组合实现逻辑运算。
+
+但要注意，二进制只是\textbf{表示信息的一种约定}，不是信息本身。相同的位串可以按不同规则解释：它可能是无符号整数、带符号整数、字符编码的一部分，或某条机器指令。解释规则不同，含义也不同。
+
+\begin{quote}
+\textbf{常见误区：}「计算机内部有真正的 $0$ 和 $1$。」更准确地说，计算机用物理信号表示逻辑状态，再由约定的编码规则解释这些状态。$0$ 和 $1$ 是抽象符号。
+\end{quote}
+
+\section{练习}
+
+\begin{enumerate}
+    \item 用除基取余法把 $(19)_{10}$ 转换为二进制，并用位权展开验证。
+    \item 把 $(10110)_2$ 转换为十进制，写出每一位的权值。
+    \item 一个无符号二进制数有 $8$ 位，能表示的最小值和最大值分别是多少？说明你的计算依据。
+\end{enumerate}
+
+\subsection*{参考答案}
+\begin{enumerate}
+    \item $(19)_{10}=(10011)_2$，因为 $16+2+1=19$。
+    \item $(10110)_2=1\times 2^4+0\times 2^3+1\times 2^2+1\times 2^1+0\times 2^0=22$。
+    \item 最小值为 $0$，最大值为 $2^8-1=255$。共有 $2^8$ 种位串，表示从 $0$ 开始的 $2^8$ 个整数。
+\end{enumerate}
+
+\section*{本节小结}
+\begin{itemize}
+    \item 位置记数法的数值等于各位数字乘以对应基数幂之后的总和。
+    \item 二进制使用基数 $2$，每一位只能是 $0$ 或 $1$。
+    \item 二进制算术早于电子计算机；布尔代数与开关电路的联系，帮助工程师把逻辑运算落实到电路中。
+    \item 位串的含义取决于解释它的编码规则。
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{leibniz1703}
+G. W. Leibniz.
+\newblock Explication de l'Arithmétique Binaire.
+\newblock \emph{Mémoires de l'Académie Royale des Sciences}, 1703.
+
+\bibitem{shannon1938}
+C. E. Shannon.
+\newblock A Symbolic Analysis of Relay and Switching Circuits.
+\newblock \emph{Transactions of the American Institute of Electrical Engineers},
+57:713--723, 1938.
+\end{thebibliography}
+
+\end{document}

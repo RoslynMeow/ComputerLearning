@@ -1,0 +1,3747 @@
+{
+  "schemaVersion": 1,
+  "groupMeta": {
+    "math": {
+      "label": "数学基础",
+      "title": "01 · 数学基础",
+      "caption": "表示、逻辑、证明与离散结构",
+      "color": "#9a78d1",
+      "fill": "#f5f0fb",
+      "stroke": "#e7def3"
+    },
+    "repr": {
+      "label": "信息表示",
+      "title": "02 · 信息表示",
+      "caption": "从数值表示到机器中的位与运算",
+      "color": "#d49432",
+      "fill": "#fdf8ee",
+      "stroke": "#f2e7d0"
+    },
+    "prog": {
+      "label": "编程与算法",
+      "title": "03 · 编程与算法",
+      "caption": "程序、数据结构与算法",
+      "color": "#4f91cc",
+      "fill": "#eff6fc",
+      "stroke": "#dceaf5"
+    },
+    "theory": {
+      "label": "计算理论",
+      "title": "04 · 计算理论",
+      "caption": "自动机与可计算模型",
+      "color": "#8170b4",
+      "fill": "#f3f0f9",
+      "stroke": "#e4def0"
+    },
+    "languages": {
+      "label": "编程语言",
+      "title": "05 · 编程语言",
+      "caption": "语言实现与编译器",
+      "color": "#5e9ca1",
+      "fill": "#eef7f6",
+      "stroke": "#d9ecea"
+    },
+    "hardware": {
+      "label": "处理器与硬件",
+      "title": "06 · 处理器与硬件",
+      "caption": "指令、数据通路、存储与电路",
+      "color": "#d68c45",
+      "fill": "#fdf4eb",
+      "stroke": "#f1dfce"
+    },
+    "os": {
+      "label": "操作系统",
+      "title": "07 · 操作系统",
+      "caption": "进程、内存、调度与文件",
+      "color": "#498d76",
+      "fill": "#eff8f4",
+      "stroke": "#dceee5"
+    },
+    "network": {
+      "label": "计算机网络",
+      "title": "08 · 计算机网络",
+      "caption": "分层、传输、路由与分布式",
+      "color": "#4794ad",
+      "fill": "#eef7fa",
+      "stroke": "#d9ebf0"
+    },
+    "data": {
+      "label": "数据库",
+      "title": "09 · 数据库",
+      "caption": "数据模型、存储与查询",
+      "color": "#c7786a",
+      "fill": "#fbf1ef",
+      "stroke": "#efdeda"
+    },
+    "software": {
+      "label": "软件工程",
+      "title": "10 · 软件工程",
+      "caption": "需求、设计与开发生命周期",
+      "color": "#647cbb",
+      "fill": "#f0f3fb",
+      "stroke": "#dfe5f3"
+    },
+    "testing": {
+      "label": "软件测试",
+      "title": "11 · 软件测试",
+      "caption": "验证程序行为与需求",
+      "color": "#738eaa",
+      "fill": "#f0f5f8",
+      "stroke": "#dce7ed"
+    },
+    "version-control": {
+      "label": "版本控制",
+      "title": "12 · 版本控制",
+      "caption": "变更记录与团队协作",
+      "color": "#8b79b3",
+      "fill": "#f4f1f9",
+      "stroke": "#e5def0"
+    },
+    "ai": {
+      "label": "人工智能",
+      "title": "13 · 人工智能",
+      "caption": "数据、模型与学习",
+      "color": "#bd6c9f",
+      "fill": "#fbf1f7",
+      "stroke": "#efdce9"
+    },
+    "security": {
+      "label": "安全",
+      "title": "14 · 安全",
+      "caption": "威胁、保护与密码学基础",
+      "color": "#bf6c62",
+      "fill": "#fbf1ef",
+      "stroke": "#efddda"
+    }
+  },
+  "nodes": [
+    {
+      "id": "integers",
+      "title": "整数与运算",
+      "en": "Integers & Operations",
+      "group": "math",
+      "book": "数学基础 · 数与运算",
+      "summary": "从自然数出发，理解为何需要扩充出零和负数，并建立整数的加法、乘法与序关系。",
+      "goal": "能解释整数如何补足自然数减法的不足，并正确进行整数运算。",
+      "pre": [
+        "natural-numbers"
+      ],
+      "ext": [
+        "powers",
+        "modular-arithmetic"
+      ]
+    },
+    {
+      "id": "powers",
+      "title": "乘方与幂",
+      "en": "Powers",
+      "group": "math",
+      "book": "数学基础 · 数与运算",
+      "summary": "乘方把重复乘法写成紧凑的形式。位置记数法中，每一位的权值正是基数的幂。",
+      "goal": "能计算小整数的非负整数次幂。",
+      "pre": [
+        "integers"
+      ],
+      "ext": [
+        "place-value"
+      ]
+    },
+    {
+      "id": "place-value",
+      "title": "位置记数法",
+      "en": "Positional Notation",
+      "group": "math",
+      "book": "数学基础 · 位置记数法（自编）",
+      "summary": "一个数字的值由“数字本身”和“所在位置”共同决定。基数为 b 时，各位对应 b 的不同次幂。",
+      "goal": "能把一个位置记数展开成各位位权之和。",
+      "pre": [
+        "powers"
+      ],
+      "ext": [
+        "base-conversion",
+        "unsigned"
+      ]
+    },
+    {
+      "id": "base-conversion",
+      "title": "进制转换",
+      "en": "Base Conversion",
+      "group": "math",
+      "book": "数学基础 · 位置记数法（自编）",
+      "summary": "通过位权展开或反复除基取余，在不同基数的记数法之间转换整数。",
+      "goal": "能在十进制与二进制之间转换小整数，并说明余数顺序。",
+      "pre": [
+        "place-value"
+      ],
+      "ext": [
+        "unsigned",
+        "character-codes"
+      ]
+    },
+    {
+      "id": "sets",
+      "title": "集合与关系",
+      "en": "Sets & Relations",
+      "group": "math",
+      "book": "数学基础 · 集合论",
+      "summary": "集合是描述对象总体的基础语言；集合、成员关系、子集和函数构成后续数学定义的共同底座。",
+      "goal": "能使用集合与成员关系表达对象，并理解函数和关系如何建立在集合上。",
+      "pre": [],
+      "ext": [
+        "peano-axioms",
+        "propositional-logic",
+        "graph-theory"
+      ]
+    },
+    {
+      "id": "peano-axioms",
+      "title": "皮亚诺公理",
+      "en": "Peano Axioms",
+      "group": "math",
+      "book": "数学基础 · 自然数公理化",
+      "summary": "用零与后继函数刻画自然数，并以归纳公理表达自然数序列没有遗漏的基本性质。",
+      "goal": "能说出自然数的后继结构，并解释归纳公理的作用。",
+      "pre": [
+        "sets"
+      ],
+      "ext": [
+        "natural-numbers",
+        "proofs"
+      ]
+    },
+    {
+      "id": "natural-numbers",
+      "title": "自然数与递归运算",
+      "en": "Natural Numbers",
+      "group": "math",
+      "book": "数学基础 · 自然数",
+      "summary": "从计数概念出发，用皮亚诺公理形式化自然数，并递归定义加法与乘法。",
+      "goal": "能由后继关系解释自然数，并追踪简单的递归加法定义。",
+      "pre": [
+        "peano-axioms"
+      ],
+      "ext": [
+        "integers",
+        "proofs"
+      ]
+    },
+    {
+      "id": "propositional-logic",
+      "title": "命题逻辑",
+      "en": "Propositional Logic",
+      "group": "math",
+      "book": "离散数学 · 命题逻辑",
+      "summary": "研究命题的真假如何由逻辑连接词组合而成；它既用于数学推理，也连接到数字逻辑。",
+      "goal": "能读写基本逻辑表达式并判断简单真值。",
+      "pre": [
+        "sets"
+      ],
+      "ext": [
+        "proofs",
+        "boolean-algebra"
+      ]
+    },
+    {
+      "id": "proofs",
+      "title": "证明与归纳",
+      "en": "Proof & Induction",
+      "group": "math",
+      "book": "离散数学 · 证明方法",
+      "summary": "学习如何有条理地论证一个结论，包括直接证明、反证和数学归纳法。",
+      "goal": "能识别归纳证明的基础步与归纳步，并用归纳法证明简单命题。",
+      "pre": [
+        "propositional-logic",
+        "natural-numbers"
+      ],
+      "ext": [
+        "algorithm",
+        "complexity"
+      ]
+    },
+    {
+      "id": "graph-theory",
+      "title": "图论基础",
+      "en": "Graph Theory",
+      "group": "math",
+      "book": "离散数学 · 图论",
+      "summary": "图由顶点和边构成，用来表达对象之间的连接关系。它是理解路由、依赖关系和图算法的数学基础。",
+      "goal": "能区分顶点、边、路径与连通性。",
+      "pre": [
+        "sets"
+      ],
+      "ext": [
+        "graph-representation",
+        "routing"
+      ]
+    },
+    {
+      "id": "probability",
+      "title": "概率基础",
+      "en": "Probability",
+      "group": "math",
+      "book": "数学基础 · 概率与统计",
+      "summary": "用概率描述不确定事件。它会在随机算法、性能分析和机器学习中反复出现。",
+      "goal": "能理解事件、概率与简单条件概率。",
+      "pre": [
+        "sets"
+      ],
+      "ext": [
+        "complexity"
+      ]
+    },
+    {
+      "id": "bits-bytes",
+      "title": "位与字节",
+      "en": "Bits & Bytes",
+      "group": "repr",
+      "book": "计算机组成原理 · 数据表示",
+      "summary": "位是二进制表示中的基本符号；字节通常由 8 位组成。位串是计算机存储和传送信息的基础载体。",
+      "goal": "能读写位串并计算给定位数所能形成的组合数。",
+      "pre": [
+        "place-value"
+      ],
+      "ext": [
+        "unsigned",
+        "character-codes",
+        "logic-gates"
+      ]
+    },
+    {
+      "id": "unsigned",
+      "title": "定长无符号整数",
+      "en": "Unsigned Integers",
+      "group": "repr",
+      "book": "计算机组成原理 · 数据表示",
+      "summary": "规定 n 位位串表示 0 到 2ⁿ−1 的整数。位数有限，意味着可表示范围也有限。",
+      "goal": "能将小整数写成 n 位二进制，并求出 n 位表示范围。",
+      "pre": [
+        "place-value",
+        "bits-bytes"
+      ],
+      "ext": [
+        "twos-complement",
+        "overflow"
+      ]
+    },
+    {
+      "id": "twos-complement",
+      "title": "补码",
+      "en": "Two's Complement",
+      "group": "repr",
+      "book": "计算机组成原理 · 整数运算",
+      "summary": "补码是现代计算机表示有符号整数的常见方法，使加法器可以统一处理加法与减法。",
+      "goal": "能在小位宽下表示和解释补码，并说明其范围。",
+      "pre": [
+        "unsigned"
+      ],
+      "ext": [
+        "overflow",
+        "adders"
+      ]
+    },
+    {
+      "id": "overflow",
+      "title": "溢出",
+      "en": "Overflow",
+      "group": "repr",
+      "book": "计算机组成原理 · 整数运算",
+      "summary": "定长表示无法容纳所有整数。运算结果超出该表示范围时，机器位串仍会产生，但其解释可能与数学整数结果不同。",
+      "goal": "能判断给定位宽的无符号数或补码运算是否超出范围。",
+      "pre": [
+        "unsigned",
+        "twos-complement"
+      ],
+      "ext": [
+        "machine-instructions"
+      ]
+    },
+    {
+      "id": "character-codes",
+      "title": "字符编码",
+      "en": "Character Encoding",
+      "group": "repr",
+      "book": "计算机组成原理 · 数据表示",
+      "summary": "字符需要通过编码规则映射到数字，再由位串保存和传输。编码、字符集与字节序列是相关但不同的概念。",
+      "goal": "能解释字符到编码值再到位串的转换链。",
+      "pre": [
+        "bits-bytes",
+        "base-conversion"
+      ],
+      "ext": [
+        "networking"
+      ]
+    },
+    {
+      "id": "boolean-algebra",
+      "title": "布尔代数",
+      "en": "Boolean Algebra",
+      "group": "repr",
+      "book": "数字逻辑 · 布尔代数",
+      "summary": "布尔代数在真假值上定义逻辑运算，为逻辑表达式化简和数字电路设计提供形式工具。",
+      "goal": "能理解 AND、OR、NOT 的真值表。",
+      "pre": [
+        "propositional-logic"
+      ],
+      "ext": [
+        "logic-gates"
+      ]
+    },
+    {
+      "id": "logic-gates",
+      "title": "逻辑门",
+      "en": "Logic Gates",
+      "group": "repr",
+      "book": "数字逻辑 · 组合电路",
+      "summary": "逻辑门把抽象布尔运算映射到物理电路，是从逻辑表达式走向硬件实现的一步。",
+      "goal": "能根据简单逻辑门组合推导输出。",
+      "pre": [
+        "boolean-algebra",
+        "bits-bytes"
+      ],
+      "ext": [
+        "adders",
+        "cpu-datapath"
+      ]
+    },
+    {
+      "id": "adders",
+      "title": "加法器",
+      "en": "Adders",
+      "group": "repr",
+      "book": "数字逻辑 · 算术电路",
+      "summary": "加法器由逻辑门构成，执行二进制加法。它展示了算术规则如何由简单电路组合实现。",
+      "goal": "能追踪半加器和全加器的输入、和位与进位。",
+      "pre": [
+        "logic-gates",
+        "twos-complement"
+      ],
+      "ext": [
+        "cpu-datapath"
+      ]
+    },
+    {
+      "id": "algorithm",
+      "title": "算法与程序",
+      "en": "Algorithms & Programs",
+      "group": "prog",
+      "book": "程序设计基础 · 算法",
+      "summary": "算法描述解决问题的步骤；程序则把步骤写成具体语言可执行的形式。",
+      "goal": "能用自然语言或伪代码描述一个有限、明确的求解过程。",
+      "pre": [
+        "integers"
+      ],
+      "ext": [
+        "control-flow",
+        "complexity",
+        "arrays"
+      ]
+    },
+    {
+      "id": "control-flow",
+      "title": "变量、分支与循环",
+      "en": "Variables & Control Flow",
+      "group": "prog",
+      "book": "程序设计基础 · 基本控制结构",
+      "summary": "变量保存状态，分支依据条件选择路径，循环重复执行步骤。这些是把算法写成程序的基本构件。",
+      "goal": "能用变量、条件和循环表达简单算法。",
+      "pre": [
+        "algorithm"
+      ],
+      "ext": [
+        "arrays",
+        "recursion"
+      ]
+    },
+    {
+      "id": "arrays",
+      "title": "数组与线性结构",
+      "en": "Arrays & Linear Structures",
+      "group": "prog",
+      "book": "数据结构 · 线性结构",
+      "summary": "数组、链表、栈和队列以不同方式组织序列数据，在访问效率、插入删除和实现复杂度之间做取舍。",
+      "goal": "能说明数组与链表的基本差异，并识别栈和队列的使用规则。",
+      "pre": [
+        "control-flow",
+        "bits-bytes"
+      ],
+      "ext": [
+        "trees",
+        "graph-representation"
+      ]
+    },
+    {
+      "id": "complexity",
+      "title": "复杂度分析",
+      "en": "Complexity Analysis",
+      "group": "prog",
+      "book": "算法设计与分析 · 渐近分析",
+      "summary": "用输入规模描述算法所需时间或空间如何增长，从而比较算法在大规模输入下的资源需求。",
+      "goal": "能分析简单循环的数量级，并区分 O 与 Θ 的含义。",
+      "pre": [
+        "algorithm",
+        "proofs"
+      ],
+      "ext": [
+        "shortest-paths"
+      ]
+    },
+    {
+      "id": "recursion",
+      "title": "递归",
+      "en": "Recursion",
+      "group": "prog",
+      "book": "程序设计基础 · 递归",
+      "summary": "递归通过把问题化为更小的同类问题来描述算法；正确设计需要有终止条件和规模递减。",
+      "goal": "能追踪简单递归调用，并指出基例。",
+      "pre": [
+        "control-flow"
+      ],
+      "ext": [
+        "trees"
+      ]
+    },
+    {
+      "id": "trees",
+      "title": "树与层次结构",
+      "en": "Trees",
+      "group": "prog",
+      "book": "数据结构 · 树",
+      "summary": "树用无环层次关系组织数据，常见于文件系统、索引结构和语法表示。",
+      "goal": "能识别根、父子、叶子和树高。",
+      "pre": [
+        "arrays",
+        "recursion"
+      ],
+      "ext": [
+        "graph-representation"
+      ]
+    },
+    {
+      "id": "graph-representation",
+      "title": "图的表示",
+      "en": "Graph Representation",
+      "group": "prog",
+      "book": "数据结构 · 图",
+      "summary": "邻接表和邻接矩阵是两种常见图表示，分别在空间占用与邻接查询效率上有所取舍。",
+      "goal": "能根据图的稀疏程度选择合适的表示方式。",
+      "pre": [
+        "graph-theory",
+        "arrays"
+      ],
+      "ext": [
+        "bfs-dfs",
+        "shortest-paths"
+      ]
+    },
+    {
+      "id": "bfs-dfs",
+      "title": "广度与深度优先搜索",
+      "en": "BFS & DFS",
+      "group": "prog",
+      "book": "数据结构与算法 · 图遍历",
+      "summary": "BFS 按层扩展，DFS 沿路径深入。两者都能系统访问图中的顶点，但适合回答的问题不同。",
+      "goal": "能在小图上手动执行 BFS 与 DFS，并解释队列或栈的作用。",
+      "pre": [
+        "graph-representation",
+        "arrays"
+      ],
+      "ext": [
+        "shortest-paths"
+      ]
+    },
+    {
+      "id": "shortest-paths",
+      "title": "最短路径",
+      "en": "Shortest Paths",
+      "group": "prog",
+      "book": "算法设计与分析 · 图算法",
+      "summary": "最短路径算法在图上寻找总代价最小的路径；具体算法取决于边权和问题条件。",
+      "goal": "能说明无权图 BFS 与带非负权图 Dijkstra 的适用条件。",
+      "pre": [
+        "bfs-dfs",
+        "complexity",
+        "graph-theory"
+      ],
+      "ext": [
+        "routing"
+      ]
+    },
+    {
+      "id": "machine-instructions",
+      "title": "指令集",
+      "en": "Instruction Set",
+      "group": "hardware",
+      "book": "计算机组成原理 · 指令系统",
+      "summary": "指令集定义处理器能够执行的机器操作、寄存器和指令编码，是软件与处理器硬件之间的重要接口。",
+      "goal": "能识别一条简单机器指令的操作与操作数。",
+      "pre": [
+        "unsigned",
+        "overflow"
+      ],
+      "ext": [
+        "cpu-datapath",
+        "operating-systems"
+      ]
+    },
+    {
+      "id": "cpu-datapath",
+      "title": "处理器数据通路",
+      "en": "CPU Datapath",
+      "group": "hardware",
+      "book": "计算机组成原理 · CPU",
+      "summary": "数据通路由寄存器、运算单元、总线和多路选择器等部件构成，按控制信号完成指令所需的数据操作。",
+      "goal": "能沿数据通路追踪一条简单指令的执行过程。",
+      "pre": [
+        "machine-instructions",
+        "adders",
+        "logic-gates"
+      ],
+      "ext": [
+        "cpu-pipeline",
+        "memory-hierarchy"
+      ]
+    },
+    {
+      "id": "memory-hierarchy",
+      "title": "存储层次",
+      "en": "Memory Hierarchy",
+      "group": "hardware",
+      "book": "计算机组成原理 · 存储系统",
+      "summary": "寄存器、缓存、内存和外存形成不同速度、容量与成本的层次；局部性让多层次存储协同工作。",
+      "goal": "能解释缓存为何有用，以及时间和空间局部性的基本含义。",
+      "pre": [
+        "bits-bytes",
+        "cpu-datapath"
+      ],
+      "ext": [
+        "virtual-memory",
+        "operating-systems"
+      ]
+    },
+    {
+      "id": "operating-systems",
+      "title": "操作系统",
+      "en": "Operating Systems",
+      "group": "os",
+      "book": "操作系统 · 进程与内存",
+      "summary": "操作系统管理处理器、内存、文件和设备，并为应用程序提供抽象接口。",
+      "goal": "能解释进程、虚拟内存和系统调用各自解决的问题。",
+      "pre": [
+        "cpu-datapath",
+        "memory-hierarchy"
+      ],
+      "ext": [
+        "networking",
+        "synchronization"
+      ]
+    },
+    {
+      "id": "networking",
+      "title": "网络分层与数据包",
+      "en": "Networking & Packets",
+      "group": "network",
+      "book": "计算机网络 · 网络基础",
+      "summary": "网络协议把通信任务分层，数据在各层封装后通过链路传送。理解数据包是进入网络课程的起点。",
+      "goal": "能描述封装过程，并区分链路、网络与运输层的职责。",
+      "pre": [
+        "character-codes",
+        "operating-systems"
+      ],
+      "ext": [
+        "routing"
+      ]
+    },
+    {
+      "id": "routing",
+      "title": "路由与转发",
+      "en": "Routing & Forwarding",
+      "group": "network",
+      "book": "计算机网络 · 网络层",
+      "summary": "路由决定数据包经过哪些网络节点；许多路由问题可建模为图上的路径问题。",
+      "goal": "能区分路由选择与逐跳转发，并联系到最短路径模型。",
+      "pre": [
+        "shortest-paths",
+        "graph-theory",
+        "networking"
+      ],
+      "ext": [
+        "transport-protocols"
+      ]
+    },
+    {
+      "id": "logarithms",
+      "title": "对数",
+      "en": "Logarithms",
+      "group": "math",
+      "book": "数学基础 · 函数与增长",
+      "summary": "对数回答“一个数需要乘方多少次才能达到目标”，常用于描述二分、树高和算法规模。",
+      "goal": "能把指数关系改写为对数关系，并估算以 2 为底的小对数。",
+      "pre": [
+        "powers"
+      ],
+      "ext": [
+        "complexity"
+      ]
+    },
+    {
+      "id": "modular-arithmetic",
+      "title": "模运算",
+      "en": "Modular Arithmetic",
+      "group": "math",
+      "book": "离散数学 · 整数与同余",
+      "summary": "模运算只关注除法后的余数，是哈希、循环计数和密码学中的常用数学工具。",
+      "goal": "能计算小整数的模，并理解同余的直观含义。",
+      "pre": [
+        "integers"
+      ],
+      "ext": [
+        "hash-tables",
+        "cybersecurity"
+      ]
+    },
+    {
+      "id": "functions-mappings",
+      "title": "函数与映射",
+      "en": "Functions & Mappings",
+      "group": "math",
+      "book": "数学基础 · 函数",
+      "summary": "函数把定义域中的每个输入映射到唯一输出，是描述算法、编码和数量关系的共同语言。",
+      "goal": "能识别定义域、值域，并判断一个对应关系是否为函数。",
+      "pre": [
+        "sets"
+      ],
+      "ext": [
+        "linear-algebra",
+        "algorithm"
+      ]
+    },
+    {
+      "id": "linear-algebra",
+      "title": "线性代数入门",
+      "en": "Linear Algebra",
+      "group": "math",
+      "book": "数学基础 · 线性代数",
+      "summary": "向量和矩阵用于表示多维数据与线性变换，是计算机图形学和机器学习的重要数学基础。",
+      "goal": "能理解向量、矩阵及矩阵乘向量的基本含义。",
+      "pre": [
+        "functions-mappings",
+        "integers"
+      ],
+      "ext": [
+        "machine-learning"
+      ]
+    },
+    {
+      "id": "bitwise-operations",
+      "title": "位运算",
+      "en": "Bitwise Operations",
+      "group": "repr",
+      "book": "计算机组成原理 · 位运算",
+      "summary": "位运算直接对二进制位执行 AND、OR、XOR、取反和移位等操作。",
+      "goal": "能手算小位串的 AND、OR、XOR 与左移。",
+      "pre": [
+        "bits-bytes",
+        "unsigned"
+      ],
+      "ext": [
+        "boolean-algebra",
+        "adders"
+      ]
+    },
+    {
+      "id": "floating-point",
+      "title": "浮点数表示",
+      "en": "Floating-Point Numbers",
+      "group": "repr",
+      "book": "计算机组成原理 · 浮点数",
+      "summary": "浮点格式用符号、指数和有效数近似表示很大或很小的实数，因此精度有限且存在舍入误差。",
+      "goal": "能解释浮点数的组成，并理解 0.1 可能无法被二进制精确表示。",
+      "pre": [
+        "bits-bytes",
+        "powers"
+      ],
+      "ext": [
+        "overflow"
+      ]
+    },
+    {
+      "id": "endianness",
+      "title": "字节序",
+      "en": "Endianness",
+      "group": "repr",
+      "book": "计算机组成原理 · 数据表示",
+      "summary": "多字节数值存入内存时，字节排列顺序可能不同；大小端是两种常见约定。",
+      "goal": "能根据给定字节序写出一个多字节整数的内存排列。",
+      "pre": [
+        "bits-bytes",
+        "unsigned"
+      ],
+      "ext": [
+        "networking"
+      ]
+    },
+    {
+      "id": "boolean-simplification",
+      "title": "布尔表达式化简",
+      "en": "Boolean Simplification",
+      "group": "repr",
+      "book": "数字逻辑 · 逻辑化简",
+      "summary": "利用布尔代数定律或卡诺图化简逻辑表达式，以减少实现电路所需的逻辑门。",
+      "goal": "能应用基本恒等式化简简单布尔表达式。",
+      "pre": [
+        "boolean-algebra"
+      ],
+      "ext": [
+        "logic-gates"
+      ]
+    },
+    {
+      "id": "functions-procedures",
+      "title": "函数与过程",
+      "en": "Functions & Procedures",
+      "group": "prog",
+      "book": "程序设计基础 · 函数",
+      "summary": "函数把程序拆成可命名、可复用的部分；参数、返回值和作用域共同决定其接口与行为。",
+      "goal": "能定义带参数和返回值的函数，并追踪一次调用。",
+      "pre": [
+        "control-flow"
+      ],
+      "ext": [
+        "recursion",
+        "compiler"
+      ]
+    },
+    {
+      "id": "sorting",
+      "title": "排序算法",
+      "en": "Sorting Algorithms",
+      "group": "prog",
+      "book": "数据结构与算法 · 排序",
+      "summary": "排序将数据按给定次序重排；不同算法在比较次数、额外空间、稳定性和输入特性上各有取舍。",
+      "goal": "能区分简单排序与比较排序，并用小数组追踪排序过程。",
+      "pre": [
+        "arrays",
+        "complexity"
+      ],
+      "ext": [
+        "dynamic-programming"
+      ]
+    },
+    {
+      "id": "hash-tables",
+      "title": "哈希表",
+      "en": "Hash Tables",
+      "group": "prog",
+      "book": "数据结构 · 散列表",
+      "summary": "哈希表通过哈希函数把键映射到存储位置，并用冲突处理方法实现快速查找。",
+      "goal": "能解释哈希冲突、链地址法和装载因子。",
+      "pre": [
+        "arrays",
+        "modular-arithmetic"
+      ],
+      "ext": [
+        "databases"
+      ]
+    },
+    {
+      "id": "dynamic-programming",
+      "title": "动态规划",
+      "en": "Dynamic Programming",
+      "group": "prog",
+      "book": "算法设计与分析 · 动态规划",
+      "summary": "动态规划把具有重叠子问题和最优子结构的问题拆成状态，并保存子问题结果以避免重复计算。",
+      "goal": "能从小问题开始填写一个简单的一维 DP 表。",
+      "pre": [
+        "recursion",
+        "complexity"
+      ],
+      "ext": [
+        "machine-learning"
+      ]
+    },
+    {
+      "id": "cache",
+      "title": "缓存与局部性",
+      "en": "Cache & Locality",
+      "group": "hardware",
+      "book": "计算机组成原理 · Cache",
+      "summary": "缓存利用程序的时间局部性和空间局部性，让常用数据更靠近处理器，从而降低平均访问时间。",
+      "goal": "能用一次数组访问说明局部性，并判断简单缓存命中。",
+      "pre": [
+        "memory-hierarchy"
+      ],
+      "ext": [
+        "virtual-memory",
+        "cpu-pipeline"
+      ]
+    },
+    {
+      "id": "cpu-pipeline",
+      "title": "CPU 流水线",
+      "en": "CPU Pipeline",
+      "group": "hardware",
+      "book": "计算机组成原理 · 流水线",
+      "summary": "流水线让多条指令的不同阶段重叠执行，提高吞吐率；数据、控制和结构冒险会带来停顿。",
+      "goal": "能读懂简单时空图，并识别数据冒险。",
+      "pre": [
+        "cpu-datapath",
+        "machine-instructions"
+      ],
+      "ext": [
+        "operating-systems"
+      ]
+    },
+    {
+      "id": "processes-threads",
+      "title": "进程与线程",
+      "en": "Processes & Threads",
+      "group": "os",
+      "book": "操作系统 · 进程与线程",
+      "summary": "进程提供资源隔离的运行环境，线程是进程内可调度的执行流；上下文切换使处理器在执行流之间切换。",
+      "goal": "能区分进程与线程，并解释上下文切换的作用。",
+      "pre": [
+        "operating-systems",
+        "control-flow"
+      ],
+      "ext": [
+        "scheduling",
+        "synchronization"
+      ]
+    },
+    {
+      "id": "virtual-memory",
+      "title": "虚拟内存",
+      "en": "Virtual Memory",
+      "group": "os",
+      "book": "操作系统 · 虚拟内存",
+      "summary": "虚拟内存为进程提供独立的地址空间，并通过页表和硬件机制映射到物理内存。",
+      "goal": "能解释虚拟地址、物理地址和页表之间的关系。",
+      "pre": [
+        "operating-systems",
+        "memory-hierarchy"
+      ],
+      "ext": [
+        "filesystems"
+      ]
+    },
+    {
+      "id": "scheduling",
+      "title": "CPU 调度",
+      "en": "CPU Scheduling",
+      "group": "os",
+      "book": "操作系统 · 进程调度",
+      "summary": "调度策略决定就绪进程何时获得处理器，在响应时间、吞吐量、公平性和开销之间权衡。",
+      "goal": "能手算 FCFS 与轮转调度的完成时间和等待时间。",
+      "pre": [
+        "processes-threads"
+      ],
+      "ext": [
+        "synchronization"
+      ]
+    },
+    {
+      "id": "synchronization",
+      "title": "并发与同步",
+      "en": "Concurrency & Synchronization",
+      "group": "os",
+      "book": "操作系统 · 并发",
+      "summary": "多个执行流并发访问共享状态时可能产生竞态；互斥锁、信号量等机制用于协调访问。",
+      "goal": "能识别临界区和数据竞争，并说明互斥的作用。",
+      "pre": [
+        "processes-threads",
+        "control-flow"
+      ],
+      "ext": [
+        "databases"
+      ]
+    },
+    {
+      "id": "filesystems",
+      "title": "文件系统",
+      "en": "File Systems",
+      "group": "os",
+      "book": "操作系统 · 文件系统",
+      "summary": "文件系统把持久化数据组织成文件和目录，并管理元数据、空间分配与访问权限。",
+      "goal": "能解释文件、目录和元数据的基本作用。",
+      "pre": [
+        "operating-systems",
+        "virtual-memory"
+      ],
+      "ext": [
+        "databases"
+      ]
+    },
+    {
+      "id": "transport-protocols",
+      "title": "传输层与 TCP",
+      "en": "Transport Layer & TCP",
+      "group": "network",
+      "book": "计算机网络 · 运输层",
+      "summary": "运输层在端系统进程之间提供通信服务；TCP 通过序号、确认和重传等机制实现可靠字节流。",
+      "goal": "能描述 TCP 连接、确认与重传的基本关系。",
+      "pre": [
+        "networking"
+      ],
+      "ext": [
+        "application-protocols"
+      ]
+    },
+    {
+      "id": "application-protocols",
+      "title": "HTTP 与 DNS",
+      "en": "HTTP & DNS",
+      "group": "network",
+      "book": "计算机网络 · 应用层",
+      "summary": "HTTP 定义 Web 请求与响应，DNS 将域名解析为网络地址；二者协同完成一次常见的网页访问。",
+      "goal": "能按顺序描述浏览器访问网站时 DNS 与 HTTP 的作用。",
+      "pre": [
+        "transport-protocols"
+      ],
+      "ext": [
+        "cybersecurity"
+      ]
+    },
+    {
+      "id": "databases",
+      "title": "关系数据库",
+      "en": "Relational Databases",
+      "group": "data",
+      "book": "数据库系统 · 关系模型",
+      "summary": "关系数据库用表、键和约束组织数据，并通过查询语言检索和更新信息。",
+      "goal": "能理解关系、主键和简单 SELECT 查询。",
+      "pre": [
+        "arrays",
+        "sets"
+      ],
+      "ext": [
+        "synchronization",
+        "hash-tables"
+      ]
+    },
+    {
+      "id": "compiler",
+      "title": "编译器入门",
+      "en": "Compiler Fundamentals",
+      "group": "languages",
+      "book": "编程语言 · 编译器",
+      "summary": "编译器把源程序转换为另一种表示，常见阶段包括词法分析、语法分析、语义分析和代码生成。",
+      "goal": "能描述从源代码到目标代码的基本编译流程。",
+      "pre": [
+        "functions-procedures",
+        "machine-instructions"
+      ],
+      "ext": [
+        "cpu-datapath"
+      ]
+    },
+    {
+      "id": "cybersecurity",
+      "title": "计算机安全基础",
+      "en": "Cybersecurity Fundamentals",
+      "group": "security",
+      "book": "计算机网络与安全 · 基础",
+      "summary": "安全关注机密性、完整性和可用性，并通过威胁建模、访问控制和密码学等方法降低风险。",
+      "goal": "能区分机密性、完整性与可用性，并识别常见威胁。",
+      "pre": [
+        "networking",
+        "modular-arithmetic"
+      ],
+      "ext": [
+        "application-protocols"
+      ]
+    },
+    {
+      "id": "machine-learning",
+      "title": "机器学习入门",
+      "en": "Machine Learning",
+      "group": "ai",
+      "book": "人工智能 · 机器学习基础",
+      "summary": "机器学习通过数据和模型学习输入到输出的规律；线性代数、概率和优化为其提供数学工具。",
+      "goal": "能区分训练数据、模型、损失函数和预测。",
+      "pre": [
+        "linear-algebra",
+        "probability"
+      ],
+      "ext": [
+        "dynamic-programming"
+      ]
+    },
+    {
+      "id": "calculus",
+      "title": "微积分入门",
+      "en": "Calculus",
+      "group": "math",
+      "book": "数学基础 · 微积分",
+      "summary": "微积分研究变化率与累积量，为优化、物理建模和机器学习中的梯度方法提供基础。",
+      "goal": "能理解函数变化率、导数和累积量的直观意义。",
+      "pre": [
+        "functions-mappings",
+        "powers"
+      ],
+      "ext": [
+        "machine-learning"
+      ]
+    },
+    {
+      "id": "statistics",
+      "title": "统计基础",
+      "en": "Statistics",
+      "group": "math",
+      "book": "数学基础 · 概率与统计",
+      "summary": "统计学从数据中描述规律、估计未知量并评估不确定性，是实验分析和机器学习的重要基础。",
+      "goal": "能区分总体、样本、均值和方差。",
+      "pre": [
+        "probability"
+      ],
+      "ext": [
+        "machine-learning"
+      ]
+    },
+    {
+      "id": "combinatorics",
+      "title": "组合计数",
+      "en": "Combinatorics",
+      "group": "math",
+      "book": "离散数学 · 组合数学",
+      "summary": "组合计数研究如何计算选择、排列和组合的数量，是算法复杂度与概率计算的常用工具。",
+      "goal": "能解决简单的排列组合和乘法计数问题。",
+      "pre": [
+        "sets",
+        "powers"
+      ],
+      "ext": [
+        "complexity",
+        "graph-theory"
+      ]
+    },
+    {
+      "id": "automata",
+      "title": "自动机与计算模型",
+      "en": "Automata & Computation",
+      "group": "theory",
+      "book": "计算理论 · 自动机",
+      "summary": "有限自动机用状态和转移描述可识别的字符串模式，是编译器词法分析和计算理论的基础模型。",
+      "goal": "能根据状态转移图追踪一个有限自动机的运行。",
+      "pre": [
+        "sets",
+        "propositional-logic"
+      ],
+      "ext": [
+        "compiler"
+      ]
+    },
+    {
+      "id": "software-engineering",
+      "title": "软件工程",
+      "en": "Software Engineering",
+      "group": "software",
+      "book": "软件工程 · 生命周期与设计",
+      "summary": "软件工程通过需求、设计、实现、测试和维护等实践，帮助团队构建可靠且可演进的软件。",
+      "goal": "能说出软件生命周期的主要阶段及其目的。",
+      "pre": [
+        "functions-procedures"
+      ],
+      "ext": [
+        "software-testing",
+        "version-control"
+      ]
+    },
+    {
+      "id": "software-testing",
+      "title": "软件测试",
+      "en": "Software Testing",
+      "group": "testing",
+      "book": "软件工程 · 软件测试",
+      "summary": "软件测试通过设计输入和检查结果，发现程序与需求之间的偏差；测试能提供证据，但不能证明程序绝无错误。",
+      "goal": "能为一个简单函数设计正常、边界和异常输入。",
+      "pre": [
+        "software-engineering",
+        "algorithm"
+      ],
+      "ext": [
+        "version-control"
+      ]
+    },
+    {
+      "id": "version-control",
+      "title": "版本控制与协作",
+      "en": "Version Control",
+      "group": "version-control",
+      "book": "软件工程 · 开发协作",
+      "summary": "版本控制系统记录文件变化，支持并行协作、差异比较和在必要时恢复到历史状态。",
+      "goal": "能理解提交、分支、合并和冲突的基本含义。",
+      "pre": [
+        "functions-procedures"
+      ],
+      "ext": [
+        "software-engineering"
+      ]
+    },
+    {
+      "id": "distributed-systems",
+      "title": "分布式系统入门",
+      "en": "Distributed Systems",
+      "group": "network",
+      "book": "分布式系统 · 基本概念",
+      "summary": "分布式系统由通过网络协作的多个计算节点组成，需要面对延迟、部分故障和数据一致性等问题。",
+      "goal": "能解释分布式系统与单机程序在故障模型上的一个关键差异。",
+      "pre": [
+        "networking",
+        "processes-threads"
+      ],
+      "ext": [
+        "cybersecurity"
+      ]
+    }
+  ],
+  "lessonLibrary": {
+    "place-value": {
+      "lead": "位置记数法把“数字是什么”和“数字在哪里”结合起来。它是从数学记数法走向计算机数据表示的一座桥。",
+      "history": "1703 年，莱布尼茨发表了系统讨论二进制算术的论文。二进制数学早于电子计算机；后来数字电路才把两种逻辑状态与位串表示联系起来。",
+      "sections": [
+        {
+          "title": "位权决定数值",
+          "body": "在十进制 583 中，5 在百位、8 在十位、3 在个位，因此 583 = 5×10² + 8×10¹ + 3×10⁰。位置不同，数字的权值就不同。"
+        },
+        {
+          "title": "推广到任意基数",
+          "body": "基数为 b 时，每一位只能取 0 到 b−1；从右往左，第 i 位的权值为 b 的 i 次幂。",
+          "formula": "(dₖ…d₁d₀)ᵦ = Σ dᵢbⁱ"
+        },
+        {
+          "title": "例子：把二进制读成十进制",
+          "body": "(1101)₂ = 1×2³ + 1×2² + 0×2¹ + 1×2⁰ = 8 + 4 + 0 + 1 = 13。注意下标表示基数，不是乘法。"
+        },
+        {
+          "title": "小数部分也遵循位权",
+          "body": "小数点右侧第 j 位的权值是 b⁻ʲ。位置记数法不只表示整数，也可以表示有限或无限展开的小数。",
+          "formula": "(0.d₁d₂…)ᵦ = Σ dⱼb⁻ʲ",
+          "example": "(0.11)₂=1×2⁻¹+1×2⁻²=0.75。"
+        },
+        {
+          "title": "零作为占位符",
+          "body": "位置记数法需要零表示某一位没有对应数量。例如 205 中十位的 0 区分 205 与 25；省略占位符会改变后续位权。"
+        },
+        {
+          "title": "基数与数字符号",
+          "body": "基数 b 决定每一位可用的数字范围。十六进制用 A 到 F 表示 10 到 15；更一般的基数需要先约定符号表。"
+        }
+      ]
+    },
+    "base-conversion": {
+      "lead": "进制转换是在不同位置记数法之间转换同一个数值。转换时要区分整数部分、小数部分和每一位的权值。",
+      "sections": [
+        {
+          "title": "从二进制转十进制",
+          "body": "按位权展开后求和。例如 (10110)₂ = 1×16 + 0×8 + 1×4 + 1×2 + 0×1 = 22。"
+        },
+        {
+          "title": "从十进制整数转二进制",
+          "body": "反复除以 2，记录余数，直到商为 0；从最后一个余数向前读取。余数顺序反过来，是因为第一次得到的是最低位。",
+          "formula": "13 ÷ 2 → 余 1；6 ÷ 2 → 余 0；3 ÷ 2 → 余 1；1 ÷ 2 → 余 1，因此 13 = (1101)₂。"
+        },
+        {
+          "title": "检查方法",
+          "body": "将结果再按位权展开，确认它还原为原来的数值。对于十六进制，每一位可以直接对应四个二进制位。"
+        },
+        {
+          "title": "除基取余为何有效",
+          "body": "整数 N 除以基数 b 可写成 N=bq+r，其中 0≤r<b。余数 r 是最低位；对商 q 重复这个过程，依次得到更高位。",
+          "formula": "N=bq₀+r₀=b(bq₁+r₁)+r₀=…"
+        },
+        {
+          "title": "小数转换与循环",
+          "body": "十进制小数转换到 b 进制时，反复乘 b 并取整数部分作为下一位。若小数部分重复出现，展开会循环，未必能有限表示。",
+          "example": "0.1₁₀ 在二进制中是无限循环小数，有限位格式必须舍入。"
+        },
+        {
+          "title": "二进制与十六进制",
+          "body": "16=2⁴，所以每个十六进制数位对应四个二进制位。转换时从小数点两侧每四位分组，不足四位时补零。"
+        }
+      ]
+    },
+    "bits-bytes": {
+      "lead": "位串是计算机表示和传送信息的底层材料。相同位串可以按不同编码规则解释成数字、字符或指令。",
+      "history": "香农在 1937 年的硕士论文中展示了布尔代数与继电器开关电路之间的联系，为逻辑运算如何由电路实现提供了数学描述。",
+      "sections": [
+        {
+          "title": "位与字节",
+          "body": "bit 是二进制位；一个字节通常是 8 bit。n 位总共有 2ⁿ 种不同组合，例如 8 位有 256 种组合。"
+        },
+        {
+          "title": "位串本身没有固定含义",
+          "body": "01000001 可以被某个字符编码解释为字母 A，也可以按无符号整数解释为 65。必须同时知道编码规则和数据类型。"
+        },
+        {
+          "title": "物理实现是近似的",
+          "body": "电路用电压范围代表逻辑 0 和逻辑 1，而不是产生绝对精确的两个电压值。留出范围可以容忍噪声。"
+        },
+        {
+          "title": "位数与状态数量",
+          "body": "n 个独立二值位可组合成 2ⁿ 种状态。状态数量是编码容量上限，但具体含义仍取决于解释规则。",
+          "formula": "n bits → 2ⁿ 种不同位串"
+        },
+        {
+          "title": "bit、byte 与 word",
+          "body": "bit 是一个二值符号；byte 通常定义为 8 bits；word 是处理器或指令集常用的数据宽度，具体位数因架构而异。"
+        },
+        {
+          "title": "二进制与可靠电路",
+          "body": "工程电路用电压区间区分逻辑 0 和 1，以噪声容限避免小幅波动造成状态误判。二值抽象是可靠实现的设计选择。"
+        }
+      ]
+    },
+    "unsigned": {
+      "lead": "定长无符号整数用 n 个二进制位表示非负整数。位数固定，表示范围也就固定。",
+      "sections": [
+        {
+          "title": "表示范围",
+          "body": "n 位共有 2ⁿ 种位串，从全 0 到全 1，分别解释为 0 到 2ⁿ−1。"
+        },
+        {
+          "title": "例子：4 位无符号数",
+          "body": "4 位最大值是 1111₂ = 15，最小值是 0000₂ = 0，因此范围为 0 到 15。"
+        },
+        {
+          "title": "范围外的值",
+          "body": "若结果超出位宽，机器不会自动增加位数。结果如何被解释取决于运算规则；这会引出溢出问题。",
+          "formula": "0 ≤ x ≤ 2ⁿ − 1"
+        },
+        {
+          "title": "编码与解码",
+          "body": "对 n 位位串 bₙ₋₁…b₀，无符号解释把每位乘以对应的 2 次幂再求和。",
+          "formula": "value = Σ bᵢ2ⁱ；范围 [0,2ⁿ−1]"
+        },
+        {
+          "title": "加法的截断",
+          "body": "固定 n 位相加时，结果保留低 n 位。若需要精确数学结果，应额外检查进位或使用更宽类型。",
+          "example": "8 位 250+10=260；保留低 8 位得到 4，并产生进位。"
+        },
+        {
+          "title": "无符号数与比较",
+          "body": "无符号比较按 0 到 2ⁿ−1 的自然顺序解释位串；同一位串按补码解释时，大小顺序可能不同。"
+        }
+      ]
+    },
+    "twos-complement": {
+      "lead": "补码是现代处理器表示有符号整数的常见方法。它让加法器可以用统一的二进制加法处理正数与负数。",
+      "sections": [
+        {
+          "title": "用固定宽度表示负数",
+          "body": "n 位补码范围为 −2ⁿ⁻¹ 到 2ⁿ⁻¹−1。正数按普通二进制写；负数可通过按位取反再加 1 得到。"
+        },
+        {
+          "title": "例子：4 位表示 −3",
+          "body": "+3 是 0011；取反得到 1100，再加 1 得到 1101。因此 1101₂ 在 4 位补码中表示 −3。"
+        },
+        {
+          "title": "为什么范围不对称",
+          "body": "4 位补码从 1000 到 0111，对应 −8 到 +7。负数比正数多一个，是因为 0 占用了非负一侧的一个编码。"
+        },
+        {
+          "title": "按位权解释补码",
+          "body": "n 位补码可按最高位负权、其余位正权求和；这与“取反再加一”是两种等价理解方法。",
+          "formula": "value = −bₙ₋₁2ⁿ⁻¹ + Σᵢ₌₀ⁿ⁻² bᵢ2ⁱ"
+        },
+        {
+          "title": "为什么加法器可复用",
+          "body": "补码把负数编码为模 2ⁿ 的剩余类，因此低 n 位加法结果与整数和的补码表示一致；加法与减法可以共享加法器。"
+        },
+        {
+          "title": "最小负数的边界",
+          "body": "n 位补码范围不对称，最小负数的相反数无法在相同位宽表示。例如 8 位 −128 的正数 128 超出范围。"
+        }
+      ]
+    },
+    "boolean-algebra": {
+      "lead": "布尔代数把命题逻辑变成可计算的代数系统。数字电路可以实现这些运算，逻辑门则是它们的基本构件。",
+      "sections": [
+        {
+          "title": "三种基本运算",
+          "body": "AND（与）只有两个输入都为真时输出真；OR（或）至少一个输入为真时输出真；NOT（非）翻转真假。"
+        },
+        {
+          "title": "真值表",
+          "body": "对两个布尔输入 A、B，逐一列出所有输入组合及输出，可以完整定义一个逻辑运算。"
+        },
+        {
+          "title": "化简与电路",
+          "body": "逻辑等价式允许把复杂表达式改写得更简单。表达式的结构会影响所需门数、延迟和电路成本。"
+        },
+        {
+          "title": "真值表与逻辑等价",
+          "body": "两个表达式若对每种输入组合都输出相同结果，就逻辑等价。真值表是验证小型表达式最直接的方法。"
+        },
+        {
+          "title": "常用代数规律",
+          "body": "交换律、结合律、分配律、互补律和德摩根律允许重排或化简表达式；每一步都必须保持真假关系。"
+        },
+        {
+          "title": "布尔值不等于整数",
+          "body": "硬件和编程语言可能用位值或整数编码布尔值，但逻辑语义仍只有真与假两种状态。"
+        }
+      ]
+    },
+    "complexity": {
+      "lead": "复杂度描述资源消耗如何随输入规模增长。它不是某台机器上的秒数，而是比较算法扩展能力的一种抽象尺度。",
+      "sections": [
+        {
+          "title": "先明确输入规模",
+          "body": "排序通常用元素个数 n；图算法常同时依赖顶点数 |V| 和边数 |E|。选择不合适的规模参数会造成误判。"
+        },
+        {
+          "title": "循环次数转成增长率",
+          "body": "两层各运行 n 次的嵌套循环，基本操作大约执行 n² 次，因此时间复杂度是 Θ(n²)。"
+        },
+        {
+          "title": "O 与 Θ",
+          "body": "O(g(n)) 表示渐近上界；Θ(g(n)) 表示上下界同阶。复杂度分析应说明采用的输入模型和最好、最坏或平均情形。"
+        }
+      ]
+    },
+    "graph-theory": {
+      "lead": "图是由顶点和边组成的数学结构，适合表示网络、依赖、地图和社交关系。",
+      "sections": [
+        {
+          "title": "顶点与边",
+          "body": "顶点代表对象，边代表对象之间的关系。边可以有方向，也可以带权值。"
+        },
+        {
+          "title": "路径与连通",
+          "body": "路径是由连续边组成的顶点序列。若两个顶点之间存在路径，它们就是连通的；有向图还要区分可达方向。"
+        },
+        {
+          "title": "计算机中的应用",
+          "body": "图结构是抽象模型。存储为邻接表还是邻接矩阵，会影响空间使用以及查询某条边的效率。"
+        }
+      ]
+    },
+    "bfs-dfs": {
+      "lead": "BFS 和 DFS 是系统遍历图的两种基本策略。BFS 按层扩展，DFS 沿着一条路径尽可能深入。",
+      "sections": [
+        {
+          "title": "广度优先搜索",
+          "body": "BFS 使用队列保存待访问顶点。它按距离起点的层次访问顶点，因此在无权图中可以求最少边数路径。"
+        },
+        {
+          "title": "深度优先搜索",
+          "body": "DFS 使用递归或显式栈。它适合探索连通分量、检测环和拓扑排序等问题。"
+        },
+        {
+          "title": "遍历顺序可能不唯一",
+          "body": "同一张图的访问顺序取决于邻接点顺序。比较算法时要说明规则，例如按顶点编号从小到大访问。"
+        }
+      ]
+    },
+    "integers": {
+      "lead": "自然数适合计数，但减法并不总能留在自然数中。为了让减法也有结果，我们扩充数系，引入零和负整数；计算机中的定长整数则是对数学整数的有限表示。",
+      "sections": [
+        {
+          "title": "为什么需要整数",
+          "body": "在自然数中，3−5 没有自然数答案。引入负数后，减法可以解释为加上相反数：3−5=3+(−5)=−2。"
+        },
+        {
+          "title": "从自然数构造整数",
+          "body": "一种严格构造把有序对 (a,b) 看成差 a−b。不同有序对可能表示同一个整数，因此需要把它们按等价关系合并。",
+          "formula": "(a,b) ~ (c,d)  当且仅当  a+d=b+c"
+        },
+        {
+          "title": "例子：同一个整数的不同表示",
+          "body": "(5,2) 表示 5−2=3，(4,1) 也表示 4−1=3。按照上面的关系，5+1=2+4，因此它们属于同一个等价类。",
+          "example": "−2 可由 (0,2) 表示；7−5 对应 (7,5)，运算结果再归约为对应的整数。"
+        },
+        {
+          "title": "运算如何从差对继承",
+          "body": "等价类上的运算要与“a−b”的直觉一致，并且不能依赖选取哪一个代表对。下面给出标准定义；证明其良定义需要检查换用等价代表不会改变结果。",
+          "formula": "[(a,b)]+[(c,d)]=[(a+c,b+d)]；　−[(a,b)]=[(b,a)]"
+        },
+        {
+          "title": "整数运算的结构",
+          "body": "整数对加法、减法和乘法封闭；加法有单位元 0，每个整数有相反数。整数除法则不封闭，例如 7÷2 不是整数。"
+        },
+        {
+          "title": "数学整数与机器整数",
+          "body": "数学整数没有固定大小上限；机器整数使用有限位数表示，超出范围时会产生溢出或其他规定行为。后续课程会区分数值本身和它的编码。"
+        }
+      ],
+      "references": [
+        "Peano, Arithmetices principia, nova methodo exposita, 1889（自然数公理化的经典来源）。"
+      ]
+    },
+    "powers": {
+      "lead": "乘方用一个底数和一个指数表示重复乘法。二进制记数中的位权、位数范围以及许多算法的增长率都会用到乘方。",
+      "sections": [
+        {
+          "title": "指数表示重复乘法",
+          "body": "对正整数 k，aᵏ 表示 k 个 a 相乘；a⁰=1（a≠0）。例如 2⁴=2×2×2×2=16。"
+        },
+        {
+          "title": "常用运算规律",
+          "body": "同底数相乘可相加指数：aᵐaⁿ=aᵐ⁺ⁿ；同底数相除可相减指数（分母不为 0）。"
+        },
+        {
+          "title": "计算机中的 2 的幂",
+          "body": "n 位二进制共有 2ⁿ 种位串。每增加一位，可能的组合数就翻倍。"
+        }
+      ]
+    },
+    "sets": {
+      "lead": "从数学的视角看，集合论提供了一种统一描述对象、关系和结构的语言。它适合作为形式化学习的起点；但要注意，自然数在人类历史上早于现代集合论出现。",
+      "history": "人类先有计数和数的使用，集合论则在十九世纪发展为现代数学的重要基础。康托尔研究无穷集合后，数学家进一步发展公理化集合论，以避免朴素集合概念带来的悖论。",
+      "sections": [
+        {
+          "title": "成员关系与集合相等",
+          "body": "x∈A 表示 x 是集合 A 的元素。集合相等不看书写顺序，而看成员是否完全相同；这是外延公理的直观表达。",
+          "points": [
+            "空集 ∅ 不含任何元素。",
+            "子集 A⊆B 表示 A 的每个元素都属于 B。",
+            "元素和单元素集合不同：x 与 {x} 不是同一个对象。"
+          ]
+        },
+        {
+          "title": "基本集合运算",
+          "body": "并集收集属于任一集合的元素；交集收集同时属于两者的元素；差集保留属于 A 但不属于 B 的元素。",
+          "formula": "A∪B，A∩B，A\\B"
+        },
+        {
+          "title": "有序对、关系与函数",
+          "body": "A×B 是所有有序对 (a,b) 的集合。关系可以看作 A×B 的子集；函数则要求每个定义域元素恰好对应一个输出。"
+        },
+        {
+          "title": "自然数的一种集合构造",
+          "body": "冯·诺伊曼构造是一种把自然数表示成集合的模型：0=∅，后继 S(n)=n∪{n}。于是 1={∅}，2={∅,{∅}}。这是一种形式化构造，不是自然数在历史上的起源。",
+          "example": "因为 1={0}，所以 2={0,1}；每个自然数都包含所有更小的自然数。"
+        },
+        {
+          "title": "为什么还需要公理",
+          "body": "朴素地说“任何性质都对应一个集合”会产生悖论。现代公理化集合论限制集合的构造方式；入门阶段先掌握集合语言，再逐步学习形式公理。"
+        }
+      ],
+      "references": [
+        "Halmos, Naive Set Theory, 1960。",
+        "Zermelo–Fraenkel 集合论：现代数学常用的公理化基础之一。"
+      ]
+    },
+    "peano-axioms": {
+      "lead": "皮亚诺公理用“零”和“后继”刻画自然数。它不依赖数轴图像，而是给出一套可以定义算术、证明性质的形式规则。",
+      "history": "自然数早已用于计数。十九世纪末，皮亚诺以公理系统整理自然数的性质；这让数学家可以明确区分“直觉上显然”与“从公理推出”。",
+      "sections": [
+        {
+          "title": "零与后继",
+          "body": "采用自然数包含 0 的约定，记自然数集合为 ℕ。每个自然数 n 有后继 S(n)，可把它直观理解为 n+1。",
+          "formula": "0∈ℕ；若 n∈ℕ，则 S(n)∈ℕ"
+        },
+        {
+          "title": "皮亚诺公理的核心内容",
+          "body": "不同教材会采用略有差异的编号与表述，核心结构包括：",
+          "points": [
+            "0 是自然数。",
+            "每个自然数有一个自然数后继。",
+            "0 不是任何自然数的后继。",
+            "若两个自然数后继相等，则它们本身相等。",
+            "归纳原则：包含 0 且对后继封闭的性质，适用于所有自然数。"
+          ]
+        },
+        {
+          "title": "归纳原则为何重要",
+          "body": "归纳原则可以表述为：若性质 P 对 0 成立，并且 P(n) 能推出 P(S(n))，则 P 对所有自然数成立。它排除了“从 0 开始，中间漏掉某些数”的序列。"
+        },
+        {
+          "title": "从后继递归定义加法",
+          "body": "加法可以递归定义：先规定加 0 不改变数，再规定加一个后继等于先加原数、再取后继。",
+          "formula": "a+0=a； a+S(b)=S(a+b)",
+          "example": "2+2=2+S(1)=S(2+1)=S(S(2+0))=4。"
+        }
+      ],
+      "references": [
+        "Giuseppe Peano, Arithmetices principia, nova methodo exposita, 1889。"
+      ]
+    },
+    "natural-numbers": {
+      "lead": "自然数可以从计数经验出发，再用后继结构和公理精确描述。通过递归定义，我们还能从最基本的自然数构造加法、乘法和幂。",
+      "sections": [
+        {
+          "title": "自然数从哪里来",
+          "body": "数数时我们关心“有几个”：一个对象、两个对象、三个对象……这种计数经验形成了自然数概念。形式数学则需要说明这些数的对象、规则和性质。"
+        },
+        {
+          "title": "0 与 1 的约定",
+          "body": "有些传统教材把 ℕ 定义为 {1,2,3,…}；现代离散数学和计算机科学常用 ℕ={0,1,2,…}。学习时要先声明采用哪种约定。"
+        },
+        {
+          "title": "递归定义加法与乘法",
+          "body": "在皮亚诺结构中，先定义关于第二个参数的递归规则。",
+          "formula": "a+0=a； a+S(b)=S(a+b)　　a×0=0； a×S(b)=a×b+a",
+          "example": "计算 2+2：2+0=2；2+1=S(2+0)=3；2+2=S(2+1)=4。"
+        },
+        {
+          "title": "归纳证明加法性质",
+          "body": "交换律 a+b=b+a 不是定义本身，而是可以从递归定义与归纳原则证明的定理。先固定 a，对 b 做归纳，分别证明基础情形和后继情形。"
+        },
+        {
+          "title": "从自然数走向整数",
+          "body": "自然数加法和乘法可以一直进行，但减法 3−5 在自然数中无解。整数正是为让减法有统一结果而扩充出的数系。"
+        }
+      ]
+    },
+    "propositional-logic": {
+      "lead": "命题逻辑研究真假命题如何通过逻辑连接词组合。它既是数学证明的工具，也是数字逻辑和程序条件的理论基础。",
+      "sections": [
+        {
+          "title": "命题与连接词",
+          "body": "命题是可以判定真或假的陈述。常见连接词包括 NOT、AND、OR 和蕴含。"
+        },
+        {
+          "title": "蕴含的真值",
+          "body": "P→Q 只在 P 为真而 Q 为假时为假。它表达逻辑关系，不表示 P 一定会在时间上导致 Q。"
+        },
+        {
+          "title": "真值表",
+          "body": "列出所有输入真假组合并计算输出，可以检验两个逻辑表达式是否等价。"
+        }
+      ]
+    },
+    "proofs": {
+      "lead": "证明不是举几个例子，而是说明结论为何对所有符合条件的对象都成立。归纳法尤其适合证明关于自然数规模的命题。",
+      "sections": [
+        {
+          "title": "归纳证明的结构",
+          "body": "先证明基础情形成立；再假设命题对 k 成立，并据此证明它对 k+1 也成立。"
+        },
+        {
+          "title": "程序中的用途",
+          "body": "循环不变量和递归正确性证明也使用类似思路：描述一个状态性质，并证明初始化、保持和结束时的结论。"
+        },
+        {
+          "title": "容易遗漏的地方",
+          "body": "归纳步必须从归纳假设推出下一步，不能只验证几个小规模样例。"
+        }
+      ]
+    },
+    "logarithms": {
+      "lead": "对数是乘方的逆运算。它常用来描述不断折半、树的高度，以及算法规模增长。",
+      "sections": [
+        {
+          "title": "定义",
+          "body": "若 bˣ=n，则 log_b n=x。例如 2³=8，所以 log₂8=3。"
+        },
+        {
+          "title": "为什么二分是对数级",
+          "body": "每一步把候选范围缩小一半。经过 k 步后规模约为 n/2ᵏ；当它降到 1 时，k 约为 log₂n。"
+        },
+        {
+          "title": "对数的底数",
+          "body": "在渐近复杂度中，固定底数之间只差常数倍，因此常简写为 O(log n)。"
+        }
+      ]
+    },
+    "modular-arithmetic": {
+      "lead": "模运算只保留除法后的余数。它自然适合描述循环状态，也广泛用于哈希和密码学中的整数运算。",
+      "sections": [
+        {
+          "title": "余数与同余",
+          "body": "a mod m 是 a 除以 m 的余数。若 a 与 b 除以 m 的余数相同，就称它们模 m 同余。"
+        },
+        {
+          "title": "时钟例子",
+          "body": "12 小时制中，10 点再过 5 小时是 (10+5) mod 12 = 3 点。"
+        },
+        {
+          "title": "计算机用途",
+          "body": "环形缓冲区下标常用 (i+1) mod n；哈希函数也可能用取模把整数映射到有限槽位。"
+        }
+      ]
+    },
+    "functions-mappings": {
+      "lead": "函数把每个合法输入映射到唯一输出。它可以描述数学关系、程序行为、编码过程和算法的输入输出。",
+      "sections": [
+        {
+          "title": "定义域与值域",
+          "body": "定义域是允许的输入集合；每个定义域元素必须对应唯一输出。输出实际形成的集合称为值域。"
+        },
+        {
+          "title": "函数不要求一对一",
+          "body": "多个输入可以映射到同一个输出；但同一个输入不能在同一函数中对应两个不同输出。"
+        },
+        {
+          "title": "计算机中的例子",
+          "body": "字符编码可以看作字符到数字的映射；程序函数则把参数值映射到返回值或可观察行为。"
+        }
+      ]
+    },
+    "probability": {
+      "lead": "概率为不确定事件提供定量描述。应用概率公式之前，必须先说明样本空间以及是否采用等可能假设。",
+      "sections": [
+        {
+          "title": "样本空间与事件",
+          "body": "样本空间列出一次随机试验的所有可能结果；事件是其中一部分结果。"
+        },
+        {
+          "title": "等可能情形",
+          "body": "若有限样本空间中的结果等可能，则事件概率等于有利结果数除以结果总数。这个公式不能在结果不等可能时直接套用。"
+        },
+        {
+          "title": "算法中的概率",
+          "body": "随机算法会用随机选择改变运行过程；分析平均性能时，需要对随机选择或输入分布作出明确假设。"
+        }
+      ]
+    },
+    "statistics": {
+      "lead": "统计学从样本数据中总结规律，并估计总体特征。描述统计与概率互相关联，但回答的问题并不相同。",
+      "sections": [
+        {
+          "title": "均值与中位数",
+          "body": "均值把数值相加后除以个数；中位数是排序后处于中间位置的值。极端值通常对均值影响更大。"
+        },
+        {
+          "title": "离散程度",
+          "body": "方差与标准差描述数据围绕均值的变化程度。比较数据集时，不应只看平均值。"
+        },
+        {
+          "title": "实验与结论",
+          "body": "样本结果存在不确定性。样本数量、抽样方式和测量误差都会影响结论。"
+        }
+      ]
+    },
+    "combinatorics": {
+      "lead": "组合计数回答“有多少种可能”。正确识别选择步骤是否独立，以及顺序是否重要，是选择计数方法的关键。",
+      "sections": [
+        {
+          "title": "乘法原理",
+          "body": "若一个过程分两步完成，第一步有 m 种选择，且每一种都对应第二步的 n 种选择，则总数为 mn。"
+        },
+        {
+          "title": "排列与组合",
+          "body": "排列考虑顺序；组合不考虑顺序。例如从 5 人中选 2 人组成小组，AB 与 BA 是同一个组合。"
+        },
+        {
+          "title": "复杂度分析",
+          "body": "枚举所有子集通常需要考虑 2ⁿ 种可能。计数能帮助判断穷举算法是否可行。"
+        }
+      ]
+    },
+    "linear-algebra": {
+      "lead": "线性代数用向量表示多维量，用矩阵表示线性变换。它是图形学、信号处理和机器学习的重要数学语言。",
+      "sections": [
+        {
+          "title": "向量",
+          "body": "向量可以看作一组有序数值，例如二维位置 (x,y) 或一组特征。相同维度的向量可以逐项相加。"
+        },
+        {
+          "title": "矩阵乘向量",
+          "body": "矩阵乘向量把输入向量映射到新的向量。图形变换和线性模型都可以用这种形式表示。"
+        },
+        {
+          "title": "学习建议",
+          "body": "先理解维度、向量加法和矩阵乘向量，再进入特征值、分解或高维优化等主题。"
+        }
+      ]
+    },
+    "floating-point": {
+      "lead": "浮点数用有限位数近似表示实数。它能覆盖很大的数值范围，但精度有限，因此运算可能产生舍入误差。",
+      "sections": [
+        {
+          "title": "科学记数法的机器版本",
+          "body": "浮点数通常由符号、指数和有效数等字段组成，类似科学记数法中的正负号、数量级和有效数字。"
+        },
+        {
+          "title": "舍入误差",
+          "body": "某些十进制小数在二进制中是无限循环展开，有限位数只能保存近似值。多个近似运算可能累积误差。"
+        },
+        {
+          "title": "编程中的影响",
+          "body": "比较浮点结果时，常用容差判断；处理极大、极小数时还要留意溢出、下溢和精度损失。"
+        },
+        {
+          "title": "字段与规格化",
+          "body": "IEEE 754 单精度通常由 1 位符号、8 位指数和 23 位小数字段组成；规格化数还有一个隐含最高有效位。",
+          "formula": "数值 ≈ (−1)ˢ × significand × 2ᵉ"
+        },
+        {
+          "title": "精度与舍入",
+          "body": "浮点数在有限有效位下舍入到可表示值。两个接近数相减时，有效位可能抵消，导致相对误差变大。"
+        },
+        {
+          "title": "特殊值",
+          "body": "IEEE 754 还定义正负无穷、NaN、正负零和非规格化数。NaN 与任何数（包括自身）的相等比较都为假。"
+        }
+      ],
+      "references": [
+        "IEEE 754-2019, Standard for Floating-Point Arithmetic。"
+      ]
+    },
+    "functions-procedures": {
+      "lead": "函数和过程把程序分解成有名字、可复用的单元。接口说明输入与输出，局部变量和作用域帮助隔离实现细节。",
+      "sections": [
+        {
+          "title": "参数与返回值",
+          "body": "调用者提供实参，函数接收形参并执行一段逻辑；函数可以返回结果，也可以通过副作用改变外部状态。"
+        },
+        {
+          "title": "调用栈",
+          "body": "调用函数时，运行环境需要保存返回位置和局部状态。嵌套调用通常由调用栈管理。"
+        },
+        {
+          "title": "抽象与复用",
+          "body": "将重复逻辑封装为函数，能减少重复代码；良好的函数接口也让模块更容易测试和维护。"
+        }
+      ]
+    },
+    "arrays": {
+      "lead": "数组把同类型元素按连续索引组织起来。随机访问快，但在中间插入或删除元素时，通常需要移动后续元素。",
+      "sections": [
+        {
+          "title": "索引与地址",
+          "body": "数组通过索引定位元素。若元素大小固定，地址可以由起始地址、索引和元素大小计算。"
+        },
+        {
+          "title": "数组与链表",
+          "body": "数组便于按下标访问且通常具有较好的缓存局部性；链表便于在已知位置调整链接，但按序号查找较慢。"
+        },
+        {
+          "title": "抽象数据类型",
+          "body": "栈和队列描述操作规则，不限定唯一实现；它们可以由数组或链表实现。"
+        }
+      ]
+    },
+    "recursion": {
+      "lead": "递归函数在解决问题时调用自身。每个递归方案都必须说明何时停止，以及子问题为何逐渐接近停止条件。",
+      "sections": [
+        {
+          "title": "两个必要部分",
+          "body": "基例直接给出答案；递归步骤把当前问题转化为规模更小的同类问题。缺少基例会导致无限调用。"
+        },
+        {
+          "title": "递归树",
+          "body": "递归树把调用展开成树状结构，可帮助分析调用数量、深度和总工作量。"
+        },
+        {
+          "title": "空间代价",
+          "body": "每层调用通常需要保存状态，因此递归深度也会影响调用栈空间。"
+        }
+      ]
+    },
+    "sorting": {
+      "lead": "排序算法把元素按键值顺序排列。比较算法时，除了时间复杂度，也要看稳定性、额外空间和输入数据特征。",
+      "sections": [
+        {
+          "title": "排序的性质",
+          "body": "稳定排序保留相等键值元素的相对次序；原地算法只使用很少额外空间，但不一定稳定。"
+        },
+        {
+          "title": "比较排序的下界",
+          "body": "仅通过两两比较进行排序时，最坏情况下需要 Ω(n log n) 次比较。计数排序等非比较方法利用了键值范围等额外条件。"
+        },
+        {
+          "title": "选择算法",
+          "body": "小规模或近乎有序数据可能适合简单算法；大规模通用排序通常采用 O(n log n) 算法。"
+        }
+      ]
+    },
+    "hash-tables": {
+      "lead": "哈希表通过哈希函数把键映射到有限数组槽位，平均查找速度快，但不同键可能映射到同一槽位。",
+      "sections": [
+        {
+          "title": "哈希函数与冲突",
+          "body": "哈希函数把键映射成索引。冲突是两个不同键映射到同一位置，并不意味着哈希函数失效。"
+        },
+        {
+          "title": "常见冲突处理",
+          "body": "链地址法在槽位保存元素链；开放寻址法沿探查序列寻找空槽。"
+        },
+        {
+          "title": "装载因子",
+          "body": "装载因子是元素数量与槽位数量之比。装载因子越高，冲突通常越多，操作性能会受影响。"
+        }
+      ]
+    },
+    "dynamic-programming": {
+      "lead": "动态规划保存子问题的结果，避免重复计算。设计关键是定义状态、写出转移关系，并确定计算顺序。",
+      "sections": [
+        {
+          "title": "识别适用结构",
+          "body": "常见线索是相同子问题反复出现，且整体最优解可以由子问题的最优解组合得到。"
+        },
+        {
+          "title": "状态与转移",
+          "body": "先清楚定义 dp[i] 表示什么，再写出它如何由更小状态得到；最后确定初值和遍历顺序。"
+        },
+        {
+          "title": "从小例子检查",
+          "body": "用小输入手算状态表，检查每个状态的含义和转移是否一致，能较早发现定义错误。"
+        }
+      ]
+    },
+    "graph-representation": {
+      "lead": "图的表示决定了如何在程序中存储顶点与边。邻接表和邻接矩阵在空间占用与查询效率上各有取舍。",
+      "sections": [
+        {
+          "title": "邻接矩阵",
+          "body": "用二维矩阵记录每对顶点之间是否有边。查询一条边是否存在很快，但空间为 O(|V|²)。"
+        },
+        {
+          "title": "邻接表",
+          "body": "为每个顶点保存相邻顶点列表，空间约为 O(|V|+|E|)，适合稀疏图。"
+        },
+        {
+          "title": "选用表示",
+          "body": "若图很稠密或常查询任意两点是否相邻，矩阵可能方便；若边较少且需要遍历邻居，邻接表通常更省空间。"
+        }
+      ]
+    },
+    "shortest-paths": {
+      "lead": "最短路径问题寻找从起点到目标点总代价最小的路径。边权条件决定应选择哪一种算法。",
+      "sections": [
+        {
+          "title": "无权图",
+          "body": "所有边代价相同，可用 BFS 按路径边数逐层搜索，第一次到达目标时就是最少边数路径。"
+        },
+        {
+          "title": "非负权图",
+          "body": "Dijkstra 算法反复确定当前距离最小的未处理顶点，并松弛其出边；它要求边权非负。"
+        },
+        {
+          "title": "注意算法前提",
+          "body": "存在负权边时不能直接使用标准 Dijkstra；需要选择满足问题条件的其他算法。"
+        }
+      ]
+    },
+    "software-engineering": {
+      "lead": "软件工程不只是写代码，而是组织需求、设计、实现、验证和维护的完整过程。它关注如何在约束下持续交付可靠的软件。",
+      "sections": [
+        {
+          "title": "从问题到需求",
+          "body": "先理解用户和问题，再把需求写成可讨论、可验证的行为与约束。模糊需求会把风险传递到后续设计和实现。"
+        },
+        {
+          "title": "迭代的工程过程",
+          "body": "实际项目通常反复经历分析、设计、实现、测试和反馈，而不是一次性完成的直线流程。"
+        },
+        {
+          "title": "质量与协作",
+          "body": "代码审查、自动测试、版本管理和文档帮助团队降低变更风险；它们是工程实践，不是某一种编程语言的特性。"
+        }
+      ]
+    },
+    "software-testing": {
+      "lead": "测试通过执行程序或检查其行为，寻找实现与需求之间的偏差。测试能发现缺陷，但有限的测试不能证明程序绝对正确。",
+      "sections": [
+        {
+          "title": "测试用例由什么组成",
+          "body": "一个用例至少应明确前置条件、输入、执行步骤和预期结果。没有预期结果，就无法判断运行是否正确。"
+        },
+        {
+          "title": "边界与等价类",
+          "body": "把输入划分为行为相似的类别，并重点检查范围边界。例如年龄允许 0 到 120 时，要测试 0、120 及其邻近值。"
+        },
+        {
+          "title": "测试的局限",
+          "body": "通过所有已有测试，只说明程序在这些测试条件下表现符合预期；测试集是否覆盖了重要行为仍需分析。"
+        }
+      ]
+    },
+    "version-control": {
+      "lead": "版本控制记录项目文件如何变化，帮助开发者回看历史、并行工作并整合不同修改。",
+      "sections": [
+        {
+          "title": "提交是有意义的快照",
+          "body": "一次 commit 记录一组相关变更及说明。小而聚焦的提交更容易审查和定位问题。"
+        },
+        {
+          "title": "分支与合并",
+          "body": "分支允许在不影响主线的情况下开发功能；合并把分支上的修改整合回来。"
+        },
+        {
+          "title": "冲突不是数据丢失",
+          "body": "当不同修改触及相同内容时，版本控制无法自动判断最终意图，需要开发者比较并解决冲突。"
+        }
+      ]
+    },
+    "compiler": {
+      "lead": "编译器把程序从一种表示转换为另一种表示。把流程拆成阶段，可以分别检查文本结构、语义和目标代码。",
+      "sections": [
+        {
+          "title": "词法与语法",
+          "body": "词法分析把字符分成 token；语法分析根据文法把 token 组织成语法结构。"
+        },
+        {
+          "title": "语义与代码生成",
+          "body": "语义分析检查类型、名字绑定等含义是否一致；随后编译器可以生成中间表示或目标机器代码。"
+        },
+        {
+          "title": "编译错误与运行错误",
+          "body": "语法错误在编译阶段发现；运行时错误则发生在程序执行期间。静态检查可以提前发现部分问题，但不能替代测试。"
+        }
+      ]
+    },
+    "overflow": {
+      "lead": "溢出发生在数学结果超出当前数值格式可表示范围时。固定宽度位串仍会产生，但它的解释可能与数学整数结果不同。",
+      "sections": [
+        {
+          "title": "无符号加法的回绕",
+          "body": "n 位无符号数通常按模 2ⁿ 解释。结果超出最大值时，高位被丢弃，留下低 n 位。",
+          "formula": "4 位：1111₂ + 0001₂ = 1 0000₂ → 0000₂"
+        },
+        {
+          "title": "补码的有符号溢出",
+          "body": "补码运算超出 −2ⁿ⁻¹ 到 2ⁿ⁻¹−1 时发生有符号溢出。仅看最终位串不够，必须结合操作数和目标格式判断。",
+          "example": "4 位补码最大值 7。7+1 的位串结果是 1000₂，它按 4 位补码解释为 −8，不能当作数学结果 8。"
+        },
+        {
+          "title": "进位不等于有符号溢出",
+          "body": "无符号加法关注最高位的进位；补码有符号溢出关注两个同号数相加后结果符号反转。两者相关但不是同一个判定条件。"
+        },
+        {
+          "title": "算术结果与位串结果",
+          "body": "先在数学整数上计算精确结果，再与当前格式的表示区间比较；不能把截断后的位串当作原始数学结果。"
+        },
+        {
+          "title": "补码溢出判定",
+          "body": "有符号加法中，两个同号操作数得到异号结果时发生溢出。最高位进位本身不能单独判定补码溢出。"
+        },
+        {
+          "title": "程序中的风险",
+          "body": "整数溢出可能让数组长度检查、内存分配或时间计算出错。安全代码会检查边界或使用足够宽的类型。"
+        }
+      ]
+    },
+    "character-codes": {
+      "lead": "字符编码把抽象字符映射为数字，再把数字编码成字节。理解这条链可以解释文本文件、网页和网络报文中的乱码问题。",
+      "history": "ASCII 早期以有限字符集服务英语文本；Unicode 旨在为多种文字提供统一字符编号，UTF-8 等编码再把编号转换成字节序列。",
+      "sections": [
+        {
+          "title": "字符、码点与字节",
+          "body": "要区分用户看到的字形、Unicode 码点以及 UTF-8/UTF-16 等编码后的字节序列。一个显示出来的字符不一定对应一个码点或一个字节。"
+        },
+        {
+          "title": "Unicode 与 UTF-8",
+          "body": "Unicode 为字符分配码点；UTF-8 是一种变长编码。ASCII 范围内的字符在 UTF-8 中仍用单字节表示，其他码点可能使用多个字节。"
+        },
+        {
+          "title": "乱码如何产生",
+          "body": "若用一种编码写入字节，却用另一种编码解读，同一字节序列会映射到不同字符。文件本身往往只保存字节，不一定保存足够的编码说明。"
+        },
+        {
+          "title": "编码链条",
+          "body": "文本涉及抽象字符、码点、编码单元、字节和字形等层次。文件格式或协议需要规定字节如何解读。"
+        },
+        {
+          "title": "UTF-8 变长编码",
+          "body": "UTF-8 用 1 到 4 个字节编码 Unicode 码点。ASCII 范围保持单字节兼容；解码时根据首字节模式确定序列长度。"
+        },
+        {
+          "title": "可见字符不等于一个码点",
+          "body": "组合附加符号和部分 emoji 可能由多个码点组成。字符串长度函数可能返回字节数、码点数或代码单元数。"
+        }
+      ],
+      "references": [
+        "The Unicode Standard, Unicode Consortium。",
+        "RFC 3629: UTF-8, a transformation format of ISO 10646。"
+      ]
+    },
+    "logic-gates": {
+      "lead": "逻辑门把布尔运算落实为电路。复杂数字电路可以由少数基本门组合而成，并由真值表精确定义其行为。",
+      "history": "香农展示了布尔代数与继电器开关网络之间的对应关系，使逻辑表达式成为分析和设计开关电路的工具。",
+      "sections": [
+        {
+          "title": "基本门与真值",
+          "body": "AND 在两个输入都为 1 时输出 1；OR 在至少一个输入为 1 时输出 1；NOT 把 0 与 1 互换。XOR 在输入不同时时输出 1。"
+        },
+        {
+          "title": "由门组成组合电路",
+          "body": "将一个门的输出接到另一个门的输入，可以构成更复杂的逻辑函数。设计时应从输入组合逐行推导输出，避免只凭电路图直觉判断。"
+        },
+        {
+          "title": "逻辑功能与物理实现",
+          "body": "门的符号是抽象模型。实际芯片内部由晶体管实现，电压范围被解释为逻辑状态；逻辑设计通常先于晶体管级实现。"
+        },
+        {
+          "title": "组合逻辑",
+          "body": "组合电路输出只由当前输入决定，没有内部记忆状态。多个逻辑门串接形成传播路径，路径长度影响延迟。"
+        },
+        {
+          "title": "NAND 的通用性",
+          "body": "只用 NAND 门也能构造 NOT、AND、OR，因此 NAND 是功能完备门的一种；实际选择仍要看目标器件与成本。"
+        },
+        {
+          "title": "组合电路与时序电路",
+          "body": "组合电路没有状态；触发器等时序元件会保存状态并受时钟控制，这是学习寄存器和处理器的基础。"
+        }
+      ]
+    },
+    "adders": {
+      "lead": "加法器是把二进制加法规则转化为逻辑电路的例子。它由和位与进位两种输出构成，是处理器算术单元的基础组件。",
+      "sections": [
+        {
+          "title": "半加器",
+          "body": "半加器把两个输入位相加，不考虑来自低位的进位。和位是 XOR，进位是 AND。",
+          "formula": "S=A⊕B； C=A∧B"
+        },
+        {
+          "title": "全加器",
+          "body": "全加器还接收来自低位的进位 Cin。三个输入相加后，输出当前位和 S 以及传向高位的 Cout。",
+          "example": "A=1、B=1、Cin=1 时，总和为 3（二进制 11），所以 S=1、Cout=1。"
+        },
+        {
+          "title": "多位加法与延迟",
+          "body": "把全加器逐位连接可得到脉动进位加法器。高位必须等待低位进位传播，因此位宽增加时延迟也可能增加；更快结构会用额外逻辑并行计算进位。"
+        },
+        {
+          "title": "全加器布尔方程",
+          "body": "全加器的和位是三个输入的奇偶校验；进位在至少两个输入为 1 时为 1。",
+          "formula": "S=A⊕B⊕Cin； Cout=AB+ACin+BCin"
+        },
+        {
+          "title": "脉动进位的路径",
+          "body": "低位产生的进位逐级传到高位。脉动进位结构简单，但最坏传播延迟会随位宽增长。"
+        },
+        {
+          "title": "进位前瞻",
+          "body": "进位前瞻电路并行估算生成与传播条件，用更多逻辑面积换取更短的进位等待时间。"
+        }
+      ],
+      "references": [
+        "Harris & Harris, Digital Design and Computer Architecture（组合逻辑与算术电路章节）。"
+      ]
+    },
+    "algorithm": {
+      "lead": "算法是解决一类问题的有限、明确步骤；程序则把步骤写成具体语言中的可执行实现。先说明问题，再设计算法，最后讨论实现。",
+      "sections": [
+        {
+          "title": "规格先于代码",
+          "body": "描述算法前要说明输入、输出、前置条件和希望满足的性质。若问题没有被精确定义，代码正确与否也无从判断。"
+        },
+        {
+          "title": "控制结构与终止",
+          "body": "顺序、分支和循环可以组合成算法步骤。循环或递归需要能说明何时停止，否则过程可能无限运行。"
+        },
+        {
+          "title": "正确性与效率",
+          "body": "正确性回答结果是否符合规格；复杂度回答所需时间和空间如何随输入规模增长。两者是不同维度，不能用运行得快来证明算法正确。"
+        }
+      ]
+    },
+    "control-flow": {
+      "lead": "控制流决定程序下一步执行哪条语句。变量保存状态，分支根据条件选择路径，循环重复执行一段逻辑。",
+      "sections": [
+        {
+          "title": "状态与赋值",
+          "body": "程序执行可以看成状态不断变化。赋值语句更新变量；分析循环时应追踪变量在每轮开始和结束时的值。"
+        },
+        {
+          "title": "分支与循环",
+          "body": "if/else 根据布尔条件选择分支；for/while 重复执行，必须有明确的结束条件以及朝着结束条件变化的状态。"
+        },
+        {
+          "title": "从伪代码到程序",
+          "body": "先用伪代码说明算法结构，再翻译成语言语法。这样能把算法设计错误与语法错误分开处理。"
+        }
+      ]
+    },
+    "trees": {
+      "lead": "树是一种有根或无根的层次结构。它在文件系统、搜索索引、语法分析和组织层级中都很常见。",
+      "sections": [
+        {
+          "title": "树的基本术语",
+          "body": "根是层次结构的起点；子节点由父节点连接；没有孩子的节点是叶子。树高描述从根到最深叶子的最长路径长度。"
+        },
+        {
+          "title": "二叉树与遍历",
+          "body": "二叉树中每个节点至多有两个孩子。前序、中序、后序遍历决定访问根节点与左右子树的先后顺序。"
+        },
+        {
+          "title": "搜索树的性质",
+          "body": "二叉搜索树通过左子树键值较小、右子树键值较大的约定支持查找；若树高度退化成 n，操作可能变成线性时间，因此平衡很重要。"
+        }
+      ]
+    },
+    "machine-instructions": {
+      "lead": "指令集架构（ISA）规定软件可见的机器指令、寄存器、数据类型与内存行为，是编译器和处理器实现之间的接口。",
+      "sections": [
+        {
+          "title": "一条指令包含什么",
+          "body": "指令通常指定操作码和操作数：做什么运算、使用哪些寄存器或立即数，以及结果写到哪里。"
+        },
+        {
+          "title": "指令格式与寻址",
+          "body": "固定长度或变长格式影响译码方式；寻址模式决定操作数如何从寄存器、指令常量或内存中取得。"
+        },
+        {
+          "title": "ISA 不等于微架构",
+          "body": "同一 ISA 可以由不同微架构实现。程序看到相同指令语义，内部流水线、缓存和执行单元却可以不同。"
+        }
+      ]
+    },
+    "cpu-datapath": {
+      "lead": "处理器数据通路负责在寄存器、运算单元和存储接口之间搬运并处理数据；控制器决定每一步选择哪条路径。",
+      "sections": [
+        {
+          "title": "核心组件",
+          "body": "程序计数器提供当前指令地址；寄存器堆保存快速操作数；ALU 执行算术逻辑运算；多路选择器选择数据来源。"
+        },
+        {
+          "title": "沿一条指令追踪",
+          "body": "以寄存器加法为例：取指得到指令，译码读出源寄存器，ALU 计算，最后把结果写回目标寄存器。"
+        },
+        {
+          "title": "控制信号",
+          "body": "控制信号选择 ALU 运算、寄存器写入、内存读写和下一条 PC 来源。数据通路图必须结合控制信号才能说明行为。"
+        }
+      ]
+    },
+    "memory-hierarchy": {
+      "lead": "存储层次用不同速度、容量和成本的存储部件共同服务程序。缓存和局部性解释了为什么小而快的存储能提升平均性能。",
+      "sections": [
+        {
+          "title": "层次取舍",
+          "body": "寄存器最快但容量很小；缓存比主存快；外存容量大但延迟更高。越靠近处理器，单位容量通常越贵。"
+        },
+        {
+          "title": "时间与空间局部性",
+          "body": "刚访问过的数据可能很快再次被访问，叫时间局部性；与已访问地址相邻的数据可能很快被访问，叫空间局部性。"
+        },
+        {
+          "title": "平均访问时间",
+          "body": "性能不仅取决于命中时延，也取决于命中率和未命中代价。优化时应根据实际访问模式分析，而非只看某一级的速度。"
+        }
+      ]
+    },
+    "operating-systems": {
+      "lead": "操作系统管理处理器、内存、设备和文件，并向程序提供更方便的抽象。它既是资源管理器，也是程序与硬件之间的接口。",
+      "sections": [
+        {
+          "title": "抽象与资源管理",
+          "body": "进程把正在运行的程序及其状态组织成执行环境；虚拟内存提供地址空间；文件系统把持久数据组织成文件。"
+        },
+        {
+          "title": "用户态与内核态",
+          "body": "应用程序通常不能直接执行所有特权操作，需要通过系统调用请求内核服务。硬件的权限机制保护系统资源。"
+        },
+        {
+          "title": "中断与并发",
+          "body": "中断使处理器能够响应异步设备事件；多进程与多线程让多个执行流共享处理器和其他资源，因此需要调度与同步。"
+        }
+      ]
+    },
+    "networking": {
+      "lead": "计算机网络让独立主机交换数据。分层把复杂通信问题拆成接口明确的子问题，数据包则是网络传送信息的基本单位之一。",
+      "history": "分组交换思想与早期数据网络的发展密切相关。分组把消息切成小块，使链路可以在多条通信之间共享；具体网络协议经过长期标准化才形成今天的互联网体系。",
+      "sections": [
+        {
+          "title": "分层解决什么问题",
+          "body": "每层向上提供服务、向下使用服务。分层允许一层内部变化，只要保持接口兼容，上下层就不必同时重写。"
+        },
+        {
+          "title": "封装与解封装",
+          "body": "发送端逐层添加首部；接收端逐层读取并移除对应首部。应用数据因此被封装成运输层段、网络层数据报和链路层帧。"
+        },
+        {
+          "title": "协议与服务",
+          "body": "协议规定对等实体之间消息格式与行为；服务描述本层向上层提供的能力。两者相关，但不是同一个概念。"
+        }
+      ]
+    },
+    "routing": {
+      "lead": "路由选择决定数据包从源到目的地经过哪些网络；转发则是每台路由器依据本地转发表把分组送到下一跳。",
+      "sections": [
+        {
+          "title": "把网络建模为图",
+          "body": "路由器或网络节点可以作为顶点，链路作为边；边权可以表示代价、延迟或管理策略。最短路径只是路由决策的一种模型。"
+        },
+        {
+          "title": "路由与转发的区别",
+          "body": "路由是计算或学习路径的控制过程；转发是在每个节点按表查找并发送分组的数据平面过程。"
+        },
+        {
+          "title": "不同算法适用条件",
+          "body": "链路状态协议可在网络图上计算路径；距离向量协议交换到目的地的距离估计。真实网络还要考虑策略、故障收敛与规模。"
+        }
+      ]
+    },
+    "bitwise-operations": {
+      "lead": "位运算对整数的二进制表示逐位执行逻辑运算。它常用于掩码、标志位、低层协议和性能敏感代码。",
+      "sections": [
+        {
+          "title": "按位 AND 与掩码",
+          "body": "AND 可保留指定位置的位并清除其他位。例如 x AND 00001111 只保留低四位。"
+        },
+        {
+          "title": "OR、XOR 与取反",
+          "body": "OR 常用于设置标志位；XOR 在两位不同时为 1，可用于翻转指定标志；取反会翻转位，但结果还要受位宽和整数表示规则影响。"
+        },
+        {
+          "title": "移位",
+          "body": "左移通常把位向高位移动，空出的低位补 0；右移对负数的行为与语言和运算类型有关，使用时要查看具体规范。"
+        },
+        {
+          "title": "设置、清除与测试标志位",
+          "body": "用 OR 设置掩码位，用 AND 与掩码反码清除位，用 AND 测试位是否为 1；操作前要确认位宽。",
+          "formula": "设置：x|m；清除：x&~m；测试：x&m"
+        },
+        {
+          "title": "移位与乘除 2",
+          "body": "对非负无符号数，左移一位通常相当于乘 2（不溢出时）；右移一位相当于向下整除 2。负数右移依语言规定。"
+        },
+        {
+          "title": "标志位示例",
+          "body": "若第 0 位表示可读、第 1 位表示可写，掩码 0010 可单独检查可写标志而不改变其他权限位。"
+        }
+      ]
+    },
+    "endianness": {
+      "lead": "字节序规定一个多字节数值在内存地址中的排列顺序。它影响二进制文件、网络协议和不同处理器之间的数据交换。",
+      "sections": [
+        {
+          "title": "大端与小端",
+          "body": "大端序把最高有效字节放在较低地址；小端序把最低有效字节放在较低地址。字节内部的位顺序通常不是这里讨论的字节序。"
+        },
+        {
+          "title": "例子",
+          "body": "数值 0x12345678 按大端序存为 12 34 56 78；按小端序存为 78 56 34 12。"
+        },
+        {
+          "title": "为什么要明确约定",
+          "body": "若发送端和接收端对字节序理解不同，同样的字节会被解释成不同整数。网络协议、文件格式通常会规定统一的编码顺序。"
+        },
+        {
+          "title": "按地址观察字节",
+          "body": "字节序影响多字节字段的内存排列。查看内存转储时，要区分数值的书写顺序与地址递增顺序。"
+        },
+        {
+          "title": "协议与主机",
+          "body": "网络协议规定线上字节顺序，主机则有自己的本地表示。序列化应显式转换，不能把本机内存布局直接当作协议格式。"
+        },
+        {
+          "title": "实际调试",
+          "body": "可用 0x12345678 检查字节顺序；每个字节都不同，比全零或重复字节更容易暴露排列错误。"
+        }
+      ]
+    },
+    "boolean-simplification": {
+      "lead": "布尔表达式化简利用逻辑恒等式，把功能相同的表达式改写得更简单。逻辑等价不代表电路延迟和成本一定完全相同。",
+      "sections": [
+        {
+          "title": "常用恒等式",
+          "body": "幂等律：A∨A=A；互补律：A∨¬A=1；吸收律：A∨(A∧B)=A；德摩根律：¬(A∧B)=¬A∨¬B。"
+        },
+        {
+          "title": "化简步骤",
+          "body": "先用括号明确运算优先级，再寻找公共项、互补项或吸收关系。每一步都应保持真值不变。"
+        },
+        {
+          "title": "逻辑表达式与门数",
+          "body": "更短的表达式常能减少门数，但真实电路还受门类型、扇入、布线和延迟约束。化简结果需要结合实现目标评价。"
+        },
+        {
+          "title": "从真值表到表达式",
+          "body": "可先枚举输出为 1 的输入行，构造标准与或式，再用代数定律或卡诺图合并相邻项。"
+        },
+        {
+          "title": "卡诺图的直觉",
+          "body": "卡诺图把只差一个变量的输入组合放在相邻位置。按 1、2、4 等数量分组，可以消去组内变化的变量。"
+        },
+        {
+          "title": "实现目标影响选择",
+          "body": "最少文字的表达式不一定最适合目标芯片；门延迟、扇入、布线和可用逻辑单元都会影响最终实现。"
+        }
+      ]
+    },
+    "cache": {
+      "lead": "缓存保存近期或相邻访问的数据副本，希望后续访问在更快层级命中。性能取决于访问局部性、缓存组织和替换策略。",
+      "sections": [
+        {
+          "title": "命中与未命中",
+          "body": "若所需数据已在缓存中，称为命中；否则发生未命中，需要从下一级取回数据块。缓存通常以块为单位搬运数据。"
+        },
+        {
+          "title": "映射与替换",
+          "body": "直接映射简单但冲突可能较多；组相联在有限候选位置中选择；全相联选择灵活但硬件比较成本较高。"
+        },
+        {
+          "title": "写策略",
+          "body": "写直达同时更新下级存储；写回先更新缓存，替换时再写回。两者在带宽、复杂度和一致性上取舍不同。"
+        }
+      ]
+    },
+    "cpu-pipeline": {
+      "lead": "流水线把指令执行拆成多个阶段，让不同指令的阶段重叠，从而提高吞吐率；单条指令的延迟不一定因此缩短。",
+      "sections": [
+        {
+          "title": "理想流水线",
+          "body": "若有 k 个阶段、每条指令无停顿，前 k 个周期用于填充，之后理想情况下每周期完成一条指令。"
+        },
+        {
+          "title": "三类冒险",
+          "body": "结构冒险来自资源冲突；数据冒险来自指令间依赖；控制冒险来自分支改变后续执行路径。"
+        },
+        {
+          "title": "处理方法与代价",
+          "body": "前递可缓解部分数据依赖；停顿会插入空周期；分支预测尝试提前猜测控制流。每种方法都存在硬件复杂度与性能取舍。"
+        }
+      ]
+    },
+    "processes-threads": {
+      "lead": "进程提供资源和地址空间隔离的运行环境；线程是进程内可独立调度的执行流。它们是操作系统组织并发工作的核心抽象。",
+      "sections": [
+        {
+          "title": "进程状态",
+          "body": "运行中的进程会在就绪、运行、阻塞等状态之间转换。等待 I/O 的进程通常不能占用处理器。"
+        },
+        {
+          "title": "上下文切换",
+          "body": "操作系统保存当前执行流的寄存器等状态，再恢复另一个执行流。切换让系统共享处理器，但也带来管理开销。"
+        },
+        {
+          "title": "进程与线程",
+          "body": "同一进程的线程通常共享地址空间和部分资源，因此通信方便；共享也带来数据竞争和同步问题。"
+        }
+      ]
+    },
+    "virtual-memory": {
+      "lead": "虚拟内存把进程使用的虚拟地址映射到物理内存，并提供隔离、保护和按需装入等能力。",
+      "sections": [
+        {
+          "title": "分页与页表",
+          "body": "虚拟地址由虚拟页号和页内偏移组成。页表把虚拟页映射到物理页框，并记录权限等信息。"
+        },
+        {
+          "title": "TLB 与缺页",
+          "body": "TLB 缓存近期地址转换；若所需页面不在内存，会触发缺页异常，由操作系统决定装入页面或报告错误。"
+        },
+        {
+          "title": "虚拟不等于无限物理内存",
+          "body": "虚拟地址空间可以大于当前物理内存，但实际运行仍受物理资源和后备存储性能限制。"
+        }
+      ]
+    },
+    "scheduling": {
+      "lead": "CPU 调度决定哪个就绪任务获得处理器。策略需要在响应时间、吞吐量、公平性和上下文切换开销之间权衡。",
+      "sections": [
+        {
+          "title": "常见指标",
+          "body": "周转时间是提交到完成的时间；等待时间是任务在就绪队列中的累计时间；响应时间关注首次得到响应的等待。"
+        },
+        {
+          "title": "典型策略",
+          "body": "FCFS 按到达顺序运行；SJF 优先短作业；轮转为任务分配时间片。真实操作系统的调度器通常比课堂模型复杂。"
+        },
+        {
+          "title": "算例要明确假设",
+          "body": "手算调度题要给出到达时间、运行时间、优先级与时间片，并约定相同时间的排序规则。"
+        }
+      ]
+    },
+    "synchronization": {
+      "lead": "并发程序中多个执行流可能交错运行。若它们无协调地访问共享状态，最终结果可能取决于执行时序。",
+      "sections": [
+        {
+          "title": "临界区与竞态",
+          "body": "临界区访问共享资源；竞态条件是结果依赖于无法保证的执行顺序。即使单条操作看起来简单，底层也可能由多个步骤组成。"
+        },
+        {
+          "title": "互斥与同步",
+          "body": "互斥锁限制同一时刻只有一个执行流进入临界区；信号量等工具还可协调事件顺序或资源数量。"
+        },
+        {
+          "title": "死锁风险",
+          "body": "互斥不自动保证程序无死锁。锁顺序不一致、循环等待或持锁期间等待其他资源都可能导致停滞。"
+        }
+      ]
+    },
+    "filesystems": {
+      "lead": "文件系统把块设备上的字节组织成文件和目录，并维护名称、权限、大小、时间戳和数据块位置等元数据。",
+      "sections": [
+        {
+          "title": "名称与元数据",
+          "body": "目录把可读名称关联到文件对象；元数据描述文件属性。不同文件系统内部结构不同，但会提供相似的操作接口。"
+        },
+        {
+          "title": "数据块分配",
+          "body": "文件数据需要映射到存储设备的块。连续分配、链式分配和索引结构在随机访问、碎片与元数据开销上不同。"
+        },
+        {
+          "title": "持久性与恢复",
+          "body": "写入可能经过缓存，突然断电会造成数据或元数据不一致。日志和写时复制等机制用于改善崩溃恢复能力。"
+        }
+      ]
+    },
+    "transport-protocols": {
+      "lead": "运输层提供端到端进程通信。UDP 提供较简单的数据报服务；TCP 提供可靠、有序的字节流抽象。",
+      "sections": [
+        {
+          "title": "端口与复用",
+          "body": "IP 地址定位主机，端口号帮助操作系统把到达的数据交给正确的应用进程。"
+        },
+        {
+          "title": "可靠传输",
+          "body": "TCP 使用序号、确认、校验和及重传等机制处理丢失、重复和乱序问题；具体行为由协议状态机和计时器协同决定。"
+        },
+        {
+          "title": "流量与拥塞控制",
+          "body": "流量控制避免发送方压垮接收方；拥塞控制则根据网络状况调整发送速率，两者解决的问题不同。"
+        }
+      ]
+    },
+    "application-protocols": {
+      "lead": "应用层协议定义应用程序之间交换什么消息、消息如何解释。HTTP 和 DNS 是浏览网页时经常遇到的两个协议。",
+      "sections": [
+        {
+          "title": "DNS 名称解析",
+          "body": "DNS 以分层分布式方式查询域名对应的记录。缓存可减少重复查询，但记录会受生存时间和更新策略影响。"
+        },
+        {
+          "title": "HTTP 请求与响应",
+          "body": "客户端发送方法、目标资源、首部和可选内容；服务器返回状态码、首部及可选响应内容。"
+        },
+        {
+          "title": "一次网页访问",
+          "body": "浏览器通常先解析域名，再建立传输连接并发送 HTTP 请求；实际过程还可能涉及代理、TLS、缓存和多个资源请求。"
+        }
+      ]
+    },
+    "databases": {
+      "lead": "关系数据库用关系（表）组织数据，并以查询语言表达检索和更新。键、约束与事务共同维护数据的一致性。",
+      "history": "关系模型由 Edgar F. Codd 在 1970 年提出，之后发展出关系数据库与 SQL 等实践。现代数据库也包含许多非关系模型，选择应由数据与访问需求决定。",
+      "sections": [
+        {
+          "title": "关系、行与列",
+          "body": "表由行和列构成；主键标识行，外键表达表之间的关联。约束限制哪些数据状态是合法的。"
+        },
+        {
+          "title": "查询与连接",
+          "body": "SELECT 描述要读取哪些列、筛选哪些行；JOIN 根据关联条件组合不同表中的信息。"
+        },
+        {
+          "title": "事务",
+          "body": "事务把一组相关操作作为整体处理。ACID 描述原子性、一致性、隔离性和持久性等目标，具体保证取决于数据库和配置。"
+        }
+      ]
+    },
+    "cybersecurity": {
+      "lead": "计算机安全通过识别资产、威胁和攻击面，降低未经授权访问、篡改或服务中断的风险。",
+      "sections": [
+        {
+          "title": "安全目标",
+          "body": "机密性限制信息被未授权读取；完整性关注数据未被未授权修改；可用性关注合法用户能否获得服务。"
+        },
+        {
+          "title": "威胁建模",
+          "body": "先识别要保护的资产、可能的攻击者、入口和信任边界，再选择合适控制措施。安全不是单独添加一个加密算法就能完成。"
+        },
+        {
+          "title": "纵深防御",
+          "body": "身份认证、授权、输入验证、最小权限、更新管理、日志监控和备份等机制共同降低风险。密码学的安全使用还依赖密钥管理和协议设计。"
+        }
+      ]
+    },
+    "machine-learning": {
+      "lead": "机器学习从数据中估计模型参数，使模型能够对新输入作出预测。训练集上的表现不等于模型在未见数据上的泛化能力。",
+      "sections": [
+        {
+          "title": "数据、模型与损失",
+          "body": "训练数据提供样例；模型定义可调参数的预测规则；损失函数衡量预测与目标之间的差异。优化过程尝试降低训练损失。"
+        },
+        {
+          "title": "训练与测试分离",
+          "body": "若用同一数据既训练又评价，可能高估效果。训练、验证和测试数据应按目的分开使用，并注意数据泄漏。"
+        },
+        {
+          "title": "过拟合与泛化",
+          "body": "模型过度记住训练样例而无法处理新数据时称为过拟合。增加数据、正则化、简化模型或改进评估设计可能有帮助。"
+        }
+      ]
+    },
+    "calculus": {
+      "lead": "微积分用极限描述连续变化。导数刻画局部变化率，积分刻画累积量；它们也构成许多优化方法的数学基础。",
+      "sections": [
+        {
+          "title": "极限与导数",
+          "body": "导数是函数在一点附近的瞬时变化率，可由差商在间隔趋近于零时的极限定义。"
+        },
+        {
+          "title": "积分与累积",
+          "body": "定积分可解释为累积量或曲线下面积；微积分基本定理把积分与原函数的变化联系起来。"
+        },
+        {
+          "title": "机器学习中的梯度",
+          "body": "多变量函数的梯度指出局部增长最快的方向。梯度下降沿相反方向迭代以降低目标函数，但实际模型还需处理非凸性与数值稳定性。"
+        }
+      ]
+    },
+    "automata": {
+      "lead": "自动机用有限状态描述对输入序列的处理。它适合识别具有有限记忆需求的模式，也是形式语言和编译器理论的基础。",
+      "sections": [
+        {
+          "title": "状态与转移",
+          "body": "有限自动机由状态集合、输入字母表、转移规则、初始状态和接受状态构成。读取一个输入符号后，系统按转移规则进入新状态。"
+        },
+        {
+          "title": "识别语言",
+          "body": "若整个输入处理完后处于接受状态，则该字符串被识别。正则表达式描述的模式可以由有限自动机识别。"
+        },
+        {
+          "title": "能力边界",
+          "body": "有限自动机只有有限状态，无法记住任意大的计数。更强的计算模型需要额外存储结构；不能把所有计算能力都归结为有限状态机。"
+        }
+      ]
+    },
+    "distributed-systems": {
+      "lead": "分布式系统由通过网络协作的多个独立计算节点组成。网络延迟和部分故障使它与单机程序有不同的设计约束。",
+      "sections": [
+        {
+          "title": "部分故障",
+          "body": "单个节点可能失联而其他节点仍继续运行；调用超时不一定说明远端操作没有执行，因此重试可能造成重复效果。"
+        },
+        {
+          "title": "复制与一致性",
+          "body": "复制数据可以提高可用性和读取性能，但多个副本需要协调更新。不同一致性模型在实时性、可用性和协调成本上有不同取舍。"
+        },
+        {
+          "title": "不要过度套用 CAP",
+          "body": "CAP 讨论网络分区发生时一致性与可用性目标之间的取舍，不是简单说系统只能永久选择其中两个。需要结合故障场景和具体一致性定义讨论。"
+        }
+      ]
+    }
+  },
+  "lessonNotes": {
+    "sets": {
+      "worked": "令 A={1,2,3}、B={3,4}，则 A∩B={3}，A∪B={1,2,3,4}。元素 3 属于交集，因为它同时在 A 与 B 中。",
+      "pitfall": "元素和集合不是一回事：3∈{3}，但 3≠{3}；空集 ∅ 也不等于只含空集的集合 {∅}。"
+    },
+    "peano-axioms": {
+      "worked": "取 P(n) 为“n+0=n”。基础步由加法定义直接成立；若 k+0=k，那么对后继 S(k)，递归定义给出 S(k)+0=S(k)，归纳步成立。",
+      "pitfall": "归纳法不是把前几个数代入检查。必须证明基础步，并从任意 k 的假设推出 k 的后继。"
+    },
+    "natural-numbers": {
+      "worked": "由 a+S(b)=S(a+b)，计算 3+2：3+0=3，3+1=S(3)=4，3+2=S(4)=5。",
+      "pitfall": "递归定义只规定运算如何构造；交换律、结合律等性质仍然是需要证明的定理。"
+    },
+    "integers": {
+      "worked": "计算 (5,2)+(1,4)=(6,6)，对应差 6−6=0；这和 5−2 与 1−4 相加得到 3+(−3)=0 一致。",
+      "pitfall": "等价类中的有序对是整数的一种构造方式，不应误以为整数就是某一对特定自然数。"
+    },
+    "powers": {
+      "worked": "2⁵=32；因此 5 位二进制共有 2⁵ 种位串。若按无符号数解释，范围是 0 到 31，共 32 个数。",
+      "pitfall": "位宽 n 的最大无符号值是 2ⁿ−1，而不是 2ⁿ；2ⁿ 表示可编码的状态数量。"
+    },
+    "place-value": {
+      "worked": "(304)₅=3×5²+0×5+4=79。基数为 5 时每一位只能取 0、1、2、3、4。",
+      "pitfall": "不能把数字串直接当作十进制读；必须使用下标基数，并按该基数的幂展开。"
+    },
+    "base-conversion": {
+      "worked": "十进制 26 除以 2 的余数依次为 0、1、0、1、1，倒序得到 11010₂；还原为 16+8+2=26。",
+      "pitfall": "除基取余的余数从低位到高位产生，所以读结果时必须反过来；小数部分使用的是乘基取整法。"
+    },
+    "bits-bytes": {
+      "worked": "3 位有 2³=8 种位串：000 到 111。若解释为无符号整数，可表示 0 到 7；若解释为其他编码，含义会改变。",
+      "pitfall": "一个位串本身不携带类型。相同位模式可以代表数值、字符、颜色分量或指令。"
+    },
+    "unsigned": {
+      "worked": "6 位无符号数范围为 0 到 63，因为共有 64 种位串，最大位串 111111₂ 的值是 63。",
+      "pitfall": "计算范围时先确认位宽和有无符号；“有 2ⁿ 种编码”不代表最大值是 2ⁿ。"
+    },
+    "twos-complement": {
+      "worked": "8 位的 −5：+5=00000101，按位取反为 11111010，再加一得到 11111011。",
+      "pitfall": "补码的符号不是单独的正负标签；最高位权重为 −2ⁿ⁻¹，范围也因此不对称。"
+    },
+    "overflow": {
+      "worked": "4 位无符号 14+3=17，超出 0..15；实际留下 0001₂，相当于 17 mod 16。",
+      "pitfall": "回绕后的位串仍是一个有效编码，但不等于数学结果；不同语言对有符号溢出的规定也可能不同。"
+    },
+    "character-codes": {
+      "worked": "ASCII 字符 A 的码点为 U+0041，UTF-8 字节为 41；非 ASCII 字符通常需要多个 UTF-8 字节。",
+      "pitfall": "字符数、Unicode 码点数与 UTF-8 字节数可能不同，不能用字节数直接推断用户看到的字符数。"
+    },
+    "boolean-algebra": {
+      "worked": "A∧(A∨B)=A：若 A 为真，整体为真；若 A 为假，左边仍为假。这就是吸收律。",
+      "pitfall": "符号 ∧、∨ 是逻辑运算，不是对任意整数直接做普通乘法、加法。"
+    },
+    "logic-gates": {
+      "worked": "A=1、B=0 时，AND 输出 0，OR 输出 1，XOR 输出 1。三种门的输入相同，输出规则不同。",
+      "pitfall": "不要只根据门的图形猜输出；画出真值表是验证组合逻辑最可靠的起点。"
+    },
+    "adders": {
+      "worked": "两位相加：01₂+01₂。最低位 1+1 得和位 0、进位 1；高位再加进位，结果为 10₂。",
+      "pitfall": "半加器没有 Cin 输入；多位加法中间位通常需要全加器处理来自低位的进位。"
+    },
+    "algorithm": {
+      "worked": "查找目标值的规格可写为：输入数组 A 与目标 x；若存在 i 使 A[i]=x，返回一个这样的 i，否则报告不存在。",
+      "pitfall": "算法描述不等于某一种语言的代码；同一算法可以有不同实现，运行成本也不一定相同。"
+    },
+    "control-flow": {
+      "worked": "累加数组时，循环不变量可以是“每轮开始时，sum 等于已经处理元素之和”。初始化、保持和结束三步能帮助证明结果。",
+      "pitfall": "循环边界使用 < 还是 ≤ 会改变是否访问末尾元素；逐项追踪首轮和最后一轮常能发现 off-by-one 错误。"
+    },
+    "arrays": {
+      "worked": "若数组首地址为 B、每个元素 L 字节，0 起始索引 i 的地址为 B+iL；连续存储使地址计算直接。",
+      "pitfall": "数组访问通常是 O(1)，但在中间插入可能要移动 O(n) 个元素；随机访问与修改成本要分开看。"
+    },
+    "complexity": {
+      "worked": "循环从 i=1 到 n，每轮 i 翻倍，循环次数约为 log₂n；若内层再扫描 n 个元素，总量约为 n log n。",
+      "pitfall": "复杂度必须说明输入规模和计数对象；O 是上界，不是精确等式，也不自动代表实际运行秒数。"
+    },
+    "recursion": {
+      "worked": "阶乘可定义为 fact(0)=1，fact(n)=n×fact(n−1)。输入规模每次减一，最终到达基例 0。",
+      "pitfall": "有递归调用不等于自动正确。要验证基例、规模递减、结果组合规则和栈空间。"
+    },
+    "trees": {
+      "worked": "对根 A、左子树 B、右子树 C 的树，前序先访问 A，中序在访问完 B 后访问 A，后序最后才访问 A。",
+      "pitfall": "树高的定义可能按边数或层数计，比较公式前要声明约定；空树和单节点树的高度约定也需一致。"
+    },
+    "graph-theory": {
+      "worked": "社交关系可建成无向图；网页链接可建成有向图；道路可以给边附上距离或时间作为权重。",
+      "pitfall": "图不一定是地图；边可以有方向、自环或权重。算法适用性取决于这些性质。"
+    },
+    "graph-representation": {
+      "worked": "含 1,000 个顶点、约 2,000 条边的稀疏图，用邻接矩阵约需 10⁶ 个位置；邻接表只需与顶点和边数量同阶的空间。",
+      "pitfall": "邻接表检查任意两点是否有边可能要扫描邻居；邻接矩阵查询直接，但空间代价高。"
+    },
+    "bfs-dfs": {
+      "worked": "BFS 从 A 开始，队列先放 A；出队 A 后把未访问的邻居按约定顺序入队，于是按层扩展。",
+      "pitfall": "DFS/BFS 的具体访问序列依赖邻居顺序；BFS 只有在无权图或等权边中才直接给最少边数路径。"
+    },
+    "shortest-paths": {
+      "worked": "若 A→B 权重 4，A→C 权重 2，C→B 权重 1，则经 C 到 B 的代价 3，小于直接边的 4。",
+      "pitfall": "“最短”取决于边权定义；Dijkstra 要求非负边权，不能仅因图看起来简单就忽略条件。"
+    },
+    "logarithms": {
+      "worked": "二分查找每一步把 1,024 个候选减半：10 次后约剩 1 个，因为 2¹⁰=1,024。",
+      "pitfall": "log n 表示增长趋势，不是把 n 除以某个常数；底数变化只在渐近分析里吸收到常数因子。"
+    },
+    "modular-arithmetic": {
+      "worked": "在长度为 8 的环形数组中，下标 7 的下一个位置是 (7+1) mod 8=0。",
+      "pitfall": "模运算结果约定为非负余数还是随语言规则变化，涉及负数时要查清语言的 remainder 定义。"
+    },
+    "functions-mappings": {
+      "worked": "f(x)=x² 在定义域 {−2,−1,0,1,2} 上把 −2 和 2 都映到 4；因此它是函数，但不是一一对应。",
+      "pitfall": "函数要求每个输入有唯一输出，不要求不同输入的输出不同，也不要求覆盖整个陪域。"
+    },
+    "probability": {
+      "worked": "公平骰子掷出偶数的概率为 3/6=1/2；这个计算依赖六种结果等可能。",
+      "pitfall": "样本空间结果不等可能时，不能简单用结果个数相除；需使用各结果真实概率。"
+    },
+    "statistics": {
+      "worked": "数据 2,3,3,100 的均值是 27，中位数是 3；极端值把均值拉高，但中位数变化较小。",
+      "pitfall": "均值不能代表所有数据特征；描述数据还应观察离散程度、分布和抽样方式。"
+    },
+    "combinatorics": {
+      "worked": "从 5 人中选 2 人：先选第一人有 5 种，再选第二人有 4 种，除去顺序重复后组合数为 5×4/2=10。",
+      "pitfall": "数数前先判断顺序是否重要、是否允许重复，以及各步选择是否独立。"
+    },
+    "linear-algebra": {
+      "worked": "向量 (2,1) 乘以矩阵 [[1,0],[0,3]] 得到 (2,3)，表示第二个方向被放大三倍。",
+      "pitfall": "矩阵乘法的维度和顺序重要；一般 A×B 不等于 B×A。"
+    },
+    "floating-point": {
+      "worked": "在 IEEE 754 单精度中存入 0.1 后再打印，常会得到接近 0.1 的值，而非精确十进制 0.1。",
+      "pitfall": "舍入误差是表示精度有限造成的，不一定是运算实现缺陷；比较实数结果时应按问题设定容差。"
+    },
+    "bitwise-operations": {
+      "worked": "10110100 AND 00001111 = 00000100，低四位被保留，高四位被清零。",
+      "pitfall": "位运算对整数编码的位执行操作；负数右移和位宽规则依赖编程语言与类型。"
+    },
+    "endianness": {
+      "worked": "0x12345678 的四个字节是 12、34、56、78；小端序从低地址开始存 78 56 34 12。",
+      "pitfall": "大小端只描述多字节单位的字节排列，不表示字节内部位从左到右的显示习惯。"
+    },
+    "boolean-simplification": {
+      "worked": "A∨(A∧B)=A。若 A=1，整个式子为 1；若 A=0，A∧B=0，整个式子仍为 0。",
+      "pitfall": "化简要保持逻辑等价；表达式字符更少不一定意味着目标电路的延迟或功耗一定最低。"
+    },
+    "functions-procedures": {
+      "worked": "把“计算圆面积”封装为 area(r)，调用者只需传入半径并接收返回值，不必重复实现公式。",
+      "pitfall": "副作用会让函数行为依赖外部状态；设计接口时应明确哪些状态会被读取或修改。"
+    },
+    "sorting": {
+      "worked": "记录 (2,A),(1,B),(2,C) 按键排序后，稳定算法会让两个键为 2 的记录仍保持 A 在 C 前。",
+      "pitfall": "稳定性只约束相等键的相对顺序；它不是时间复杂度，也不表示算法不会交换其他元素。"
+    },
+    "hash-tables": {
+      "worked": "槽数为 8 时，简单哈希 h(k)=k mod 8 会把 10 和 18 都映到槽 2；必须用链地址或探查处理冲突。",
+      "pitfall": "平均 O(1) 依赖哈希分布、装载因子和冲突策略；最坏情况下查找仍可能退化到 O(n)。"
+    },
+    "dynamic-programming": {
+      "worked": "斐波那契可令 dp[0]=0、dp[1]=1，之后 dp[i]=dp[i−1]+dp[i−2]；保存结果避免递归树中的重复计算。",
+      "pitfall": "状态含义不清会导致转移错误；循环顺序也可能改变问题是否允许重复使用同一物品。"
+    },
+    "software-engineering": {
+      "worked": "需求“系统要快”难以验收；改写为“在指定负载下，95% 请求在 200ms 内完成”更可测量。",
+      "pitfall": "过程模型不是保证成功的模板；沟通、风险、质量和反馈仍需根据项目实际管理。"
+    },
+    "software-testing": {
+      "worked": "若函数接受 0..100，可测 −1、0、1、99、100、101，并额外测空输入和非数字输入。",
+      "pitfall": "测试通过只能说明当前测试未发现问题；测试覆盖率高也不等于需求正确或程序无缺陷。"
+    },
+    "version-control": {
+      "worked": "先在 feature 分支提交功能，再把主分支的新提交合并进来；若修改同一行，工具会要求人工解决冲突。",
+      "pitfall": "分支不是独立备份；未提交的本地修改仍可能丢失，重要工作需要提交并安全同步。"
+    },
+    "compiler": {
+      "worked": "变量声明 `int x = 3;` 先被切成关键字、标识符、符号和字面量 token，再按语法组合成声明结构。",
+      "pitfall": "编译器各阶段可以优化或交错实现；教材中的阶段划分是理解职责的模型，不一定对应多个独立程序。"
+    },
+    "calculus": {
+      "worked": "位置函数 s(t)=t² 的速度是导数 s'(t)=2t；t=3 时瞬时速度为 6。",
+      "pitfall": "导数表示局部变化率，不是函数本身的值；积分也不只是简单地“反过来求导”，还涉及区间与累积意义。"
+    },
+    "automata": {
+      "worked": "识别以 01 结尾的字符串时，可用状态记录目前后缀是否匹配；读入下一个符号就按转移表更新状态。",
+      "pitfall": "有限自动机不能存任意大小的计数；正则语言有明确能力边界，不等于所有程序语言或计算任务。"
+    },
+    "distributed-systems": {
+      "worked": "客户端请求扣款后超时，服务器可能已完成扣款但响应丢失；客户端重试可能重复扣款，需用幂等键或去重设计。",
+      "pitfall": "超时不能证明远端失败；网络调用结果常是“不确定”，必须把重试、幂等和一致性作为设计问题。"
+    },
+    "propositional-logic": {
+      "worked": "P=“今天下雨”，Q=“地面湿”。P→Q 只说明在所讨论模型中 P 为真时 Q 应为真；它不是日常语言中的因果证明。",
+      "pitfall": "蕴含 P→Q 与“P 导致 Q”不是同一概念；真值表定义的是逻辑关系，不是物理因果。"
+    },
+    "proofs": {
+      "worked": "证明 n+0=n：对 n 归纳。n=0 时成立；若 k+0=k，则 S(k)+0=S(k)，因此命题对后继也成立。",
+      "pitfall": "归纳假设只允许在归纳步中使用一次已声明的命题，不能把待证结论直接当作前提。"
+    },
+    "machine-instructions": {
+      "worked": "类似 `ADD r1,r2,r3` 的指令可抽象为“把 r2 与 r3 的值相加，结果写入 r1”；真实语法由具体 ISA 规定。",
+      "pitfall": "汇编语法看起来相似不代表指令语义完全相同；需要按目标 ISA 和调用约定理解。"
+    },
+    "cpu-datapath": {
+      "worked": "若 ADD 读取寄存器 R1=4、R2=7，ALU 选择加法，结果 11 经写回路径送入目标寄存器。",
+      "pitfall": "数据通路组件图不是执行顺序图；控制信号决定多路选择器和寄存器在当前周期的行为。"
+    },
+    "memory-hierarchy": {
+      "worked": "连续读取数组元素时，加载一个缓存块后，后续相邻元素可能直接命中，这利用了空间局部性。",
+      "pitfall": "缓存并不会让每次访问都更快；冲突未命中、容量未命中仍会产生高代价。"
+    },
+    "operating-systems": {
+      "worked": "文件读取通常经过应用库、系统调用、内核文件系统和设备驱动，最终由设备完成 I/O 后再通知进程。",
+      "pitfall": "操作系统不是简单的“后台应用程序”；它运行在更高权限级别并负责隔离与资源管理。"
+    },
+    "networking": {
+      "worked": "应用消息先加运输层信息，再由网络层添加源/目的地址，最后链路层封装成可在当前链路上传送的帧。",
+      "pitfall": "网络分层是理解和设计协议的模型；真实实现会有隧道、跨层优化等情况，但不改变各层概念职责。"
+    },
+    "routing": {
+      "worked": "若 A 到 D 有 A→B→D 代价 6，A→C→D 代价 4，按最小总代价模型选择经 C 的路径。",
+      "pitfall": "最短路径不一定是最少跳数；链路策略也可能让实际路由不等于全局最短路。"
+    },
+    "cache": {
+      "worked": "直接映射缓存有 4 行时，块地址 6 映射到行 6 mod 4=2，标签为 floor(6/4)=1。",
+      "pitfall": "相同缓存行索引不代表同一个内存块；还要比较标签才能判断命中。"
+    },
+    "cpu-pipeline": {
+      "worked": "五级流水中 I1 在 WB 时，后续指令可能已经处于 IF、ID、EX 或 MEM；这就是不同指令阶段重叠。",
+      "pitfall": "流水线主要提高稳态吞吐率，不保证单条指令延迟缩短；冒险和填充会降低理想加速比。"
+    },
+    "processes-threads": {
+      "worked": "两个线程共享同一进程的全局计数器，但各自仍有独立的栈和寄存器状态；共享变量需要同步保护。",
+      "pitfall": "线程切换通常比进程切换轻，但并非没有成本；线程共享地址空间也带来数据竞争风险。"
+    },
+    "virtual-memory": {
+      "worked": "页大小为 4 KiB，虚拟地址 0x1234 的页内偏移是 0x234；页号由其余高位组成，再查页表映射。",
+      "pitfall": "虚拟地址并非物理地址；两个进程可以有相同虚拟地址却映射到不同物理页。"
+    },
+    "scheduling": {
+      "worked": "两个任务都在 t=0 到达，运行时间分别为 4、2。FCFS 次序下完成时间为 4、6；等待时间为 0、4。",
+      "pitfall": "平均等待时间不等于平均周转时间；不同指标可能让同一调度策略显得优劣相反。"
+    },
+    "synchronization": {
+      "worked": "共享计数器执行 `x=x+1` 可分成读、加、写；两个线程交错读取旧值时，最终可能只增加 1 而不是 2。",
+      "pitfall": "把一行代码写在源码里不代表它是原子操作；并发安全要依据内存模型和同步原语。"
+    },
+    "filesystems": {
+      "worked": "文件路径 `/home/a.txt` 是名称层级；文件系统再把目录项关联到文件元数据和实际数据块。",
+      "pitfall": "文件名不一定就是文件本体的存储位置；目录、inode 或类似结构可能分开保存名称与属性。"
+    },
+    "transport-protocols": {
+      "worked": "发送方发出字节序号 1000 起的 500 字节数据后，接收方可确认下一个期望字节序号为 1500。",
+      "pitfall": "TCP 提供有序字节流，不保留应用写入边界；一次 write 不一定对应一次 read。"
+    },
+    "application-protocols": {
+      "worked": "浏览器访问 example.com 时先获得地址记录，再与服务器建立连接并发送 HTTP 请求；重定向或缓存可能增加或改变步骤。",
+      "pitfall": "DNS 解析和 HTTP 请求是不同协议阶段；HTTPS 还加入 TLS 认证和加密。"
+    },
+    "databases": {
+      "worked": "Students(id,name,course) 中，查询计算机课程学生可表达为筛选 course='计算机'，再投影所需列。",
+      "pitfall": "关系表的行在数学上没有固有顺序；需要稳定排序时必须显式使用 ORDER BY。"
+    },
+    "cybersecurity": {
+      "worked": "登录系统可以用强认证减少冒用风险；权限检查限制账户能做什么；审计日志帮助事后调查。",
+      "pitfall": "加密只能保护特定数据或通道，不能替代身份验证、授权、密钥管理和安全更新。"
+    },
+    "machine-learning": {
+      "worked": "用过去房价训练预测模型时，训练集用于拟合参数，验证集用于选择设置，独立测试集用于估计最终泛化效果。",
+      "pitfall": "高训练准确率不代表模型能处理新样本；评估集泄漏和分布变化都会让结果失真。"
+    }
+  },
+  "exerciseBank": {
+    "place-value": {
+      "prompt": "(1101)₂ 的十进制值是多少？",
+      "options": [
+        "11",
+        "12",
+        "13",
+        "14"
+      ],
+      "answer": [
+        "13"
+      ],
+      "explanation": "按位权展开：8 + 4 + 0 + 1 = 13。"
+    },
+    "base-conversion": {
+      "prompt": "十进制 19 转成二进制是什么？",
+      "options": [
+        "10011",
+        "10101",
+        "11001",
+        "11100"
+      ],
+      "answer": [
+        "10011"
+      ],
+      "explanation": "19 = 16 + 2 + 1，因此二进制是 10011。"
+    },
+    "bits-bytes": {
+      "prompt": "一个字节通常包含多少位？",
+      "options": [
+        "4 位",
+        "8 位",
+        "16 位",
+        "32 位"
+      ],
+      "answer": [
+        "8 位"
+      ],
+      "explanation": "一个字节通常为 8 bit。"
+    },
+    "unsigned": {
+      "prompt": "5 位无符号整数的最大值是多少？",
+      "options": [
+        "15",
+        "31",
+        "32",
+        "63"
+      ],
+      "answer": [
+        "31"
+      ],
+      "explanation": "最大值为 2⁵−1 = 31。"
+    },
+    "twos-complement": {
+      "prompt": "4 位补码 1101₂ 表示哪个整数？",
+      "options": [
+        "−5",
+        "−4",
+        "−3",
+        "13"
+      ],
+      "answer": [
+        "−3"
+      ],
+      "explanation": "取反得 0010，再加 1 得 0011，即 3；原数是 −3。"
+    },
+    "boolean-algebra": {
+      "prompt": "A=真、B=假时，A AND B 的结果是什么？",
+      "options": [
+        "真",
+        "假"
+      ],
+      "answer": [
+        "假"
+      ],
+      "explanation": "AND 只有两个输入都为真时才输出真。"
+    },
+    "complexity": {
+      "prompt": "两个各执行 n 次的嵌套循环，时间复杂度通常是什么？",
+      "options": [
+        "Θ(1)",
+        "Θ(log n)",
+        "Θ(n)",
+        "Θ(n²)"
+      ],
+      "answer": [
+        "Θ(n²)"
+      ],
+      "explanation": "内层对每个外层迭代执行 n 次，总次数是 n×n。"
+    },
+    "graph-theory": {
+      "prompt": "图中的一条边最直接表示什么？",
+      "options": [
+        "对象之间的关系",
+        "算法运行时间",
+        "数组的下标",
+        "一个数的位权"
+      ],
+      "answer": [
+        "对象之间的关系"
+      ],
+      "explanation": "顶点表示对象，边表示对象之间的连接或关系。"
+    },
+    "bfs-dfs": {
+      "prompt": "BFS 在无权图中最适合求什么？",
+      "options": [
+        "最少边数路径",
+        "最大权值路径",
+        "最小生成树",
+        "排序结果"
+      ],
+      "answer": [
+        "最少边数路径"
+      ],
+      "explanation": "BFS 按离起点的边数逐层访问，因此能找到无权图中的最短路径。"
+    },
+    "sorting": {
+      "prompt": "哪种性质表示相等键值元素排序后仍保持原相对顺序？",
+      "options": [
+        "稳定性",
+        "完备性",
+        "可达性",
+        "局部性"
+      ],
+      "answer": [
+        "稳定性"
+      ],
+      "explanation": "稳定排序不会改变相等键值元素之间的相对次序。"
+    },
+    "integers": {
+      "prompt": "用差对 (a,b) 表示整数 a−b 时，(5,2) 与 (4,1) 表示什么？",
+      "options": [
+        "同一个整数 3",
+        "分别表示 3 和 4",
+        "同一个整数 7",
+        "不能表示整数"
+      ],
+      "answer": [
+        "同一个整数 3"
+      ],
+      "explanation": "5−2=3，4−1=3；形式上 5+1=2+4，所以两对等价。"
+    },
+    "powers": {
+      "prompt": "2⁵ 等于多少？",
+      "options": [
+        "16",
+        "24",
+        "32",
+        "64"
+      ],
+      "answer": [
+        "32"
+      ],
+      "explanation": "2⁵=2×2×2×2×2=32。"
+    },
+    "sets": {
+      "prompt": "关于空集 ∅，哪一个陈述总是成立？",
+      "options": [
+        "∅ 是任意集合的子集",
+        "∅ 是任意集合的元素",
+        "∅ 与所有集合相等",
+        "∅ 一定包含一个元素"
+      ],
+      "answer": [
+        "∅ 是任意集合的子集"
+      ],
+      "explanation": "子集定义要求“每个元素都属于目标集合”；空集没有反例元素，因此是任意集合的子集。"
+    },
+    "peano-axioms": {
+      "prompt": "皮亚诺公理中的后继函数 S(n) 表示什么？",
+      "options": [
+        "n 的下一个自然数",
+        "n 的负数",
+        "n 的平方",
+        "n 的集合"
+      ],
+      "answer": [
+        "n 的下一个自然数"
+      ],
+      "explanation": "后继函数把每个自然数映到下一个自然数，例如 S(2)=3。"
+    },
+    "natural-numbers": {
+      "prompt": "按递归定义 a+S(b)=S(a+b)，3+2 表示什么？",
+      "options": [
+        "S(S(3+0))=5",
+        "S(3)+0=3",
+        "3×2=6",
+        "S(2+2)=4"
+      ],
+      "answer": [
+        "S(S(3+0))=5"
+      ],
+      "explanation": "2=S(S(0))，所以 3+2=S(S(3+0))=5。"
+    },
+    "propositional-logic": {
+      "prompt": "蕴含 P→Q 在哪种情况下为假？",
+      "options": [
+        "P 真且 Q 假",
+        "P 假且 Q 真",
+        "P 假且 Q 假",
+        "P 真且 Q 真"
+      ],
+      "answer": [
+        "P 真且 Q 假"
+      ],
+      "explanation": "只有前件为真而后件为假时，蕴含为假。"
+    },
+    "proofs": {
+      "prompt": "数学归纳证明通常包含哪两个部分？",
+      "options": [
+        "基础步与归纳步",
+        "假设与猜测",
+        "输入与输出",
+        "排序与搜索"
+      ],
+      "answer": [
+        "基础步与归纳步"
+      ],
+      "explanation": "先证明基础情形，再证明命题从 k 成立可推出 k+1 成立。"
+    },
+    "logarithms": {
+      "prompt": "log₂32 等于多少？",
+      "options": [
+        "4",
+        "5",
+        "6",
+        "16"
+      ],
+      "answer": [
+        "5"
+      ],
+      "explanation": "因为 2⁵=32，所以 log₂32=5。"
+    },
+    "modular-arithmetic": {
+      "prompt": "17 mod 5 的余数是多少？",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": [
+        "2"
+      ],
+      "explanation": "17=3×5+2，因此余数为 2。"
+    },
+    "functions-mappings": {
+      "prompt": "函数对同一个合法输入必须满足什么条件？",
+      "options": [
+        "恰好对应一个输出",
+        "至少对应两个输出",
+        "不能有输出",
+        "输出必须唯一对应输入"
+      ],
+      "answer": [
+        "恰好对应一个输出"
+      ],
+      "explanation": "函数要求每个定义域元素有且只有一个输出；不同输入可以映射到同一输出。"
+    },
+    "probability": {
+      "prompt": "公平六面骰掷出 6 的概率是多少？",
+      "options": [
+        "1/2",
+        "1/3",
+        "1/6",
+        "5/6"
+      ],
+      "answer": [
+        "1/6"
+      ],
+      "explanation": "六种结果等可能，只有一种结果是 6。"
+    },
+    "statistics": {
+      "prompt": "数据 1、2、100 的中位数是多少？",
+      "options": [
+        "1",
+        "2",
+        "34.3",
+        "100"
+      ],
+      "answer": [
+        "2"
+      ],
+      "explanation": "数据已排序，三个数的中间值是 2。"
+    },
+    "combinatorics": {
+      "prompt": "从 5 人中选 2 人组成小组，是否考虑选择顺序？",
+      "options": [
+        "不考虑",
+        "考虑",
+        "只在奇数人数时考虑",
+        "无法判断"
+      ],
+      "answer": [
+        "不考虑"
+      ],
+      "explanation": "小组 {A,B} 与 {B,A} 是同一组合。"
+    },
+    "linear-algebra": {
+      "prompt": "二维向量通常由几个分量组成？",
+      "options": [
+        "1 个",
+        "2 个",
+        "3 个",
+        "取决于矩阵"
+      ],
+      "answer": [
+        "2 个"
+      ],
+      "explanation": "二维向量有两个分量，例如 (x,y)。"
+    },
+    "floating-point": {
+      "prompt": "0.1 在二进制浮点格式中通常如何保存？",
+      "options": [
+        "总能精确表示",
+        "以有限精度近似表示",
+        "只保存整数部分",
+        "不能保存"
+      ],
+      "answer": [
+        "以有限精度近似表示"
+      ],
+      "explanation": "0.1 的二进制展开是无限循环的，有限位格式只能保存近似值。"
+    },
+    "bitwise-operations": {
+      "prompt": "1100 AND 1010 的结果是什么？",
+      "options": [
+        "1000",
+        "1110",
+        "0110",
+        "0100"
+      ],
+      "answer": [
+        "1000"
+      ],
+      "explanation": "只有两个对应位都为 1 时，AND 的结果位才为 1。"
+    },
+    "endianness": {
+      "prompt": "小端序把多字节整数的哪一部分放在较低地址？",
+      "options": [
+        "最低有效字节",
+        "最高有效字节",
+        "符号位",
+        "长度字段"
+      ],
+      "answer": [
+        "最低有效字节"
+      ],
+      "explanation": "小端序从低地址开始存放最低有效字节。"
+    },
+    "boolean-simplification": {
+      "prompt": "¬(A AND B) 根据德摩根律等价于什么？",
+      "options": [
+        "¬A OR ¬B",
+        "¬A AND ¬B",
+        "A OR B",
+        "A AND B"
+      ],
+      "answer": [
+        "¬A OR ¬B"
+      ],
+      "explanation": "德摩根律：¬(A∧B)=¬A∨¬B。"
+    },
+    "functions-procedures": {
+      "prompt": "函数的返回值主要用于什么？",
+      "options": [
+        "把计算结果交还给调用者",
+        "自动创建循环",
+        "存储所有全局变量",
+        "保证程序无错误"
+      ],
+      "answer": [
+        "把计算结果交还给调用者"
+      ],
+      "explanation": "返回值是函数向调用者提供计算结果的一种方式。"
+    },
+    "arrays": {
+      "prompt": "数组通过什么机制定位元素？",
+      "options": [
+        "索引",
+        "哈希冲突",
+        "递归调用",
+        "进程号"
+      ],
+      "answer": [
+        "索引"
+      ],
+      "explanation": "数组使用索引定位元素，固定大小元素通常可在常数时间内按索引访问。"
+    },
+    "recursion": {
+      "prompt": "递归函数的基例有什么作用？",
+      "options": [
+        "提供停止递归的条件",
+        "增加递归深度",
+        "改变输入类型",
+        "排序调用顺序"
+      ],
+      "answer": [
+        "提供停止递归的条件"
+      ],
+      "explanation": "基例直接返回结果，避免递归无限进行。"
+    },
+    "graph-representation": {
+      "prompt": "边较少的稀疏图通常更适合哪种表示？",
+      "options": [
+        "邻接表",
+        "邻接矩阵",
+        "完整二叉树",
+        "排序数组"
+      ],
+      "answer": [
+        "邻接表"
+      ],
+      "explanation": "邻接表空间约为 O(|V|+|E|)，在稀疏图上通常更省空间。"
+    },
+    "shortest-paths": {
+      "prompt": "标准 Dijkstra 算法要求边权满足什么条件？",
+      "options": [
+        "非负",
+        "必须全为 1",
+        "必须为负",
+        "互不相同"
+      ],
+      "answer": [
+        "非负"
+      ],
+      "explanation": "存在负权边时，标准 Dijkstra 的贪心确定过程不再保证正确。"
+    },
+    "hash-tables": {
+      "prompt": "两个不同键映射到同一槽位时，这种情况叫什么？",
+      "options": [
+        "冲突",
+        "溢出",
+        "递归",
+        "稳定"
+      ],
+      "answer": [
+        "冲突"
+      ],
+      "explanation": "哈希冲突是不同键经过哈希函数后得到相同位置。"
+    },
+    "dynamic-programming": {
+      "prompt": "设计动态规划时，首先要明确什么？",
+      "options": [
+        "状态所代表的含义",
+        "变量命名风格",
+        "屏幕颜色",
+        "编译器品牌"
+      ],
+      "answer": [
+        "状态所代表的含义"
+      ],
+      "explanation": "状态定义决定转移、初值和遍历顺序是否正确。"
+    },
+    "software-engineering": {
+      "prompt": "软件工程通常覆盖哪类工作？",
+      "options": [
+        "需求到维护的完整生命周期",
+        "只写代码",
+        "只选编程语言",
+        "只运行程序"
+      ],
+      "answer": [
+        "需求到维护的完整生命周期"
+      ],
+      "explanation": "软件工程关注软件从需求、设计、实现到测试和维护的过程。"
+    },
+    "software-testing": {
+      "prompt": "边界值测试最应关注什么输入？",
+      "options": [
+        "取值范围的边缘",
+        "随机挑选的中间值",
+        "变量名",
+        "代码行数"
+      ],
+      "answer": [
+        "取值范围的边缘"
+      ],
+      "explanation": "边界条件附近常出现比较符号和范围处理错误。"
+    },
+    "version-control": {
+      "prompt": "版本控制中的一次 commit 通常记录什么？",
+      "options": [
+        "一组有说明的变更快照",
+        "整个操作系统",
+        "一次网络请求",
+        "编译器的版本"
+      ],
+      "answer": [
+        "一组有说明的变更快照"
+      ],
+      "explanation": "提交保存仓库在某一时刻的变更及其说明。"
+    },
+    "compiler": {
+      "prompt": "编译流程中，词法分析主要把字符序列转换成什么？",
+      "options": [
+        "词法单元",
+        "机器电压",
+        "数据库表",
+        "网络路由"
+      ],
+      "answer": [
+        "词法单元"
+      ],
+      "explanation": "词法分析器把源代码字符分组为关键字、标识符、运算符等 token。"
+    },
+    "overflow": {
+      "prompt": "4 位无符号数 1111₂ 加 0001₂，保留低 4 位的结果是什么？",
+      "options": [
+        "0000 并产生进位",
+        "1111",
+        "1000",
+        "0001"
+      ],
+      "answer": [
+        "0000 并产生进位"
+      ],
+      "explanation": "15+1=16，二进制为 1 0000；固定 4 位时保留 0000，最高位成为进位。"
+    },
+    "character-codes": {
+      "prompt": "Unicode 码点和 UTF-8 的关系是什么？",
+      "options": [
+        "码点是字符编号，UTF-8 把码点编码成字节",
+        "二者都是同一种字节序",
+        "UTF-8 只表示英文字母",
+        "一个码点总是一个字节"
+      ],
+      "answer": [
+        "码点是字符编号，UTF-8 把码点编码成字节"
+      ],
+      "explanation": "Unicode 定义码点；UTF-8 是将码点表示成一个或多个字节的编码方式。"
+    },
+    "logic-gates": {
+      "prompt": "XOR（异或）门的两个输入都是 1 时，输出是什么？",
+      "options": [
+        "0",
+        "1",
+        "不确定",
+        "高阻态"
+      ],
+      "answer": [
+        "0"
+      ],
+      "explanation": "XOR 在输入不同的时候输出 1；相同输入时输出 0。"
+    },
+    "adders": {
+      "prompt": "全加器输入 A=1、B=1、Cin=1 时，和位与进位是什么？",
+      "options": [
+        "和位 1，进位 1",
+        "和位 0，进位 1",
+        "和位 1，进位 0",
+        "和位 0，进位 0"
+      ],
+      "answer": [
+        "和位 1，进位 1"
+      ],
+      "explanation": "三个输入相加为 3（二进制 11），低位和为 1，高位进位为 1。"
+    },
+    "algorithm": {
+      "prompt": "写算法规格时，最基本需要明确什么？",
+      "options": [
+        "输入、输出与所需行为",
+        "变量颜色",
+        "使用哪种电脑",
+        "代码行数"
+      ],
+      "answer": [
+        "输入、输出与所需行为"
+      ],
+      "explanation": "没有明确输入、输出和目标行为，就无法判断算法是否解决了问题。"
+    },
+    "control-flow": {
+      "prompt": "设计循环时，除了循环体还必须明确什么？",
+      "options": [
+        "终止条件及其变化",
+        "字体大小",
+        "文件名",
+        "网络协议"
+      ],
+      "answer": [
+        "终止条件及其变化"
+      ],
+      "explanation": "循环必须有停止条件，并确保执行过程会朝终止条件推进。"
+    },
+    "trees": {
+      "prompt": "二叉树的前序遍历顺序是什么？",
+      "options": [
+        "根、左子树、右子树",
+        "左子树、根、右子树",
+        "左子树、右子树、根",
+        "按层随机访问"
+      ],
+      "answer": [
+        "根、左子树、右子树"
+      ],
+      "explanation": "前序遍历先访问根，再递归遍历左子树和右子树。"
+    },
+    "machine-instructions": {
+      "prompt": "同一指令集架构 ISA 可以由什么实现？",
+      "options": [
+        "不同微架构",
+        "只能由一种处理器实现",
+        "只能由解释器实现",
+        "无需硬件实现"
+      ],
+      "answer": [
+        "不同微架构"
+      ],
+      "explanation": "ISA 是软件可见接口；不同处理器微架构可以实现相同 ISA。"
+    },
+    "cpu-datapath": {
+      "prompt": "处理器中通常保存下一条指令地址的寄存器是什么？",
+      "options": [
+        "程序计数器 PC",
+        "栈指针 SP",
+        "状态寄存器",
+        "数据缓存"
+      ],
+      "answer": [
+        "程序计数器 PC"
+      ],
+      "explanation": "PC 保存当前或下一条要取指的地址，具体更新规则由处理器设计决定。"
+    },
+    "memory-hierarchy": {
+      "prompt": "程序反复访问最近访问过的数据，体现了什么？",
+      "options": [
+        "时间局部性",
+        "空间局部性",
+        "控制冒险",
+        "外部碎片"
+      ],
+      "answer": [
+        "时间局部性"
+      ],
+      "explanation": "时间局部性指近期访问过的数据可能很快再次被访问。"
+    },
+    "operating-systems": {
+      "prompt": "应用程序请求操作系统服务时，常用什么机制？",
+      "options": [
+        "系统调用",
+        "缓存行",
+        "哈希冲突",
+        "布尔化简"
+      ],
+      "answer": [
+        "系统调用"
+      ],
+      "explanation": "系统调用是应用程序进入内核请求受控服务的接口。"
+    },
+    "networking": {
+      "prompt": "发送端网络分层中的封装通常是什么方向？",
+      "options": [
+        "由上层向下层逐层添加首部",
+        "由物理层向应用层添加首部",
+        "所有层同时写同一个首部",
+        "不需要首部"
+      ],
+      "answer": [
+        "由上层向下层逐层添加首部"
+      ],
+      "explanation": "发送数据从应用层向下传递，各层按协议添加控制信息。"
+    },
+    "routing": {
+      "prompt": "路由和转发的区别是什么？",
+      "options": [
+        "路由选择路径，转发按本地表送到下一跳",
+        "二者完全相同",
+        "转发只在应用层发生",
+        "路由只负责校验数据"
+      ],
+      "answer": [
+        "路由选择路径，转发按本地表送到下一跳"
+      ],
+      "explanation": "路由属于路径选择，转发是每个设备依据转发表处理分组。"
+    },
+    "cache": {
+      "prompt": "直接映射缓存中，一个内存块通常对应多少个固定候选缓存行？",
+      "options": [
+        "1 个",
+        "所有缓存行",
+        "2 个",
+        "取决于编译器"
+      ],
+      "answer": [
+        "1 个"
+      ],
+      "explanation": "直接映射中每个内存块只能映射到一个特定缓存行。"
+    },
+    "cpu-pipeline": {
+      "prompt": "分支指令可能造成哪类流水线冒险？",
+      "options": [
+        "控制冒险",
+        "只有结构冒险",
+        "只有空间局部性",
+        "文件系统冲突"
+      ],
+      "answer": [
+        "控制冒险"
+      ],
+      "explanation": "分支会改变后续指令流，预测错误时已取入的指令可能需要清除。"
+    },
+    "processes-threads": {
+      "prompt": "同一进程中的多个线程通常共享什么？",
+      "options": [
+        "进程地址空间和部分资源",
+        "各自完全独立的进程地址空间",
+        "不同操作系统内核",
+        "同一个程序计数器"
+      ],
+      "answer": [
+        "进程地址空间和部分资源"
+      ],
+      "explanation": "线程共享进程资源，但各自有执行状态和栈等线程私有状态。"
+    },
+    "virtual-memory": {
+      "prompt": "访问的虚拟页当前不在内存中时，通常会发生什么？",
+      "options": [
+        "缺页异常",
+        "哈希冲突",
+        "TCP 重传",
+        "编译错误"
+      ],
+      "answer": [
+        "缺页异常"
+      ],
+      "explanation": "缺页异常通知操作系统处理页面调入或非法访问。"
+    },
+    "scheduling": {
+      "prompt": "轮转调度的核心做法是什么？",
+      "options": [
+        "每个就绪任务轮流获得一个时间片",
+        "永远运行最早的任务",
+        "只运行最长任务",
+        "禁止任务切换"
+      ],
+      "answer": [
+        "每个就绪任务轮流获得一个时间片"
+      ],
+      "explanation": "轮转调度通过时间片让就绪任务依次运行，时间片结束后重新排队。"
+    },
+    "synchronization": {
+      "prompt": "互斥锁主要用于什么？",
+      "options": [
+        "限制同一时刻只有一个执行流进入临界区",
+        "加快网络路由",
+        "压缩文件",
+        "分配虚拟地址"
+      ],
+      "answer": [
+        "限制同一时刻只有一个执行流进入临界区"
+      ],
+      "explanation": "互斥锁保护共享状态，防止多个执行流同时执行冲突的临界区操作。"
+    },
+    "filesystems": {
+      "prompt": "文件系统中的元数据通常描述什么？",
+      "options": [
+        "文件大小、权限和数据块位置等属性",
+        "CPU 的时钟周期",
+        "网络路由路径",
+        "源代码语法"
+      ],
+      "answer": [
+        "文件大小、权限和数据块位置等属性"
+      ],
+      "explanation": "元数据记录描述文件本身及其存储组织的信息。"
+    },
+    "transport-protocols": {
+      "prompt": "TCP 序号和确认号主要帮助实现什么？",
+      "options": [
+        "可靠、有序的字节流传输",
+        "域名解析",
+        "磁盘调度",
+        "编译器语法分析"
+      ],
+      "answer": [
+        "可靠、有序的字节流传输"
+      ],
+      "explanation": "序号标识数据位置，确认信息帮助发送方判断哪些数据已收到。"
+    },
+    "application-protocols": {
+      "prompt": "访问网站时，DNS 的主要作用是什么？",
+      "options": [
+        "查询域名对应的网络地址记录",
+        "加密所有网页内容",
+        "给 CPU 分配时间片",
+        "压缩 HTML"
+      ],
+      "answer": [
+        "查询域名对应的网络地址记录"
+      ],
+      "explanation": "DNS 提供分布式命名查询，常用于把域名解析为 IP 地址。"
+    },
+    "databases": {
+      "prompt": "关系数据库中的主键通常用于什么？",
+      "options": [
+        "唯一标识表中的一行",
+        "压缩所有列",
+        "表示网络端口",
+        "替代事务"
+      ],
+      "answer": [
+        "唯一标识表中的一行"
+      ],
+      "explanation": "主键约束保证每行可被唯一识别，且通常不允许为空。"
+    },
+    "cybersecurity": {
+      "prompt": "机密性、完整性、可用性通常简称什么？",
+      "options": [
+        "CIA",
+        "CPU",
+        "DNS",
+        "API"
+      ],
+      "answer": [
+        "CIA"
+      ],
+      "explanation": "CIA 分别代表 Confidentiality、Integrity、Availability。"
+    },
+    "machine-learning": {
+      "prompt": "若用测试集反复调模型直到表现最好，可能导致什么？",
+      "options": [
+        "对测试集过拟合，评估失去独立性",
+        "保证模型普适",
+        "消除数据偏差",
+        "自动提高训练数据质量"
+      ],
+      "answer": [
+        "对测试集过拟合，评估失去独立性"
+      ],
+      "explanation": "测试集应尽量用于最终评估；反复据其调参会把测试信息泄漏到开发过程中。"
+    },
+    "calculus": {
+      "prompt": "函数 f(x)=x² 的导数在 x=3 处是多少？",
+      "options": [
+        "3",
+        "6",
+        "9",
+        "12"
+      ],
+      "answer": [
+        "6"
+      ],
+      "explanation": "f'(x)=2x，因此 f'(3)=6。"
+    },
+    "automata": {
+      "prompt": "有限自动机的状态数有限，因此它不适合直接完成什么任务？",
+      "options": [
+        "记住任意大的精确计数",
+        "识别简单字符模式",
+        "按状态转移读取输入",
+        "判断有限长度字符串"
+      ],
+      "answer": [
+        "记住任意大的精确计数"
+      ],
+      "explanation": "有限状态机只有有限状态，无法储存无界计数器。"
+    },
+    "distributed-systems": {
+      "prompt": "远程调用超时能否证明服务器没有执行操作？",
+      "options": [
+        "不能，操作可能已执行但响应丢失",
+        "能，超时代表服务器未收到",
+        "能，网络会回滚操作",
+        "只能在数据库中判断"
+      ],
+      "answer": [
+        "不能，操作可能已执行但响应丢失"
+      ],
+      "explanation": "请求或响应都可能丢失；重试前要考虑幂等性或去重机制。"
+    }
+  }
+}
