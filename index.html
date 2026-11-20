@@ -729,7 +729,10 @@
       else if(["place-value","base-conversion"].includes(n.id))renderConversionLab(root);
       else if(["bits-bytes","unsigned","twos-complement"].includes(n.id))renderIntegerLab(root,n.id==="twos-complement");
       else if(n.id==="floating-point")renderFloatLab(root);
-      else if(["boolean-algebra","logic-gates","boolean-simplification","bitwise-operations","adders"].includes(n.id))renderLogicLab(root,n.id==="adders");
+      else if(n.id==="character-codes")renderCharacterLab(root);
+      else if(n.id==="endianness")renderEndiannessLab(root);
+      else if(n.id==="bitwise-operations")renderBitwiseLab(root);
+      else if(["boolean-algebra","logic-gates","boolean-simplification","adders"].includes(n.id))renderLogicLab(root,n.id==="adders");
       else if(["shortest-paths","routing"].includes(n.id))renderShortestPathLab(root);
       else if(["graph-theory","graph-representation","bfs-dfs"].includes(n.id))renderGraphLab(root);
       else if(n.id==="complexity")renderComplexityLab(root);
@@ -910,6 +913,48 @@
           符号位：<code>${bits[0]}</code>　指数：<code>${bits.slice(1,9)}</code><br>有效数字字段：<code>${bits.slice(9)}</code>`;
       };
       document.getElementById("float-value").addEventListener("input",update);update();
+    }
+    function renderCharacterLab(root){
+      root.innerHTML=`<h3>Unicode 与 UTF-8 编码器</h3><p>输入文本，逐字符查看 Unicode 码点以及 UTF-8 字节序列。一个可见字符可能由多个码点组成。</p>
+        <div class="lab-controls"><label>文本 <input id="encoding-text" value="A中🙂" maxlength="40"></label></div>
+        <div class="lab-output" id="encoding-output"></div>`;
+      const update=()=>{
+        const text=document.getElementById("encoding-text").value,encoder=new TextEncoder();
+        const rows=Array.from(text).map(ch=>{const cp=ch.codePointAt(0),bytes=[...encoder.encode(ch)].map(x=>x.toString(16).padStart(2,"0").toUpperCase()).join(" ");
+          return `<tr><td>${escapeHTML(ch)}</td><td>U+${cp.toString(16).toUpperCase().padStart(cp<=0xffff?4:6,"0")}</td><td><code>${bytes}</code></td><td>${bytes?bytes.split(" ").length:0}</td></tr>`;});
+        const stream=[...encoder.encode(text)].map(x=>x.toString(16).padStart(2,"0").toUpperCase()).join(" ");
+        document.getElementById("encoding-output").innerHTML=`UTF-8 字节流：<code>${stream||"（空）"}</code><table class="lab-table"><thead><tr><th>字符</th><th>码点</th><th>UTF-8 字节</th><th>字节数</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+      };
+      document.getElementById("encoding-text").addEventListener("input",update);update();
+    }
+    function renderEndiannessLab(root){
+      root.innerHTML=`<h3>大小端内存观察器</h3><p>输入一个 32 位十六进制数，比较它在大端序和小端序中的字节地址排列。</p>
+        <div class="lab-controls"><label>32 位数值 <input id="endian-value" value="12345678" maxlength="8"></label></div><div class="lab-output" id="endian-output"></div>`;
+      const update=()=>{
+        let hex=document.getElementById("endian-value").value.replace(/[^0-9a-f]/gi,"").slice(-8).padStart(8,"0").toUpperCase();
+        const bytes=hex.match(/../g)||[],big=bytes,small=[...bytes].reverse();
+        const table=arr=>arr.map((b,i)=>`<tr><td>${i}</td><td>${b}</td></tr>`).join("");
+        document.getElementById("endian-output").innerHTML=`数值：0x${hex}<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
+          <div><b>大端：低地址存最高有效字节</b><table class="lab-table"><tbody>${table(big)}</tbody></table></div>
+          <div><b>小端：低地址存最低有效字节</b><table class="lab-table"><tbody>${table(small)}</tbody></table></div></div>`;
+      };
+      document.getElementById("endian-value").addEventListener("input",update);update();
+    }
+    function renderBitwiseLab(root){
+      root.innerHTML=`<h3>8 位位运算实验</h3><p>调整两个无符号字节，观察按位运算。掩码 00001111 可保留低四位。</p>
+        <div class="lab-controls"><label>A <input id="bitwise-a" type="number" min="0" max="255" value="180"></label>
+        <label>B / 掩码 <input id="bitwise-b" type="number" min="0" max="255" value="15"></label>
+        <label>运算 <select id="bitwise-op"><option value="and">AND</option><option value="or">OR</option><option value="xor">XOR</option><option value="not">NOT A</option><option value="shift">A << 1</option></select></label></div>
+        <div class="lab-output" id="bitwise-output"></div>`;
+      const update=()=>{
+        const a=Math.max(0,Math.min(255,Math.trunc(Number(document.getElementById("bitwise-a").value)||0)));
+        const b=Math.max(0,Math.min(255,Math.trunc(Number(document.getElementById("bitwise-b").value)||0)));
+        const op=document.getElementById("bitwise-op").value;
+        const value=op==="and"?a&b:op==="or"?a|b:op==="xor"?a^b:op==="not"?(~a)&255:(a<<1)&255;
+        const bin=x=>x.toString(2).padStart(8,"0");
+        document.getElementById("bitwise-output").innerHTML=`A = <code>${bin(a)}</code> (${a})<br>${op==="not"?"~A":op==="shift"?"A << 1":`B = ${bin(b)} (${b})`}<br>结果 = <b><code>${bin(value)}</code> (${value})</b>`;
+      };
+      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
     }
     function renderSortingLab(root){
       root.innerHTML=`<h3>排序过程可视化</h3><p>输入一组小整数，逐步查看冒泡排序或选择排序如何改变数组。</p>
