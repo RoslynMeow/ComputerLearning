@@ -704,7 +704,7 @@
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
     }
     function exerciseFor(n){
-      if(exerciseBank[n.id])return {...exerciseBank[n.id],multi:false};
+      if(exerciseBank[n.id])return {...exerciseBank[n.id],multi:exerciseBank[n.id].multi??false};
       if(n.pre.length){
         const distractors=nodes.filter(x=>x.group===n.group&&x.id!==n.id&&!n.pre.includes(x.id)).slice(0,4);
         const choices=[...n.pre.map(id=>({value:id,text:nodeById[id]?.title||id})),...distractors.map(x=>({value:x.id,text:x.title}))];
@@ -714,24 +714,29 @@
       return {prompt:`「${n.title}」属于哪个知识域？`,choices,answer:[n.group],explanation:`它属于「${label[n.group]}」。`,multi:false};
     }
     function renderPractice(n){
-      const q=exerciseFor(n);
-      const choices=q.choices||q.options.map(text=>({value:text,text}));
+      const data=exerciseFor(n),questions=data.questions??[data];
       studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 练习</div>
-        <h1 class="study-title">${escapeHTML(n.title)}：自测</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
-        <div class="practice-card"><h2 class="practice-prompt">${escapeHTML(q.prompt)}</h2>
-        ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
-        <div class="study-cta"><button class="study-button primary" id="check-answer">检查答案</button><button class="study-button" id="show-answer">查看解析</button></div>
-        <div class="practice-feedback" id="practice-feedback" aria-live="polite"></div></div>`;
-      const feedback=document.getElementById("practice-feedback");
-      document.getElementById("check-answer").addEventListener("click",()=>{
-        const selected=[...studyContent.querySelectorAll('input[name="practice-answer"]:checked')].map(x=>x.value).sort();
-        const answer=[...q.answer].sort(),correct=selected.length===answer.length&&selected.every((v,i)=>v===answer[i]);
-        feedback.style.color=correct?"#16806f":"#b06a43";
-        feedback.textContent=correct?`回答正确。${q.explanation}`:`还不完全正确，再想一想。${q.multi?"请同时选出所有直接前置知识。":"可以查看解析获得提示。"}`;
-      });
-      document.getElementById("show-answer").addEventListener("click",()=>{
-        feedback.style.color="#60767d";
-        feedback.textContent=`参考答案：${q.answer.map(x=>choices.find(c=>c.value===x)?.text||x).join("、")}。${q.explanation}`;
+        <h1 class="study-title">${escapeHTML(n.title)}：练习</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
+        ${questions.map((q,index)=>{
+          const choices=q.choices||q.options.map(text=>({value:text,text}));
+          return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
+            ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
+            <div class="study-cta"><button class="study-button primary" data-check-answer="${index}">检查答案</button><button class="study-button" data-show-answer="${index}">查看解析</button></div>
+            <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
+        }).join("")}`;
+      questions.forEach((q,index)=>{
+        const choices=q.choices||q.options.map(text=>({value:text,text}));
+        const feedback=document.getElementById(`practice-feedback-${index}`);
+        studyContent.querySelector(`[data-check-answer="${index}"]`).addEventListener("click",()=>{
+          const selected=[...studyContent.querySelectorAll(`input[name="practice-answer-${index}"]:checked`)].map(x=>x.value).sort();
+          const answer=[...q.answer].sort(),correct=selected.length===answer.length&&selected.every((v,i)=>v===answer[i]);
+          feedback.style.color=correct?"#16806f":"#b06a43";
+          feedback.textContent=correct?`回答正确。${q.explanation}`:`还不完全正确，再想一想。${q.multi?"请同时选出所有正确项。":"可以查看解析获得提示。"}`;
+        });
+        studyContent.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{
+          feedback.style.color="#60767d";
+          feedback.textContent=`参考答案：${q.answer.map(x=>choices.find(c=>c.value===x)?.text||x).join("、")}。${q.explanation}`;
+        });
       });
     }
     function renderLab(n){
