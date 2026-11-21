@@ -1220,7 +1220,8 @@
         "proofs",
         "sets"
       ],
-      "contentStatus": "draft"
+      "contentStatus": "draft",
+      "entryPoint": true
     },
     {
       "id": "predicate-logic",

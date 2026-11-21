@@ -97,12 +97,11 @@
     .mode-toggle { border:1px solid #cbded9; border-radius:9px; padding:8px 11px; background:#eff8f5; color:#24776f; font-size:10px; font-weight:750; white-space:nowrap; cursor:pointer; }
     .mode-toggle:hover,.mode-toggle.active { background:#168c81; border-color:#168c81; color:#fff; }
     .map-scroll {
-      position:relative; flex:1; min-height:0; width:100%; height:auto; overflow:auto; scrollbar-color:#cbdad6 transparent;
+      position:relative; flex:1; min-height:0; width:100%; height:auto; overflow:hidden;
       background-image:radial-gradient(#dce7e3 0.8px, transparent .8px);
       background-size:22px 22px; background-position:0 0;
     }
-    svg { display:block; width:100%; height:100%; min-width:1000px; touch-action:pan-y; cursor:grab; user-select:none; }
-    @media (min-width:801px) { svg { touch-action:none; } }
+    svg { display:block; width:100%; height:100%; min-width:1000px; touch-action:none; cursor:grab; user-select:none; }
     svg.dragging { cursor:grabbing; }
     #graph-3d { display:none; width:100%; height:100%; min-width:0; outline:0; touch-action:none; cursor:grab; background:radial-gradient(ellipse at 50% 40%,#152b3d 0%,#091723 70%,#06111b 100%); }
     #graph-3d.dragging { cursor:grabbing; }
@@ -114,6 +113,8 @@
     .cluster-bg { stroke-width:1; stroke-dasharray:4 6; }
     .cluster-title { font-size:13px; font-weight:760; letter-spacing:.04em; }
     .cluster-caption { font-size:9px; fill:#91a0a5; }
+    .entry-arrow-label { font-size:10px; font-weight:800; fill:#ad7624; }
+    .entry-arrow { filter:drop-shadow(0 1px 2px #d99a3655); }
     .mobile-cluster { display:none; }
     .mobile-map { min-width:0; }
     .mobile-map #clusters { display:none; }
@@ -131,6 +132,8 @@
     .node .node-dot { r:3.5; }
     .node:hover rect { stroke:#8dc9bd; stroke-width:1.8; }
     .node.selected rect { stroke:#168c81; stroke-width:2.5; fill:#f2fbf8; }
+    .node.entry-point rect { stroke:#d99a36; stroke-width:2.4; }
+    .node.entry-point .node-dot { fill:#d99a36; }
     .node.prereq rect { stroke:#6e9fc8; stroke-width:2; }
     .node.extension rect { stroke:#d7a34d; stroke-width:2; }
     .node.dimmed { opacity:.16; }
@@ -306,6 +309,9 @@
             <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
               <path d="M 0 1 L 9 5 L 0 9 z" fill="#9fb6b2"></path>
             </marker>
+            <marker id="start-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#d99a36"></path>
+            </marker>
             <filter id="nodeShadow" x="-20%" y="-30%" width="140%" height="170%">
               <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#305052" flood-opacity=".07"/>
             </filter>
@@ -315,6 +321,7 @@
           <g id="mobile-clusters"></g>
           <g id="edges"></g>
           <g id="nodes"></g>
+          <g id="entry-marker"></g>
           </g>
         </svg>
         <canvas id="graph-3d" tabindex="0" aria-label="三维知识图谱；点击后使用 WASD 移动，拖动旋转视角"></canvas>
@@ -377,15 +384,20 @@
     const clusterLayer = document.getElementById("clusters");
     const edgeLayer = document.getElementById("edges");
     const nodeLayer = document.getElementById("nodes");
+    const entryMarkerLayer=document.getElementById("entry-marker");
     const mobileClusterLayer = document.getElementById("mobile-clusters");
     const modeToggle=document.getElementById("mode-toggle");
     const NS = "http://www.w3.org/2000/svg";
     let selected = null, filter = "all", activeTab = "intro", zoom = 1, panX = 0, panY = 0;
     let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false;
-    const VIEW_STATE_KEY="cslearning.graph-view.v1";
+    const VIEW_STATE_KEY="cslearning.graph-view.v3";
     let viewSaveTimer=0;
     function make(tag,attrs={}) { const el=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v); return el; }
     function applyTransform(){mapContent.setAttribute("transform",`translate(${panX} ${panY}) scale(${zoom})`);}
+    function setDefaultMapView(){
+      zoom=mobileLayout?1:1.5;panX=0;panY=0;applyTransform();
+      mapScroll.scrollLeft=0;mapScroll.scrollTop=0;
+    }
     function calculateRanks(){
       const ranks={};
       function rank(id,visiting=new Set()){
@@ -400,11 +412,10 @@
       return ranks;
     }
     function saveViewState(){
-      const vb=svg.viewBox.baseVal,maxY=Math.max(1,mapScroll.scrollHeight-mapScroll.clientHeight),maxX=Math.max(1,mapScroll.scrollWidth-mapScroll.clientWidth);
+      const vb=svg.viewBox.baseVal;
       const state={
-        version:1,mode:is3D?"3d":"2d",selected,
+        version:3,mode:is3D?"3d":"2d",selected,
         panXRatio:panX/Math.max(1,vb.width),panYRatio:panY/Math.max(1,vb.height),zoom,
-        scrollXRatio:mapScroll.scrollLeft/maxX,scrollYRatio:mapScroll.scrollTop/maxY,
         camera:is3D?graph3D?.getViewState():null
       };
       try{localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(state));}catch{}
@@ -416,7 +427,7 @@
     function restoreViewState(){
       let state;
       try{state=JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"null");}catch{return;}
-      if(!state||state.version!==1)return;
+      if(!state||state.version!==3)return;
       if(state.mode==="3d"&&!mobileLayout){
         is3D=true;mapScroll.classList.add("view-3d");ensure3D();
         graph3D.restoreViewState(state.camera);
@@ -428,9 +439,6 @@
         zoom=Math.max(.65,Math.min(1.65,Number(state.zoom)||1));
         panX=(Number(state.panXRatio)||0)*vb.width;panY=(Number(state.panYRatio)||0)*vb.height;applyTransform();
       }
-      const maxX=Math.max(0,mapScroll.scrollWidth-mapScroll.clientWidth),maxY=Math.max(0,mapScroll.scrollHeight-mapScroll.clientHeight);
-      mapScroll.scrollLeft=Math.max(0,Math.min(maxX,(Number(state.scrollXRatio)||0)*maxX));
-      mapScroll.scrollTop=Math.max(0,Math.min(maxY,(Number(state.scrollYRatio)||0)*maxY));
       if(state.selected&&nodeById[state.selected])selectNode(state.selected);
       scheduleSaveView();
     }
@@ -465,7 +473,6 @@
         });
       }
     });
-    mapScroll.addEventListener("scroll",scheduleSaveView,{passive:true});
     function sortedGroup(group,ranks){
       return nodes.filter(n=>n.group===group).sort((a,b)=>ranks[a.id]-ranks[b.id]||a.title.localeCompare(b.title,"zh-CN"));
     }
@@ -548,7 +555,7 @@
     function drawGraph() {
       drawEdges(); nodeLayer.replaceChildren();
       for (const n of nodes) {
-        const g=make("g",{class:"node",transform:`translate(${n.x-65},${n.y})`,tabindex:"0",role:"button","aria-label":n.title,"data-id":n.id});
+        const g=make("g",{class:`node ${n.entryPoint?"entry-point":""}`,transform:`translate(${n.x-65},${n.y})`,tabindex:"0",role:"button","aria-label":n.title,"data-id":n.id});
         g.append(make("rect",{width:"130",height:"48",rx:"13"}));
         g.append(make("circle",{cx:"14",cy:"15",r:"3.5",fill:color[n.group],class:"node-dot"}));
         const t=make("text",{x:"65",y:"27",class:"node-title"}); t.textContent=n.title; g.append(t);
@@ -557,7 +564,18 @@
         g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selectNode(n.id);}});
         nodeLayer.append(g);
       }
+      drawEntryMarker();
       applyVisualState();
+    }
+    function drawEntryMarker(){
+      entryMarkerLayer.replaceChildren();
+      const n=nodes.find(x=>x.entryPoint);if(!n)return;
+      const mobile=svg.classList.contains("mobile-map"),left=n.x-65;
+      const labelX=mobile?10:Math.max(3,left-67),lineStart=mobile?31:labelX+56,lineEnd=left-3;
+      const label=make("text",{x:labelX,y:n.y+16,class:"entry-arrow-label"});
+      label.textContent=mobile?"起点":"从这里开始";entryMarkerLayer.append(label);
+      const line=make("path",{d:`M ${lineStart} ${n.y+27} L ${lineEnd} ${n.y+27}`,fill:"none",stroke:"#d99a36","stroke-width":"2.5","marker-end":"url(#start-arrow)",class:"entry-arrow"});
+      entryMarkerLayer.append(line);
     }
     function svgPoint(event){
       const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;
@@ -565,7 +583,6 @@
     }
     svg.addEventListener("pointerdown",e=>{
       if(e.button!==0)return;
-      if(mobileLayout&&e.pointerType==="touch")return;
       if(e.target.closest?.(".node"))return;
       const root=svgPoint(e);
       gesture={kind:"pan",start:root,origin:{x:panX,y:panY}};
@@ -1315,13 +1332,14 @@
     document.getElementById("zoom-in").addEventListener("click",()=>is3D?graph3D?.zoomBy(.88):setZoom(zoom+.1));
     document.getElementById("zoom-out").addEventListener("click",()=>is3D?graph3D?.zoomBy(1.14):setZoom(zoom-.1));
     document.getElementById("reset").addEventListener("click",()=>{
-      if(is3D)graph3D?.resetView();else applyResponsiveLayout(true);
+      if(is3D)graph3D?.resetView();else{applyResponsiveLayout(true);setDefaultMapView();}
       search.value="";graph3D?.setSearch("");filter="all";document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("selected",x.dataset.filter==="all"));
       document.getElementById("map-count").textContent=`显示全部 · ${nodes.length} 个`;selected=null;detail.classList.remove("open");applyVisualState();
       scheduleSaveView();
     });
     document.getElementById("map-count").textContent=`显示全部 · ${nodes.length} 个`;
     applyResponsiveLayout(true);
+    setDefaultMapView();
     restoreViewState();
     window.addEventListener("resize",()=>{applyResponsiveLayout();if(graph3D)update3DData();scheduleSaveView();});
     window.addEventListener("beforeunload",saveViewState);

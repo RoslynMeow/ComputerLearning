@@ -312,6 +312,7 @@ export class KnowledgeGraph3D {
     const projected = new Map(this.nodes.map((node) => [node.id, { node, ...this.project(node) }]));
     this.projected = [...projected.values()];
     this.drawEdges(ctx, projected);
+    this.drawEntryIndicator(ctx, projected);
     const ordered = [...projected.values()].sort((a, b) => b.depth - a.depth);
     this.labelBoxes = [];
     for (const point of ordered) this.drawNode(ctx, point);
@@ -373,6 +374,9 @@ export class KnowledgeGraph3D {
     ctx.beginPath();
     ctx.arc(x, y, radius + (related ? 1.5 : 0), 0, Math.PI * 2);
     ctx.fill();
+    if(node.entryPoint){
+      ctx.strokeStyle="#ffd27a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,radius+5,0,Math.PI*2);ctx.stroke();
+    }
     ctx.shadowBlur = 0;
     ctx.strokeStyle = related ? "#e7fff9" : "#ffffffa0";
     ctx.lineWidth = related ? 1.5 : 0.8;
@@ -392,6 +396,17 @@ export class KnowledgeGraph3D {
       this.labelBoxes.push(box);
     }
     ctx.restore();
+  }
+
+  drawEntryIndicator(ctx,projected){
+    const point=projected.get(this.nodes.find(node=>node.entryPoint)?.id);
+    if(!point)return;
+    const x1=point.x-point.radius-52,x2=point.x-point.radius-5,y=point.y;
+    ctx.save();ctx.strokeStyle="#ffd27a";ctx.fillStyle="#ffe0a0";ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(x2,y);ctx.lineTo(x2-7,y-4);ctx.lineTo(x2-7,y+4);ctx.closePath();ctx.fill();
+    ctx.font='700 10px "Segoe UI","Microsoft YaHei",sans-serif';ctx.textAlign="right";ctx.textBaseline="bottom";
+    ctx.fillText("从这里开始",x1-3,y-6);ctx.restore();
   }
 
   drawHud(ctx) {
