@@ -631,10 +631,10 @@
       scheduleSaveView();
     }
     function renderPathPage(){
-      const ids=["sets","peano-axioms","natural-numbers","integers","powers","place-value","base-conversion","bits-bytes","unsigned","twos-complement","boolean-algebra","logic-gates","adders","machine-instructions","cpu-datapath","memory-hierarchy","operating-systems","networking","graph-theory","graph-representation","bfs-dfs","shortest-paths","routing"];
+      const ids=["axiomatic-method","propositional-logic","predicate-logic","proofs","sets","set-operations","peano-axioms","natural-numbers","mathematical-induction","integers","powers","place-value","base-conversion","bits-bytes","unsigned","twos-complement","boolean-algebra","logic-gates","adders","machine-instructions","cpu-datapath","memory-hierarchy","operating-systems","networking","graph-theory","graph-representation","bfs-dfs","shortest-paths","routing"];
       const steps=ids.map((id,i)=>{const n=nodeById[id];return `<button class="related-button" data-open-lesson="${id}"><b>${String(i+1).padStart(2,"0")}</b>　${escapeHTML(n.title)}<br><small>${escapeHTML(label[n.group])}</small></button>`;}).join("");
       openOverview("建议学习路径","从数值表示到系统与网络",`<div class="study-kicker">GUIDED ROUTE · 可跳转的建议路线</div>
-        <h1 class="study-title">从集合与自然数，到一台计算机</h1>
+        <h1 class="study-title">从公理、逻辑与集合，到一台计算机</h1>
         <p class="study-lead">这是一条可调整的入门路线，不是唯一顺序。每个节点仍可从知识图谱直接进入；遇到先修缺口时，回到图谱查看依赖。</p>
         <div class="study-goal"><b>路线说明</b>　数学概念在需要时穿插出现；课程历史会随相关知识点展开，而不是要求先学完一条年代线。</div>
         <div class="related-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px">${steps}</div>`);
@@ -722,8 +722,11 @@
         <h1 class="study-title">${escapeHTML(n.title)}：实验台</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
         <p class="study-lead">调整参数，先预测结果，再观察规则如何运行。</p><div class="lab-card" id="lab-root"></div>`;
       const root=document.getElementById("lab-root");
-      if(n.id==="sets")renderSetLab(root);
+      if(n.id==="sets")renderMembershipLab(root);
+      else if(n.id==="set-operations")renderSetLab(root);
+      else if(n.id==="predicate-logic")renderPredicateLab(root);
       else if(["peano-axioms","natural-numbers"].includes(n.id))renderPeanoLab(root);
+      else if(n.id==="mathematical-induction")renderInductionLab(root);
       else if(n.id==="integers")renderIntegerLineLab(root);
       else if(n.id==="overflow")renderOverflowLab(root);
       else if(["place-value","base-conversion"].includes(n.id))renderConversionLab(root);
@@ -750,6 +753,32 @@
       else if(["synchronization","processes-threads"].includes(n.id))renderRaceLab(root);
       else renderRelationLab(root,n);
     }
+    function renderMembershipLab(root){
+      root.innerHTML=`<h3>成员关系与子集检查</h3><p>输入有限集合 A、B 和元素 x，观察 x∈A 与 A⊆B 的定义如何逐项检查。</p>
+        <div class="lab-controls"><label>A <input id="member-a" value="1, 2"></label><label>B <input id="member-b" value="1, 2, 3"></label><label>x <input id="member-x" value="2"></label></div>
+        <div class="lab-output" id="member-output"></div>`;
+      const update=()=>{
+        const parse=id=>new Set(document.getElementById(id).value.split(",").map(x=>x.trim()).filter(Boolean));
+        const a=parse("member-a"),b=parse("member-b"),x=document.getElementById("member-x").value.trim();
+        const inA=a.has(x),subset=[...a].every(v=>b.has(v));
+        document.getElementById("member-output").innerHTML=`x∈A：<b>${inA?"真":"假"}</b><br>A⊆B：<b>${subset?"真":"假"}</b><br>子集检查逐个验证 A 的每个元素是否也属于 B。`;
+      };
+      root.querySelectorAll("input").forEach(el=>el.addEventListener("input",update));update();
+    }
+    function renderPredicateLab(root){
+      root.innerHTML=`<h3>有限论域上的量词实验</h3><p>在 D={1,2,3,4,5,6} 上选择谓词，观察全称量词与存在量词的真假。</p>
+        <div class="lab-controls"><label>谓词 <select id="predicate-mode"><option value="even">P(x)：x 是偶数</option><option value="greater">P(x)：x ≥ k</option></select></label>
+        <label>k <input id="predicate-k" type="range" min="1" max="6" value="4"><b id="predicate-k-label">4</b></label></div>
+        <div class="lab-step" id="predicate-domain"></div><div class="lab-output" id="predicate-output"></div>`;
+      const update=()=>{
+        const mode=document.getElementById("predicate-mode").value,k=Number(document.getElementById("predicate-k").value),domain=[1,2,3,4,5,6];
+        const holds=x=>mode==="even"?x%2===0:x>=k,truths=domain.filter(holds),all=truths.length===domain.length,exists=truths.length>0;
+        document.getElementById("predicate-k-label").textContent=k;
+        document.getElementById("predicate-domain").innerHTML=domain.map(x=>`<span class="lab-token ${holds(x)?"active":""}">${x}</span>`).join("");
+        document.getElementById("predicate-output").innerHTML=`满足 P(x) 的对象：{${truths.join(", ")||"∅"}}<br>∀x∈D P(x)：<b>${all?"真":"假"}</b>${all?"":"（反例："+domain.find(x=>!holds(x))+"）"}<br>∃x∈D P(x)：<b>${exists?"真":"假"}</b>${exists?"（见证："+truths[0]+"）":""}`;
+      };
+      root.querySelectorAll("select,input").forEach(x=>x.addEventListener("input",update));update();
+    }
     function renderSetLab(root){
       root.innerHTML=`<h3>集合运算实验</h3><p>修改集合 A、B，观察并集、交集与差集。</p>
         <div class="lab-controls"><label>A <input id="set-a" value="1, 2, 3"></label><label>B <input id="set-b" value="2, 3, 4"></label></div>
@@ -774,6 +803,26 @@
         document.getElementById("peano-output").innerHTML=`递归定义：a+0=a；a+S(b)=S(a+b)<br>因此 ${a}+${b}=<b>${a+b}</b>，从 ${a} 开始应用后继函数 S ${b} 次。`;
       };
       root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
+    }
+    function renderInductionLab(root){
+      root.innerHTML=`<h3>数学归纳法：自然数求和</h3><p>用 P(n): 1+2+…+n=n(n+1)/2 演示基础步、归纳假设和归纳步。</p>
+        <div class="lab-controls"><label>归纳步中的 k <input id="induction-k" type="range" min="1" max="12" value="4"><b id="induction-k-label">4</b></label></div>
+        <div class="lab-step" id="induction-steps"></div><div class="lab-output" id="induction-output"></div>`;
+      const update=()=>{
+        const k=Number(document.getElementById("induction-k").value);
+        document.getElementById("induction-k-label").textContent=k;
+        document.getElementById("induction-steps").innerHTML=[
+          `<span class="lab-token active">基础步：P(1)</span>`,
+          `<span class="lab-token active">归纳假设：P(${k})</span>`,
+          `<span class="lab-token active">推出：P(${k+1})</span>`
+        ].join("");
+        const assumed=k*(k+1)/2,stepLeft=assumed+(k+1),stepRight=(k+1)*(k+2)/2;
+        document.getElementById("induction-output").innerHTML=`基础步：1=1×2/2 成立。<br>
+          假设 1+…+${k}=${k}×(${k}+1)/2=${assumed}。<br>
+          加上 ${k+1} 后：${assumed}+${k+1}=${stepLeft}=(${k+1})×(${k+2})/2。<br>
+          因而 P(${k})⇒P(${k+1})。结合基础步，P(n) 对所有正整数 n 成立。`;
+      };
+      document.getElementById("induction-k").addEventListener("input",update);update();
     }
     function renderIntegerLineLab(root){
       root.innerHTML=`<h3>整数加法数轴</h3><p>把加正数看成向右移动，加负数看成向左移动。</p>
