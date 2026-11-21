@@ -235,6 +235,9 @@
     .practice-prompt { margin:0 0 17px; font-size:16px; line-height:1.7; }
     .answer-option { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; margin:7px 0; border:1px solid #e7eeeb; border-radius:10px; background:#fff; color:#526871; font-size:12px; cursor:pointer; }
     .answer-option:hover { border-color:#b5d8cd; }
+    .written-answer { display:block; width:100%; min-height:120px; resize:vertical; padding:12px; border:1px solid #dfe8e5; border-radius:10px; background:#fff; color:#405862; font-family:inherit; font-size:13px; line-height:1.8; }
+    .self-check { display:flex; align-items:flex-start; gap:9px; margin:7px 0; padding:9px 11px; border:1px solid #e7eeeb; border-radius:9px; background:#fff; color:#5d727b; font-size:11px; line-height:1.6; }
+    .self-check input { margin-top:3px; accent-color:#168c81; }
     .answer-option input { accent-color:#168c81; margin-top:1px; }
     .practice-feedback { min-height:24px; margin-top:13px; font-size:12px; line-height:1.7; }
     .lab-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:15px 0; color:#60767d; font-size:12px; }
@@ -718,6 +721,12 @@
       studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 练习</div>
         <h1 class="study-title">${escapeHTML(n.title)}：练习</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
         ${questions.map((q,index)=>{
+          if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
+            <p style="color:#839298;font-size:11px">先独立写出推理，再展开提示或参考解答；系统不会按关键词猜测你的答案。</p>
+            <textarea class="written-answer" id="written-answer-${index}" placeholder="在这里写出你的解释或推导…"></textarea>
+            ${q.checklist?.map((item,i)=>`<label class="self-check"><input type="checkbox" name="self-check-${index}" value="${i}"><span>${escapeHTML(item)}</span></label>`).join("")||""}
+            <div class="study-cta"><button class="study-button" data-show-hint="${index}">给我提示</button><button class="study-button" data-show-answer="${index}">参考解答</button>${q.checklist?`<button class="study-button primary" data-self-check="${index}">检查自评清单</button>`:""}</div>
+            <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
           const choices=q.choices||q.options.map(text=>({value:text,text}));
           return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
@@ -725,8 +734,18 @@
             <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
         }).join("")}`;
       questions.forEach((q,index)=>{
-        const choices=q.choices||q.options.map(text=>({value:text,text}));
         const feedback=document.getElementById(`practice-feedback-${index}`);
+        if(q.type==="written"){
+          studyContent.querySelector(`[data-show-hint="${index}"]`).addEventListener("click",()=>{feedback.style.color="#60767d";feedback.textContent=`提示：${q.hint}`;});
+          studyContent.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{feedback.style.color="#60767d";feedback.textContent=`参考思路：${q.answerText}`;});
+          studyContent.querySelector(`[data-self-check="${index}"]`)?.addEventListener("click",()=>{
+            const checked=studyContent.querySelectorAll(`input[name="self-check-${index}"]:checked`).length;
+            feedback.style.color=checked===q.checklist.length?"#16806f":"#b06a43";
+            feedback.textContent=checked===q.checklist.length?"自评清单完成；请再与参考解答逐步核对。":`还有 ${q.checklist.length-checked} 项未检查。`;
+          });
+          return;
+        }
+        const choices=q.choices||q.options.map(text=>({value:text,text}));
         studyContent.querySelector(`[data-check-answer="${index}"]`).addEventListener("click",()=>{
           const selected=[...studyContent.querySelectorAll(`input[name="practice-answer-${index}"]:checked`)].map(x=>x.value).sort();
           const answer=[...q.answer].sort(),correct=selected.length===answer.length&&selected.every((v,i)=>v===answer[i]);
@@ -744,7 +763,8 @@
         <h1 class="study-title">${escapeHTML(n.title)}：实验台</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
         <p class="study-lead">调整参数，先预测结果，再观察规则如何运行。</p><div class="lab-card" id="lab-root"></div>`;
       const root=document.getElementById("lab-root");
-      if(n.id==="sets")renderMembershipLab(root);
+      if(n.id==="axiomatic-method")renderAxiomaticLab(root);
+      else if(n.id==="sets")renderMembershipLab(root);
       else if(n.id==="set-operations")renderSetLab(root);
       else if(n.id==="predicate-logic")renderPredicateLab(root);
       else if(["peano-axioms","natural-numbers"].includes(n.id))renderPeanoLab(root);
@@ -774,6 +794,51 @@
       else if(["networking","transport-protocols","application-protocols"].includes(n.id))renderPacketLab(root);
       else if(["synchronization","processes-threads"].includes(n.id))renderRaceLab(root);
       else renderRelationLab(root,n);
+    }
+    function renderAxiomaticLab(root){
+      const cases={
+        evenSum:{
+          title:"两个偶数之和仍是偶数",
+          steps:[
+            {statement:"假设 a,b∈ℤ，且 a、b 都是偶数。",reason:"题目给定的前提"},
+            {statement:"存在 m,n∈ℤ，使 a=2m、b=2n。",reason:"偶数的定义"},
+            {statement:"a+b=2m+2n。",reason:"将前提代入和式"},
+            {statement:"a+b=2(m+n)。",reason:"分配律"},
+            {statement:"m+n∈ℤ。",reason:"整数对加法封闭"},
+            {statement:"令 k=m+n，则 a+b=2k，因此 a+b 是偶数。",reason:"再次使用偶数定义；结论证毕"}
+          ]
+        },
+        evenSquare:{
+          title:"偶数的平方仍是偶数",
+          steps:[
+            {statement:"假设 n∈ℤ，且 n 是偶数。",reason:"题目给定的前提"},
+            {statement:"存在 k∈ℤ，使 n=2k。",reason:"偶数的定义"},
+            {statement:"n²=(2k)²=4k²=2(2k²)。",reason:"代入与代数运算"},
+            {statement:"2k²∈ℤ。",reason:"整数对乘法封闭"},
+            {statement:"n²=2(2k²)，所以 n² 是偶数。",reason:"由偶数定义得到结论"}
+          ]
+        }
+      };
+      root.innerHTML=`<h3>公理、定义到定理：推导工作台</h3>
+        <p>选择一个命题，逐步查看前提如何通过定义和运算规则推出结论。注意每一步的理由，而不只看最后答案。</p>
+        <div class="lab-controls"><label>命题 <select id="axiom-proof-case"><option value="evenSum">两个偶数之和仍是偶数</option><option value="evenSquare">偶数的平方仍是偶数</option></select></label>
+        <button class="study-button" id="axiom-proof-prev">上一步</button><button class="study-button primary" id="axiom-proof-next">下一步</button>
+        <button class="study-button" id="axiom-proof-reset">重置</button></div>
+        <div class="lab-step" id="axiom-proof-progress"></div><div class="lab-output" id="axiom-proof-result"></div>`;
+      let step=0;
+      const update=()=>{
+        const item=cases[document.getElementById("axiom-proof-case").value];
+        step=Math.min(step,item.steps.length-1);
+        document.getElementById("axiom-proof-progress").innerHTML=item.steps.map((s,i)=>`<span class="lab-token ${i===step?"active":""}">${i+1}</span>`).join("");
+        document.getElementById("axiom-proof-result").innerHTML=`<b>${item.title}</b><table class="lab-table"><thead><tr><th>步骤</th><th>陈述</th><th>理由</th></tr></thead><tbody>${item.steps.slice(0,step+1).map((s,i)=>`<tr style="${i===step?"background:#f1f8f5":""}"><td>${i+1}</td><td>${escapeHTML(s.statement)}</td><td>${escapeHTML(s.reason)}</td></tr>`).join("")}</tbody></table>`;
+        document.getElementById("axiom-proof-prev").disabled=step===0;
+        document.getElementById("axiom-proof-next").disabled=step===item.steps.length-1;
+      };
+      document.getElementById("axiom-proof-case").addEventListener("change",()=>{step=0;update();});
+      document.getElementById("axiom-proof-prev").addEventListener("click",()=>{step=Math.max(0,step-1);update();});
+      document.getElementById("axiom-proof-next").addEventListener("click",()=>{const max=cases[document.getElementById("axiom-proof-case").value].steps.length-1;step=Math.min(max,step+1);update();});
+      document.getElementById("axiom-proof-reset").addEventListener("click",()=>{step=0;update();});
+      update();
     }
     function renderMembershipLab(root){
       root.innerHTML=`<h3>成员关系与子集检查</h3><p>输入有限集合 A、B 和元素 x，观察 x∈A 与 A⊆B 的定义如何逐项检查。</p>
