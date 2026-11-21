@@ -220,6 +220,20 @@
     .lesson-section p { margin:7px 0; color:#5d727b; font-size:13px; line-height:1.9; }
     .lesson-section .formula { display:inline-block; margin:7px 0; padding:11px 15px; border-radius:9px; background:#f4f8f6; color:#315a5a; font-family:Georgia,serif; font-size:17px; }
     .lesson-points { margin:9px 0; padding-left:21px; color:#5d727b; font-size:13px; line-height:1.9; }
+    .def-box { margin:12px 0; padding:12px 15px; border:1px solid #dce8e3; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f7fbf9; }
+    .def-box b { display:block; margin-bottom:5px; color:#1a6f66; font-size:12px; letter-spacing:.02em; }
+    .def-box p { margin:0; color:#3f5c5a; font-size:13px; line-height:1.9; }
+    .lesson-fig { margin:14px 0 6px; }
+    .lesson-fig figcaption { margin-bottom:6px; color:#7b8b90; font-size:11px; }
+    .lesson-table { width:100%; border-collapse:collapse; font-size:12px; color:#4c636b; }
+    .lesson-table caption { caption-side:top; text-align:left; color:#7b8b90; font-size:11px; padding-bottom:6px; }
+    .lesson-table th { text-align:left; font-weight:700; color:#3c565f; padding:8px 10px; border-top:1.4px solid #cfdcd8; border-bottom:1px solid #dbe6e2; background:#fafcfb; vertical-align:top; }
+    .lesson-table td { padding:8px 10px; border-bottom:1px solid #edf2f0; line-height:1.75; vertical-align:top; }
+    .lesson-table tbody tr:last-child td { border-bottom:1.4px solid #cfdcd8; }
+    .lesson-table code { font-family:"Cascadia Mono",Consolas,monospace; font-size:12px; color:#2f5b55; background:#eff6f3; padding:1px 4px; border-radius:4px; }
+    .proof-block { margin:11px 0; padding:13px 15px; border:1px solid #e3e9ef; border-radius:9px; background:#fbfcfd; color:#41565f; font-size:13px; line-height:1.95; }
+    .proof-block b { display:block; margin-bottom:5px; color:#3c5560; font-size:12px; }
+    .proof-block p:last-child { margin-bottom:0; }
     .worked-example { margin:10px 0 3px; padding:12px 14px; border-radius:9px; background:#f6f8fa; color:#536c76; font-size:12px; line-height:1.8; }
     .worked-example b { display:block; margin-bottom:4px; color:#49616b; }
     .pitfall-note { margin:10px 0 3px; padding:12px 14px; border-left:3px solid #d9a14a; border-radius:0 9px 9px 0; background:#fcf8ef; color:#756547; font-size:12px; line-height:1.8; }
@@ -685,10 +699,17 @@
           {title:"学习目标",body:n.goal}
         ]
       };
-      const sections=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.body)}</p>
+      const renderTable=(t)=>`<figure class="lesson-fig"><table class="lesson-table">${t.caption?`<caption>${escapeHTML(t.caption)}</caption>`:""}
+        <thead><tr>${t.head.map(h=>`<th>${escapeHTML(h)}</th>`).join("")}</tr></thead>
+        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHTML(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
+      const sections=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3>
+        ${s.body?`<p>${escapeHTML(s.body)}</p>`:""}
+        ${s.def?`<div class="def-box"><b>${escapeHTML(s.def.label)}</b><p>${escapeHTML(s.def.text)}</p></div>`:""}
         ${s.points?`<ul class="lesson-points">${s.points.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`:""}
         ${s.formula?`<div class="formula">${escapeHTML(s.formula)}</div>`:""}
-        ${s.example?`<div class="worked-example"><b>推导 / 例题</b>${escapeHTML(s.example)}</div>`:""}</section>`).join("");
+        ${s.table?renderTable(s.table):""}
+        ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1?"　□":""}</p>`).join("")}</div>`:""}
+        ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}</section>`).join("");
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
       const enrichment=note?`<section class="lesson-section"><h3>例子与易错点</h3>
