@@ -723,6 +723,7 @@
         ${questions.map((q,index)=>{
           if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             <p style="color:#839298;font-size:11px">先独立写出推理，再展开提示或参考解答；系统不会按关键词猜测你的答案。</p>
+            ${q.notation?`<div class="objective"><b>符号提示</b><span>${escapeHTML(q.notation)}</span></div>`:""}
             <textarea class="written-answer" id="written-answer-${index}" placeholder="在这里写出你的解释或推导…"></textarea>
             ${q.checklist?.map((item,i)=>`<label class="self-check"><input type="checkbox" name="self-check-${index}" value="${i}"><span>${escapeHTML(item)}</span></label>`).join("")||""}
             <div class="study-cta"><button class="study-button" data-show-hint="${index}">给我提示</button><button class="study-button" data-show-answer="${index}">参考解答</button>${q.checklist?`<button class="study-button primary" data-self-check="${index}">检查自评清单</button>`:""}</div>
@@ -800,27 +801,28 @@
         evenSum:{
           title:"两个偶数之和仍是偶数",
           steps:[
-            {statement:"假设 a,b∈ℤ，且 a、b 都是偶数。",reason:"题目给定的前提"},
-            {statement:"存在 m,n∈ℤ，使 a=2m、b=2n。",reason:"偶数的定义"},
-            {statement:"a+b=2m+2n。",reason:"将前提代入和式"},
-            {statement:"a+b=2(m+n)。",reason:"分配律"},
-            {statement:"m+n∈ℤ。",reason:"整数对加法封闭"},
-            {statement:"令 k=m+n，则 a+b=2k，因此 a+b 是偶数。",reason:"再次使用偶数定义；结论证毕"}
+            {statement:"a,b∈ℤ，且 a、b 都是偶数。",plain:"a 和 b 是整数，并且都能被 2 整除。",reason:"题目给定的前提"},
+            {statement:"∃m,n∈ℤ，使 a=2m、b=2n。",plain:"存在整数 m、n，分别满足 a=2×m、b=2×n。",reason:"偶数的定义"},
+            {statement:"a+b=2m+2n。",plain:"把 a、b 的表示代入 a+b。",reason:"代入前一步的等式"},
+            {statement:"a+b=2(m+n)。",plain:"提取公因数 2，写成 2 乘一个整数。",reason:"分配律"},
+            {statement:"m+n∈ℤ。",plain:"两个整数相加仍是整数。",reason:"整数对加法封闭"},
+            {statement:"令 k=m+n，则 a+b=2k，因此 a+b 是偶数。",plain:"这符合偶数的定义，所以结论成立。",reason:"回到定义，证明目标"}
           ]
         },
         evenSquare:{
           title:"偶数的平方仍是偶数",
           steps:[
-            {statement:"假设 n∈ℤ，且 n 是偶数。",reason:"题目给定的前提"},
-            {statement:"存在 k∈ℤ，使 n=2k。",reason:"偶数的定义"},
-            {statement:"n²=(2k)²=4k²=2(2k²)。",reason:"代入与代数运算"},
-            {statement:"2k²∈ℤ。",reason:"整数对乘法封闭"},
-            {statement:"n²=2(2k²)，所以 n² 是偶数。",reason:"由偶数定义得到结论"}
+            {statement:"n∈ℤ，且 n 是偶数。",plain:"n 是一个整数，而且能被 2 整除。",reason:"题目给定的前提"},
+            {statement:"∃k∈ℤ，使 n=2k。",plain:"存在整数 k，使 n 等于 2×k。",reason:"偶数的定义"},
+            {statement:"n²=(2k)²=4k²=2(2k²)。",plain:"把 n 换成 2×k，再整理乘法。",reason:"代入与代数运算"},
+            {statement:"2k²∈ℤ。",plain:"2×k² 仍然是整数。",reason:"整数对乘法封闭"},
+            {statement:"n²=2(2k²)，所以 n² 是偶数。",plain:"平方结果也符合偶数定义。",reason:"由定义推出结论"}
           ]
         }
       };
       root.innerHTML=`<h3>公理、定义到定理：推导工作台</h3>
-        <p>选择一个命题，逐步查看前提如何通过定义和运算规则推出结论。注意每一步的理由，而不只看最后答案。</p>
+        <p>选择一个命题，逐步查看前提如何通过定义和运算规则推出结论。先读白话说明，再对照数学表达式。</p>
+        <div class="objective"><b>先认符号</b><span>a、b、m、n 是整数变量；ℤ 表示整数集合（Z 源自德语 Zahlen）；∈ 读作“属于”；∃ 读作“存在”；= 表示相等；+ 表示加法；2m 表示 2 乘 m。它们都是有约定含义的简写。</span></div>
         <div class="lab-controls"><label>命题 <select id="axiom-proof-case"><option value="evenSum">两个偶数之和仍是偶数</option><option value="evenSquare">偶数的平方仍是偶数</option></select></label>
         <button class="study-button" id="axiom-proof-prev">上一步</button><button class="study-button primary" id="axiom-proof-next">下一步</button>
         <button class="study-button" id="axiom-proof-reset">重置</button></div>
@@ -830,7 +832,7 @@
         const item=cases[document.getElementById("axiom-proof-case").value];
         step=Math.min(step,item.steps.length-1);
         document.getElementById("axiom-proof-progress").innerHTML=item.steps.map((s,i)=>`<span class="lab-token ${i===step?"active":""}">${i+1}</span>`).join("");
-        document.getElementById("axiom-proof-result").innerHTML=`<b>${item.title}</b><table class="lab-table"><thead><tr><th>步骤</th><th>陈述</th><th>理由</th></tr></thead><tbody>${item.steps.slice(0,step+1).map((s,i)=>`<tr style="${i===step?"background:#f1f8f5":""}"><td>${i+1}</td><td>${escapeHTML(s.statement)}</td><td>${escapeHTML(s.reason)}</td></tr>`).join("")}</tbody></table>`;
+        document.getElementById("axiom-proof-result").innerHTML=`<b>${item.title}</b><table class="lab-table"><thead><tr><th>步骤</th><th>数学表达</th><th>白话说明</th><th>理由</th></tr></thead><tbody>${item.steps.slice(0,step+1).map((s,i)=>`<tr style="${i===step?"background:#f1f8f5":""}"><td>${i+1}</td><td>${escapeHTML(s.statement)}</td><td>${escapeHTML(s.plain)}</td><td>${escapeHTML(s.reason)}</td></tr>`).join("")}</tbody></table>`;
         document.getElementById("axiom-proof-prev").disabled=step===0;
         document.getElementById("axiom-proof-next").disabled=step===item.steps.length-1;
       };
