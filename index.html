@@ -250,8 +250,6 @@
     .answer-option { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; margin:7px 0; border:1px solid #e7eeeb; border-radius:10px; background:#fff; color:#526871; font-size:12px; cursor:pointer; }
     .answer-option:hover { border-color:#b5d8cd; }
     .written-answer { display:block; width:100%; min-height:120px; resize:vertical; padding:12px; border:1px solid #dfe8e5; border-radius:10px; background:#fff; color:#405862; font-family:inherit; font-size:13px; line-height:1.8; }
-    .self-check { display:flex; align-items:flex-start; gap:9px; margin:7px 0; padding:9px 11px; border:1px solid #e7eeeb; border-radius:9px; background:#fff; color:#5d727b; font-size:11px; line-height:1.6; }
-    .self-check input { margin-top:3px; accent-color:#168c81; }
     .answer-option input { accent-color:#168c81; margin-top:1px; }
     .practice-feedback { min-height:24px; margin-top:13px; font-size:12px; line-height:1.7; }
     .lab-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:15px 0; color:#60767d; font-size:12px; }
@@ -743,11 +741,9 @@
         <h1 class="study-title">${escapeHTML(n.title)}：练习</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
         ${questions.map((q,index)=>{
           if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
-            <p style="color:#839298;font-size:11px">先独立写出推理，再展开提示或参考解答；系统不会按关键词猜测你的答案。</p>
-            ${q.notation?`<div class="objective"><b>符号提示</b><span>${escapeHTML(q.notation)}</span></div>`:""}
-            <textarea class="written-answer" id="written-answer-${index}" placeholder="在这里写出你的解释或推导…"></textarea>
-            ${q.checklist?.map((item,i)=>`<label class="self-check"><input type="checkbox" name="self-check-${index}" value="${i}"><span>${escapeHTML(item)}</span></label>`).join("")||""}
-            <div class="study-cta"><button class="study-button" data-show-hint="${index}">给我提示</button><button class="study-button" data-show-answer="${index}">参考解答</button>${q.checklist?`<button class="study-button primary" data-self-check="${index}">检查自评清单</button>`:""}</div>
+            ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
+            <textarea class="written-answer" id="written-answer-${index}" placeholder="在此写出你的解答…"></textarea>
+            <div class="study-cta"><button class="study-button primary" data-show-answer="${index}">查看参考答案</button></div>
             <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
           const choices=q.choices||q.options.map(text=>({value:text,text}));
           return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
@@ -758,12 +754,9 @@
       questions.forEach((q,index)=>{
         const feedback=document.getElementById(`practice-feedback-${index}`);
         if(q.type==="written"){
-          studyContent.querySelector(`[data-show-hint="${index}"]`).addEventListener("click",()=>{feedback.style.color="#60767d";feedback.textContent=`提示：${q.hint}`;});
-          studyContent.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{feedback.style.color="#60767d";feedback.textContent=`参考思路：${q.answerText}`;});
-          studyContent.querySelector(`[data-self-check="${index}"]`)?.addEventListener("click",()=>{
-            const checked=studyContent.querySelectorAll(`input[name="self-check-${index}"]:checked`).length;
-            feedback.style.color=checked===q.checklist.length?"#16806f":"#b06a43";
-            feedback.textContent=checked===q.checklist.length?"自评清单完成；请再与参考解答逐步核对。":`还有 ${q.checklist.length-checked} 项未检查。`;
+          studyContent.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{
+            feedback.style.color="#526871";
+            feedback.textContent=`参考答案：${q.answerText}`;
           });
           return;
         }
