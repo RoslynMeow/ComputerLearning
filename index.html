@@ -97,12 +97,11 @@
     .mode-toggle { border:1px solid #cbded9; border-radius:9px; padding:8px 11px; background:#eff8f5; color:#24776f; font-size:10px; font-weight:750; white-space:nowrap; cursor:pointer; }
     .mode-toggle:hover,.mode-toggle.active { background:#168c81; border-color:#168c81; color:#fff; }
     .map-scroll {
-      position:relative; flex:1; min-height:0; width:100%; height:auto; overflow:auto; scrollbar-color:#cbdad6 transparent;
+      position:relative; flex:1; min-height:0; width:100%; height:auto; overflow:hidden;
       background-image:radial-gradient(#dce7e3 0.8px, transparent .8px);
       background-size:22px 22px; background-position:0 0;
     }
-    svg { display:block; width:100%; height:100%; min-width:1000px; touch-action:pan-y; cursor:grab; user-select:none; }
-    @media (min-width:801px) { svg { touch-action:none; } }
+    svg { display:block; width:100%; height:100%; min-width:1000px; touch-action:none; cursor:grab; user-select:none; }
     svg.dragging { cursor:grabbing; }
     #graph-3d { display:none; width:100%; height:100%; min-width:0; outline:0; touch-action:none; cursor:grab; background:radial-gradient(ellipse at 50% 40%,#152b3d 0%,#091723 70%,#06111b 100%); }
     #graph-3d.dragging { cursor:grabbing; }
@@ -114,6 +113,8 @@
     .cluster-bg { stroke-width:1; stroke-dasharray:4 6; }
     .cluster-title { font-size:13px; font-weight:760; letter-spacing:.04em; }
     .cluster-caption { font-size:9px; fill:#91a0a5; }
+    .entry-arrow-label { font-size:10px; font-weight:800; fill:#ad7624; }
+    .entry-arrow { filter:drop-shadow(0 1px 2px #d99a3655); }
     .mobile-cluster { display:none; }
     .mobile-map { min-width:0; }
     .mobile-map #clusters { display:none; }
@@ -128,9 +129,13 @@
     .node { cursor:pointer; transition:opacity .18s, filter .18s, transform .18s; }
     .node rect { fill:#fff; stroke:#dfe8e7; stroke-width:1.3; rx:13; filter:url(#nodeShadow); }
     .node .node-title { font-size:12px; font-weight:700; fill:#314956; text-anchor:middle; dominant-baseline:middle; pointer-events:none; }
+    .node.pending .node-title { fill:#bf4d3c; }
+    .node.pending rect { stroke:#e7c9c3; }
     .node .node-dot { r:3.5; }
     .node:hover rect { stroke:#8dc9bd; stroke-width:1.8; }
     .node.selected rect { stroke:#168c81; stroke-width:2.5; fill:#f2fbf8; }
+    .node.entry-point rect { stroke:#d99a36; stroke-width:2.4; }
+    .node.entry-point .node-dot { fill:#d99a36; }
     .node.prereq rect { stroke:#6e9fc8; stroke-width:2; }
     .node.extension rect { stroke:#d7a34d; stroke-width:2; }
     .node.dimmed { opacity:.16; }
@@ -160,18 +165,14 @@
       transition:transform .25s ease,opacity .22s ease; pointer-events:none;
     }
     .detail.open { transform:translateX(0); opacity:1; pointer-events:auto; }
-    .detail-top { padding:20px 20px 15px; border-bottom:1px solid #edf1ef; }
-    .detail-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
-    .detail-close { border:0; background:transparent; color:#91a0a5; font-size:21px; cursor:pointer; line-height:1; }
+    .detail-top { position:relative; padding:20px 20px 16px; border-bottom:1px solid #edf1ef; }
+    .detail-close { position:absolute; top:12px; right:14px; border:0; background:transparent; color:#91a0a5; font-size:21px; line-height:1; cursor:pointer; }
+    .detail-cta { display:block; width:100%; margin-top:15px; padding:10px 6px; }
     .type-label { color:#16877e; font-size:9px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     .detail h2 { margin:6px 0 5px; font-size:20px; letter-spacing:-.035em; }
     .detail-en { color:#9aa7ac; font-size:10px; }
     .book-tag { margin-top:13px; display:inline-flex; gap:7px; align-items:center; color:#6b7f87; background:#f4f7f6; border-radius:7px; padding:6px 8px; font-size:10px; }
-    .detail-tabs { display:flex; gap:17px; padding:0 20px; border-bottom:1px solid #edf1ef; }
-    .detail-tab { position:relative; border:0; background:none; padding:12px 0 10px; color:#98a4a8; font-size:11px; cursor:pointer; }
-    .detail-tab.active { color:#16877e; font-weight:750; }
-    .detail-tab.active:after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:#168c81; border-radius:2px; }
-    .detail-body { overflow:auto; padding:17px 20px 20px; flex:1; }
+    .detail-body { overflow:auto; padding:17px 20px 22px; flex:1; }
     .detail-body p { margin:0 0 14px; color:#5f737d; font-size:11px; line-height:1.8; }
     .section-label { display:flex; align-items:center; gap:7px; margin:16px 0 8px; color:#89979c; font-size:9px; font-weight:800; letter-spacing:.08em; }
     .rel-list { display:flex; flex-wrap:wrap; gap:6px; }
@@ -182,7 +183,6 @@
     .objective { margin-top:15px; padding:11px 12px; background:#f4f8f6; border-radius:10px; }
     .objective b { display:block; color:#4f6b70; font-size:10px; margin-bottom:5px; }
     .objective span { color:#768b8e; font-size:10px; line-height:1.6; }
-    .action-row { padding:13px 17px 16px; border-top:1px solid #edf1ef; display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:7px; }
     .action {
       border:1px solid #e0e9e7; border-radius:9px; padding:9px 5px; background:#fff; color:#61757e;
       font-size:10px; font-weight:650; cursor:pointer;
@@ -207,7 +207,31 @@
     .back-button { border:1px solid #e0e9e6; background:#fff; border-radius:9px; padding:8px 11px; color:#5e747c; font-size:11px; cursor:pointer; }
     .back-button:hover { border-color:#a8d0c5; color:#16877e; }
     .study-head-meta { color:#839399; font-size:10px; }
-    .study-content { max-width:980px; margin:0 auto; padding:36px 34px 60px; }
+    .study-body { max-width:1000px; margin:0 auto; padding:30px 34px 60px; }
+    .study-content { max-width:none; margin:0; padding:0; }
+    .study-head-title { color:#2c4a52; font-size:14px; font-weight:700; letter-spacing:-.01em; }
+    .lab-group { border:1px solid #e5ece9; border-radius:12px; background:#fbfdfc; margin:10px 0; }
+    .lab-group > summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; cursor:pointer; list-style:none; }
+    .lab-group > summary::-webkit-details-marker { display:none; }
+    .lab-group > summary span { color:#31505a; font-size:13px; font-weight:700; }
+    .lab-group > summary small { color:#93a2a8; font-size:10px; }
+    .lab-group > summary::after { content:"▾"; color:#9db0b4; font-size:11px; }
+    .lab-group[open] > summary { border-bottom:1px solid #eef3f1; }
+    .lab-group[open] > summary::after { content:"▴"; }
+    .lab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; padding:12px 14px 14px; }
+    .lab-card { display:flex; flex-direction:column; gap:4px; text-align:left; border:1px solid #e3ebe8; border-radius:10px; background:#fff; padding:11px 12px; cursor:pointer; }
+    .lab-card:hover { border-color:#a9d2c6; background:#f4faf7; }
+    .lab-card b { color:#2f4e56; font-size:12px; font-weight:650; }
+    .lab-card small { color:#93a2a8; font-size:10px; }
+    .study-back-row { margin-bottom:6px; }
+    .lab-list { display:flex; flex-direction:column; gap:8px; }
+    .lab-item { border:1px solid #e5ece9; border-radius:11px; background:#fbfdfc; overflow:hidden; }
+    .lab-toggle { display:flex; flex-direction:column; gap:3px; width:100%; text-align:left; border:0; background:transparent; padding:12px 14px; cursor:pointer; }
+    .lab-toggle span { color:#2f4e56; font-size:13px; font-weight:650; }
+    .lab-toggle small { color:#8d9ea4; font-size:10px; }
+    .lab-toggle:hover { background:#f3faf7; }
+    .lab-toggle.open { border-bottom:1px solid #eef3f1; background:#f3faf7; }
+    .lab-host { padding:14px; }
     .study-kicker { color:#16877e; font-size:10px; font-weight:800; letter-spacing:.12em; }
     .study-title { margin:8px 0 5px; font-size:30px; letter-spacing:-.04em; }
     .study-subtitle { color:#839298; font-size:12px; }
@@ -217,7 +241,21 @@
     .lesson-section p { margin:7px 0; color:#5d727b; font-size:13px; line-height:1.9; }
     .lesson-section .formula { display:inline-block; margin:7px 0; padding:11px 15px; border-radius:9px; background:#f4f8f6; color:#315a5a; font-family:Georgia,serif; font-size:17px; }
     .lesson-points { margin:9px 0; padding-left:21px; color:#5d727b; font-size:13px; line-height:1.9; }
-    .worked-example { margin:10px 0 3px; padding:12px 14px; border-radius:9px; background:#f6f8fa; color:#536c76; font-size:12px; line-height:1.8; }
+    .def-box { margin:12px 0; padding:12px 15px; border:1px solid #dce8e3; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f7fbf9; }
+    .def-box b { display:block; margin-bottom:5px; color:#1a6f66; font-size:12px; letter-spacing:.02em; }
+    .def-box p { margin:0; color:#3f5c5a; font-size:13px; line-height:1.9; }
+    .lesson-fig { margin:14px 0 6px; }
+    .lesson-fig figcaption { margin-bottom:6px; color:#7b8b90; font-size:11px; }
+    .lesson-table { width:100%; border-collapse:collapse; font-size:12px; color:#4c636b; }
+    .lesson-table caption { caption-side:top; text-align:left; color:#7b8b90; font-size:11px; padding-bottom:6px; }
+    .lesson-table th { text-align:left; font-weight:700; color:#3c565f; padding:8px 10px; border-top:1.4px solid #cfdcd8; border-bottom:1px solid #dbe6e2; background:#fafcfb; vertical-align:top; }
+    .lesson-table td { padding:8px 10px; border-bottom:1px solid #edf2f0; line-height:1.75; vertical-align:top; }
+    .lesson-table tbody tr:last-child td { border-bottom:1.4px solid #cfdcd8; }
+    .lesson-table code { font-family:"Cascadia Mono",Consolas,monospace; font-size:12px; color:#2f5b55; background:#eff6f3; padding:1px 4px; border-radius:4px; }
+    .proof-block { margin:11px 0; padding:13px 15px; border:1px solid #e3e9ef; border-radius:9px; background:#fbfcfd; color:#41565f; font-size:13px; line-height:1.95; }
+    .proof-block b { display:block; margin-bottom:5px; color:#3c5560; font-size:12px; }
+    .proof-block p:last-child { margin-bottom:0; }
+    .worked-example { margin:10px 0 3px; padding:12px 14px; border-radius:9px; background:#f6f8fa; color:#536c76; font-size:12px; line-height:1.9; white-space:pre-wrap; overflow-wrap:anywhere; }
     .worked-example b { display:block; margin-bottom:4px; color:#49616b; }
     .pitfall-note { margin:10px 0 3px; padding:12px 14px; border-left:3px solid #d9a14a; border-radius:0 9px 9px 0; background:#fcf8ef; color:#756547; font-size:12px; line-height:1.8; }
     .pitfall-note b { display:block; margin-bottom:4px; }
@@ -232,6 +270,16 @@
     .practice-prompt { margin:0 0 17px; font-size:16px; line-height:1.7; }
     .answer-option { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; margin:7px 0; border:1px solid #e7eeeb; border-radius:10px; background:#fff; color:#526871; font-size:12px; cursor:pointer; }
     .answer-option:hover { border-color:#b5d8cd; }
+    .answer-panel { margin-top:10px; padding:12px 15px; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f4faf7; color:#3f5c5a; font-size:12.5px; line-height:1.95; }
+    .answer-panel[hidden] { display:none; }
+    .answer-panel .answer-text { margin:0; white-space:pre-line; }
+    .answer-panel .lesson-fig { margin:12px 0 2px; }
+    .answer-panel .lesson-table { width:auto; min-width:min(100%,420px); margin:0 0 4px; font-size:12px; font-variant-numeric:tabular-nums; }
+    .answer-panel .lesson-table caption { font-size:11px; color:#73898c; }
+    .answer-panel .lesson-table th,
+    .answer-panel .lesson-table td { text-align:center; padding:6px 14px; }
+    body.focus-view .top-links { display:none; }
+
     .answer-option input { accent-color:#168c81; margin-top:1px; }
     .practice-feedback { min-height:24px; margin-top:13px; font-size:12px; line-height:1.7; }
     .lab-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:15px 0; color:#60767d; font-size:12px; }
@@ -246,6 +294,7 @@
     .lab-table th { color:#819197; font-weight:700; }
     .related-list { display:flex; flex-wrap:wrap; gap:7px; }
     .related-button { border:1px solid #e0e9e6; border-radius:8px; background:#fff; padding:8px 10px; color:#5b7478; font-size:11px; cursor:pointer; }
+    .related-button.pending { color:#bf4d3c; border-color:#eed7d2; }
     .empty-state { display:none; position:absolute; inset:0; align-items:center; justify-content:center; color:#8c9b9f; font-size:13px; pointer-events:none; }
     @media (max-width:800px) {
       .topbar { padding:0 16px; gap:12px; }
@@ -266,8 +315,7 @@
       .mode-toggle { display:none; }
       .study-view { border-radius:14px; }
       .study-head { padding:10px 12px; }
-      .study-content { padding:25px 17px 45px; }
-      .study-title { font-size:24px; }
+      .study-body { flex-direction:column; gap:14px; padding:16px 14px 40px; }
       .study-lead { font-size:14px; }
       .practice-card,.lab-card { padding:14px; }
     }
@@ -280,8 +328,8 @@
     </div>
     <nav class="top-links">
       <button class="top-link active" data-nav="graph">知识图谱</button>
-      <button class="top-link" data-nav="path">学习路径</button>
       <button class="top-link" data-nav="books">教材</button>
+      <button class="top-link" data-nav="labs">实验</button>
     </nav>
     <div class="top-spacer"></div>
     <label class="search"><span>⌕</span><input id="search" placeholder="搜索知识点…" autocomplete="off" /><kbd>/</kbd></label>
@@ -306,6 +354,9 @@
             <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
               <path d="M 0 1 L 9 5 L 0 9 z" fill="#9fb6b2"></path>
             </marker>
+            <marker id="start-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#d99a36"></path>
+            </marker>
             <filter id="nodeShadow" x="-20%" y="-30%" width="140%" height="170%">
               <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#305052" flood-opacity=".07"/>
             </filter>
@@ -315,6 +366,7 @@
           <g id="mobile-clusters"></g>
           <g id="edges"></g>
           <g id="nodes"></g>
+          <g id="entry-marker"></g>
           </g>
         </svg>
         <canvas id="graph-3d" tabindex="0" aria-label="三维知识图谱；点击后使用 WASD 移动，拖动旋转视角"></canvas>
@@ -322,23 +374,14 @@
       </div>
       <aside class="detail" id="detail" aria-live="polite">
         <div class="detail-top">
-          <div class="detail-head">
-            <div><div class="type-label" id="detail-domain"></div><h2 id="detail-title"></h2><div class="detail-en" id="detail-id"></div></div>
-            <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
-          </div>
+          <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
+          <div class="type-label" id="detail-domain"></div>
+          <h2 id="detail-title"></h2>
+          <div class="detail-en" id="detail-id"></div>
           <div class="book-tag"><span>▤</span><span id="detail-book"></span></div>
-        </div>
-        <div class="detail-tabs">
-          <button class="detail-tab active" data-tab="intro">知识介绍</button>
-          <button class="detail-tab" data-tab="exercise">练习</button>
-          <button class="detail-tab" data-tab="lab">交互实验</button>
+          <button class="action primary detail-cta" data-action="lesson">进入学习</button>
         </div>
         <div class="detail-body" id="detail-body"></div>
-        <div class="action-row">
-          <button class="action primary" data-action="lesson">进入学习 ↗</button>
-          <button class="action" data-action="exercise">做练习</button>
-          <button class="action" data-action="lab">做实验</button>
-        </div>
       </aside>
       <div class="toast" id="toast"></div>
     </section>
@@ -347,12 +390,14 @@
         <button class="back-button" id="study-back">← 知识图谱</button>
         <span class="study-head-meta" id="study-head-meta"></span>
       </div>
-      <div class="study-content" id="study-content"></div>
+      <div class="study-body">
+        <div class="study-content" id="study-content"></div>
+      </div>
     </section>
   </main>
   <script type="module">
     import { KnowledgeGraph3D } from "./src/graph3d.js";
-    const catalog = await fetch("./data/catalog.json").then(r=>{if(!r.ok)throw new Error("无法载入知识图谱数据");return r.json();});
+    const catalog = await fetch("./data/catalog.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("无法载入知识图谱数据");return r.json();});
     const {nodes,groupMeta,lessonLibrary,lessonNotes,exerciseBank}=catalog;
     const edges = [];
     const hardEdgeKeys=new Set(),softPairs=new Set();
@@ -377,15 +422,26 @@
     const clusterLayer = document.getElementById("clusters");
     const edgeLayer = document.getElementById("edges");
     const nodeLayer = document.getElementById("nodes");
+    const entryMarkerLayer=document.getElementById("entry-marker");
     const mobileClusterLayer = document.getElementById("mobile-clusters");
     const modeToggle=document.getElementById("mode-toggle");
     const NS = "http://www.w3.org/2000/svg";
     let selected = null, filter = "all", activeTab = "intro", zoom = 1, panX = 0, panY = 0;
     let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false;
-    const VIEW_STATE_KEY="cslearning.graph-view.v1";
+    const VIEW_STATE_KEY="cslearning.graph-view.v3";
     let viewSaveTimer=0;
     function make(tag,attrs={}) { const el=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v); return el; }
     function applyTransform(){mapContent.setAttribute("transform",`translate(${panX} ${panY}) scale(${zoom})`);}
+    function setDefaultMapView(){
+      zoom=mobileLayout?1:1.5;panX=0;panY=0;applyTransform();
+      mapScroll.scrollLeft=0;mapScroll.scrollTop=0;
+    }
+    function extensionIds(id){
+      const node=nodeById[id];
+      if(!node)return [];
+      const children=nodes.filter(other=>other.pre.includes(id)).map(other=>other.id);
+      return [...new Set([...(node.ext??[]),...children])].filter(target=>target!==id&&nodeById[target]);
+    }
     function calculateRanks(){
       const ranks={};
       function rank(id,visiting=new Set()){
@@ -400,11 +456,10 @@
       return ranks;
     }
     function saveViewState(){
-      const vb=svg.viewBox.baseVal,maxY=Math.max(1,mapScroll.scrollHeight-mapScroll.clientHeight),maxX=Math.max(1,mapScroll.scrollWidth-mapScroll.clientWidth);
+      const vb=svg.viewBox.baseVal;
       const state={
-        version:1,mode:is3D?"3d":"2d",selected,
+        version:3,mode:is3D?"3d":"2d",selected,
         panXRatio:panX/Math.max(1,vb.width),panYRatio:panY/Math.max(1,vb.height),zoom,
-        scrollXRatio:mapScroll.scrollLeft/maxX,scrollYRatio:mapScroll.scrollTop/maxY,
         camera:is3D?graph3D?.getViewState():null
       };
       try{localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(state));}catch{}
@@ -416,7 +471,7 @@
     function restoreViewState(){
       let state;
       try{state=JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"null");}catch{return;}
-      if(!state||state.version!==1)return;
+      if(!state||state.version!==3)return;
       if(state.mode==="3d"&&!mobileLayout){
         is3D=true;mapScroll.classList.add("view-3d");ensure3D();
         graph3D.restoreViewState(state.camera);
@@ -428,9 +483,6 @@
         zoom=Math.max(.65,Math.min(1.65,Number(state.zoom)||1));
         panX=(Number(state.panXRatio)||0)*vb.width;panY=(Number(state.panYRatio)||0)*vb.height;applyTransform();
       }
-      const maxX=Math.max(0,mapScroll.scrollWidth-mapScroll.clientWidth),maxY=Math.max(0,mapScroll.scrollHeight-mapScroll.clientHeight);
-      mapScroll.scrollLeft=Math.max(0,Math.min(maxX,(Number(state.scrollXRatio)||0)*maxX));
-      mapScroll.scrollTop=Math.max(0,Math.min(maxY,(Number(state.scrollYRatio)||0)*maxY));
       if(state.selected&&nodeById[state.selected])selectNode(state.selected);
       scheduleSaveView();
     }
@@ -438,7 +490,7 @@
       if(!graph3D)return;
       const vb=svg.viewBox.baseVal;
       graph3D.updateData({nodes,edges,groupMeta,ranks:calculateRanks(),layoutWidth:vb.width,layoutHeight:vb.height});
-      if(selected){const n=nodeById[selected];graph3D.setSelection(selected,n.pre,n.ext);}
+      if(selected){const n=nodeById[selected];graph3D.setSelection(selected,n.pre,extensionIds(selected));}
     }
     function ensure3D(){
       const vb=svg.viewBox.baseVal;
@@ -465,7 +517,6 @@
         });
       }
     });
-    mapScroll.addEventListener("scroll",scheduleSaveView,{passive:true});
     function sortedGroup(group,ranks){
       return nodes.filter(n=>n.group===group).sort((a,b)=>ranks[a.id]-ranks[b.id]||a.title.localeCompare(b.title,"zh-CN"));
     }
@@ -548,7 +599,7 @@
     function drawGraph() {
       drawEdges(); nodeLayer.replaceChildren();
       for (const n of nodes) {
-        const g=make("g",{class:"node",transform:`translate(${n.x-65},${n.y})`,tabindex:"0",role:"button","aria-label":n.title,"data-id":n.id});
+        const g=make("g",{class:`node ${n.entryPoint?"entry-point":""} ${n.contentStatus==="complete"?"":"pending"}`,transform:`translate(${n.x-65},${n.y})`,tabindex:"0",role:"button","aria-label":n.title,"data-id":n.id});
         g.append(make("rect",{width:"130",height:"48",rx:"13"}));
         g.append(make("circle",{cx:"14",cy:"15",r:"3.5",fill:color[n.group],class:"node-dot"}));
         const t=make("text",{x:"65",y:"27",class:"node-title"}); t.textContent=n.title; g.append(t);
@@ -557,7 +608,18 @@
         g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();selectNode(n.id);}});
         nodeLayer.append(g);
       }
+      drawEntryMarker();
       applyVisualState();
+    }
+    function drawEntryMarker(){
+      entryMarkerLayer.replaceChildren();
+      const n=nodes.find(x=>x.entryPoint);if(!n)return;
+      const mobile=svg.classList.contains("mobile-map"),left=n.x-65;
+      const labelX=mobile?10:Math.max(3,left-67),lineStart=mobile?31:labelX+56,lineEnd=left-3;
+      const label=make("text",{x:labelX,y:n.y+16,class:"entry-arrow-label"});
+      label.textContent=mobile?"起点":"从这里开始";entryMarkerLayer.append(label);
+      const line=make("path",{d:`M ${lineStart} ${n.y+27} L ${lineEnd} ${n.y+27}`,fill:"none",stroke:"#d99a36","stroke-width":"2.5","marker-end":"url(#start-arrow)",class:"entry-arrow"});
+      entryMarkerLayer.append(line);
     }
     function svgPoint(event){
       const p=svg.createSVGPoint();p.x=event.clientX;p.y=event.clientY;
@@ -565,7 +627,6 @@
     }
     svg.addEventListener("pointerdown",e=>{
       if(e.button!==0)return;
-      if(mobileLayout&&e.pointerType==="touch")return;
       if(e.target.closest?.(".node"))return;
       const root=svgPoint(e);
       gesture={kind:"pan",start:root,origin:{x:panX,y:panY}};
@@ -585,17 +646,18 @@
     });
     function applyVisualState() {
       const n=selected?nodeById[selected]:null;
-      if(graph3D)graph3D.setSelection(selected,n?.pre??[],n?.ext??[]);
+      const extIds=selected?extensionIds(selected):[];
+      if(graph3D)graph3D.setSelection(selected,n?.pre??[],selected?extensionIds(selected):[]);
       document.querySelectorAll(".node").forEach(el=>{
         const id=el.dataset.id, item=nodeById[id];
         el.classList.toggle("selected",id===selected);
         el.classList.toggle("hidden-by-filter",filter!=="all"&&item.group!==filter);
-        el.classList.toggle("dimmed",!!n&&id!==selected&&!n.pre.includes(id)&&!n.ext.includes(id));
+        el.classList.toggle("dimmed",!!n&&id!==selected&&!n.pre.includes(id)&&!extIds.includes(id));
         el.classList.toggle("prereq",!!n&&n.pre.includes(id));
-        el.classList.toggle("extension",!!n&&n.ext.includes(id));
+        el.classList.toggle("extension",!!n&&extIds.includes(id));
       });
       document.querySelectorAll(".edge").forEach(el=>{
-        const active=!!n&&((el.dataset.from===selected&&n.ext.includes(el.dataset.to))||(el.dataset.to===selected&&n.pre.includes(el.dataset.from)));
+        const active=!!n&&((el.dataset.from===selected&&extIds.includes(el.dataset.to))||(el.dataset.to===selected&&n.pre.includes(el.dataset.from)));
         el.classList.toggle("active",active);
       });
     }
@@ -603,19 +665,23 @@
     const workspace=document.querySelector(".workspace"), studyView=document.getElementById("study-view");
     const studyContent=document.getElementById("study-content"), studyMeta=document.getElementById("study-head-meta");
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    function setStudyTitle(title){
+      studyMeta.textContent=title||"";
+      studyMeta.className=title?"study-head-title":"study-head-meta";
+    }
     function openStudy(mode,id){
       const n=nodeById[id];if(!n)return;
       selected=id;
       if(is3D)graph3D?.pause();
+      document.body.classList.remove("focus-view");
+      setStudyTitle(n.title);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
-      studyMeta.textContent=`${label[n.group]}  ·  ${n.book}`;
-      if(mode==="lesson")renderLesson(n);
-      else if(mode==="exercise")renderPractice(n);
-      else renderLab(n);
+      renderLesson(n);
       studyView.scrollTop=0;
       scheduleSaveView();
     }
     function backToGraph(){
+      document.body.classList.remove("focus-view");
       studyView.classList.remove("active");workspace.style.display="flex";
       if(is3D)graph3D?.resume();
       document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav==="graph"));
@@ -625,26 +691,19 @@
     document.getElementById("study-back").addEventListener("click",backToGraph);
     function activateNav(name){document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav===name));}
     function openOverview(title,meta,html){
+      document.body.classList.remove("focus-view");
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
+      studyMeta.className="study-head-meta";
       studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
       scheduleSaveView();
-    }
-    function renderPathPage(){
-      const ids=["sets","peano-axioms","natural-numbers","integers","powers","place-value","base-conversion","bits-bytes","unsigned","twos-complement","boolean-algebra","logic-gates","adders","machine-instructions","cpu-datapath","memory-hierarchy","operating-systems","networking","graph-theory","graph-representation","bfs-dfs","shortest-paths","routing"];
-      const steps=ids.map((id,i)=>{const n=nodeById[id];return `<button class="related-button" data-open-lesson="${id}"><b>${String(i+1).padStart(2,"0")}</b>　${escapeHTML(n.title)}<br><small>${escapeHTML(label[n.group])}</small></button>`;}).join("");
-      openOverview("建议学习路径","从数值表示到系统与网络",`<div class="study-kicker">GUIDED ROUTE · 可跳转的建议路线</div>
-        <h1 class="study-title">从集合与自然数，到一台计算机</h1>
-        <p class="study-lead">这是一条可调整的入门路线，不是唯一顺序。每个节点仍可从知识图谱直接进入；遇到先修缺口时，回到图谱查看依赖。</p>
-        <div class="study-goal"><b>路线说明</b>　数学概念在需要时穿插出现；课程历史会随相关知识点展开，而不是要求先学完一条年代线。</div>
-        <div class="related-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px">${steps}</div>`);
     }
     function renderBooksPage(){
       const groups=new Map();
       for(const n of nodes){const title=n.book.split(" · ")[0];if(!groups.has(title))groups.set(title,[]);groups.get(title).push(n);}
       const cards=[...groups.entries()].map(([book,items])=>`<section class="lesson-section"><h3>${escapeHTML(book)}</h3>
         <p>${items.length} 个相关知识点 · 选择知识点查看讲解与练习</p>
-        <div class="related-list">${items.map(n=>`<button class="related-button" data-open-lesson="${n.id}">${escapeHTML(n.title)}</button>`).join("")}</div></section>`).join("");
+        <div class="related-list">${items.map(n=>`<button class="related-button ${n.contentStatus==="complete"?"":"pending"}" data-open-lesson="${n.id}">${escapeHTML(n.title)}</button>`).join("")}</div></section>`).join("");
       openOverview("教材目录",`${groups.size} 本自编教材 · ${nodes.length} 个知识点`,`<div class="study-kicker">BOOKS · 由知识图谱组织</div>
         <h1 class="study-title">教材与讲义</h1><p class="study-lead">教材章节不规定唯一学习顺序。你可以从这里按教材浏览，也可以回到知识图谱按先修关系探索。</p>${cards}
         <section class="lesson-section"><h3>PDF 试读</h3><p>目前有一份位置记数法的 LaTeX 样稿。</p>
@@ -653,9 +712,14 @@
     document.querySelectorAll(".top-link").forEach(b=>b.addEventListener("click",()=>{
       activateNav(b.dataset.nav);
       if(b.dataset.nav==="graph")backToGraph();
-      else if(b.dataset.nav==="path")renderPathPage();
+      else if(b.dataset.nav==="labs")renderLabsPage();
       else renderBooksPage();
     }));
+    function lessonTableHTML(t){
+      return `<figure class="lesson-fig"><table class="lesson-table">${t.caption?`<caption>${escapeHTML(t.caption)}</caption>`:""}
+        <thead><tr>${t.head.map(h=>`<th>${escapeHTML(h)}</th>`).join("")}</tr></thead>
+        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHTML(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
+    }
     function renderLesson(n){
       const lesson=lessonLibrary[n.id]||{
         lead:n.summary,
@@ -665,10 +729,15 @@
           {title:"学习目标",body:n.goal}
         ]
       };
-      const sections=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.body)}</p>
+      const sections=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3>
+        ${s.body?`<p>${escapeHTML(s.body)}</p>`:""}
+        ${s.def?`<div class="def-box"><b>${escapeHTML(s.def.label)}</b><p>${escapeHTML(s.def.text)}</p></div>`:""}
         ${s.points?`<ul class="lesson-points">${s.points.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`:""}
         ${s.formula?`<div class="formula">${escapeHTML(s.formula)}</div>`:""}
-        ${s.example?`<div class="worked-example"><b>推导 / 例题</b>${escapeHTML(s.example)}</div>`:""}</section>`).join("");
+        ${s.table?lessonTableHTML(s.table):""}
+        ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
+        ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}
+        ${s.experiment?`<div class="lab-card lesson-embed"><div data-inline-lab="${escapeHTML(s.experiment)}"></div></div>`:""}</section>`).join("");
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
       const enrichment=note?`<section class="lesson-section"><h3>例子与易错点</h3>
@@ -676,18 +745,18 @@
         <aside class="pitfall-note"><b>容易混淆</b>${escapeHTML(note.pitfall)}</aside></section>`:"";
       const references=lesson.references?.length?`<section class="lesson-section"><h3>延伸阅读</h3><ul class="reference-list">${lesson.references.map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul></section>`:"";
       const draft=n.contentStatus==="draft"?'<div class="draft-banner">新知识点脚手架 · 正文、例题与专属练习待补充</div>':"";
-      studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 知识点</div>${draft}
-        <h1 class="study-title">${escapeHTML(n.title)}</h1><div class="study-subtitle">${escapeHTML(n.en)} · ${escapeHTML(n.book)}</div>
+      studyContent.innerHTML=`${draft}
         <p class="study-lead">${escapeHTML(lesson.lead)}</p>
         <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${history}${sections}${enrichment}${references}
-        <div class="study-cta"><button class="primary" data-study-action="exercise">开始练习</button><button data-study-action="lab">进入交互实验</button>
-        ${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
+        <section class="lesson-section" id="lesson-practice"><h3>练习</h3>${practiceHTML(n)}</section>
+        <div class="study-cta">${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
         ${n.pre.map(id=>`<button data-related="${id}">先学：${escapeHTML(nodeById[id]?.title||id)}</button>`).join("")}</div>`;
-      studyContent.querySelectorAll("[data-study-action]").forEach(b=>b.addEventListener("click",()=>openStudy(b.dataset.studyAction,n.id)));
+      bindPractice(studyContent,n);
+      studyContent.querySelectorAll("[data-inline-lab]").forEach(host=>{if(hasLab(host.dataset.inlineLab))renderLabInto(host.dataset.inlineLab,host);});
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
     }
     function exerciseFor(n){
-      if(exerciseBank[n.id])return {...exerciseBank[n.id],multi:false};
+      if(exerciseBank[n.id])return {...exerciseBank[n.id],multi:exerciseBank[n.id].multi??false};
       if(n.pre.length){
         const distractors=nodes.filter(x=>x.group===n.group&&x.id!==n.id&&!n.pre.includes(x.id)).slice(0,4);
         const choices=[...n.pre.map(id=>({value:id,text:nodeById[id]?.title||id})),...distractors.map(x=>({value:x.id,text:x.title}))];
@@ -696,59 +765,174 @@
       const choices=Object.entries(label).map(([value,text])=>({value,text}));
       return {prompt:`「${n.title}」属于哪个知识域？`,choices,answer:[n.group],explanation:`它属于「${label[n.group]}」。`,multi:false};
     }
-    function renderPractice(n){
-      const q=exerciseFor(n);
-      const choices=q.choices||q.options.map(text=>({value:text,text}));
-      studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 练习</div>
-        <h1 class="study-title">${escapeHTML(n.title)}：自测</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
-        <div class="practice-card"><h2 class="practice-prompt">${escapeHTML(q.prompt)}</h2>
-        ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
-        <div class="study-cta"><button class="study-button primary" id="check-answer">检查答案</button><button class="study-button" id="show-answer">查看解析</button></div>
-        <div class="practice-feedback" id="practice-feedback" aria-live="polite"></div></div>`;
-      const feedback=document.getElementById("practice-feedback");
-      document.getElementById("check-answer").addEventListener("click",()=>{
-        const selected=[...studyContent.querySelectorAll('input[name="practice-answer"]:checked')].map(x=>x.value).sort();
-        const answer=[...q.answer].sort(),correct=selected.length===answer.length&&selected.every((v,i)=>v===answer[i]);
-        feedback.style.color=correct?"#16806f":"#b06a43";
-        feedback.textContent=correct?`回答正确。${q.explanation}`:`还不完全正确，再想一想。${q.multi?"请同时选出所有直接前置知识。":"可以查看解析获得提示。"}`;
-      });
-      document.getElementById("show-answer").addEventListener("click",()=>{
-        feedback.style.color="#60767d";
-        feedback.textContent=`参考答案：${q.answer.map(x=>choices.find(c=>c.value===x)?.text||x).join("、")}。${q.explanation}`;
+    function practiceQuestions(n){
+      const data=exerciseFor(n);
+      return data.questions??[data];
+    }
+    function practiceHTML(n){
+      return practiceQuestions(n).map((q,index)=>{
+        if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
+          ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
+          <div class="study-cta"><button class="study-button primary" data-toggle-answer="${index}" aria-expanded="false">查看答案</button></div>
+          <div class="answer-panel" id="practice-feedback-${index}" hidden><p class="answer-text">${escapeHTML(q.answerText)}</p>${q.answerTable?lessonTableHTML(q.answerTable):""}</div></div>`;
+        const choices=q.choices||q.options.map(text=>({value:text,text}));
+        return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
+          ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
+          <div class="study-cta"><button class="study-button primary" data-check-answer="${index}">检查答案</button><button class="study-button" data-show-answer="${index}">查看解析</button></div>
+          <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
+      }).join("");
+    }
+    function bindPractice(container,n){
+      practiceQuestions(n).forEach((q,index)=>{
+        const feedback=container.querySelector(`#practice-feedback-${index}`);
+        if(!feedback)return;
+        if(q.type==="written"){
+          const button=container.querySelector(`[data-toggle-answer="${index}"]`);
+          button.addEventListener("click",()=>{
+            const open=feedback.hidden;
+            feedback.hidden=!open;
+            button.textContent=open?"隐藏答案":"查看答案";
+            button.setAttribute("aria-expanded",String(open));
+          });
+          return;
+        }
+        const choices=q.choices||q.options.map(text=>({value:text,text}));
+        container.querySelector(`[data-check-answer="${index}"]`).addEventListener("click",()=>{
+          const selected=[...container.querySelectorAll(`input[name="practice-answer-${index}"]:checked`)].map(x=>x.value).sort();
+          const answer=[...q.answer].sort(),correct=selected.length===answer.length&&selected.every((v,i)=>v===answer[i]);
+          feedback.style.color=correct?"#16806f":"#b06a43";
+          feedback.textContent=correct?`回答正确。${q.explanation}`:`还不完全正确，再想一想。${q.multi?"请同时选出所有正确项。":"可以参考答案。"}`;
+        });
+        container.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{
+          feedback.style.color="#60767d";
+          feedback.textContent=`参考答案：${q.answer.map(x=>choices.find(c=>c.value===x)?.text||x).join("、")}。${q.explanation}`;
+        });
       });
     }
-    function renderLab(n){
-      studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 交互实验</div>
-        <h1 class="study-title">${escapeHTML(n.title)}：实验台</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
-        <p class="study-lead">调整参数，先预测结果，再观察规则如何运行。</p><div class="lab-card" id="lab-root"></div>`;
-      const root=document.getElementById("lab-root");
-      if(n.id==="sets")renderSetLab(root);
-      else if(["peano-axioms","natural-numbers"].includes(n.id))renderPeanoLab(root);
-      else if(n.id==="integers")renderIntegerLineLab(root);
-      else if(n.id==="overflow")renderOverflowLab(root);
-      else if(["place-value","base-conversion"].includes(n.id))renderConversionLab(root);
-      else if(["bits-bytes","unsigned","twos-complement"].includes(n.id))renderIntegerLab(root,n.id==="twos-complement");
-      else if(n.id==="floating-point")renderFloatLab(root);
-      else if(n.id==="character-codes")renderCharacterLab(root);
-      else if(n.id==="endianness")renderEndiannessLab(root);
-      else if(n.id==="bitwise-operations")renderBitwiseLab(root);
-      else if(["boolean-algebra","logic-gates","boolean-simplification","adders"].includes(n.id))renderLogicLab(root,n.id==="adders");
-      else if(["shortest-paths","routing"].includes(n.id))renderShortestPathLab(root);
-      else if(["graph-theory","graph-representation","bfs-dfs"].includes(n.id))renderGraphLab(root);
-      else if(n.id==="complexity")renderComplexityLab(root);
-      else if(n.id==="calculus")renderCalculusLab(root);
-      else if(n.id==="machine-learning")renderLearningLab(root);
-      else if(n.id==="sorting")renderSortingLab(root);
-      else if(["algorithm","control-flow"].includes(n.id))renderSearchLab(root);
-      else if(n.id==="trees")renderTreeLab(root);
-      else if(n.id==="cache")renderCacheLab(root);
-      else if(n.id==="cpu-pipeline")renderPipelineLab(root);
-      else if(n.id==="scheduling")renderSchedulingLab(root);
-      else if(n.id==="virtual-memory")renderVirtualMemoryLab(root);
-      else if(n.id==="databases")renderDatabaseLab(root);
-      else if(["networking","transport-protocols","application-protocols"].includes(n.id))renderPacketLab(root);
-      else if(["synchronization","processes-threads"].includes(n.id))renderRaceLab(root);
-      else renderRelationLab(root,n);
+    const LAB_IDS=["axiomatic-method","sets","set-operations","predicate-logic","peano-axioms","natural-numbers","mathematical-induction","integers","overflow","place-value","base-conversion","bits-bytes","unsigned","twos-complement","floating-point","character-codes","endianness","bitwise-operations","boolean-algebra","logic-gates","boolean-simplification","adders","shortest-paths","routing","graph-theory","graph-representation","bfs-dfs","complexity","calculus","machine-learning","sorting","algorithm","control-flow","trees","cache","cpu-pipeline","scheduling","virtual-memory","databases","networking","transport-protocols","application-protocols","synchronization","processes-threads"];
+    function hasLab(id){return LAB_IDS.includes(id);}
+    function renderLabInto(id,root){
+      if(id==="axiomatic-method")renderAxiomaticLab(root);
+      else if(id==="sets")renderMembershipLab(root);
+      else if(id==="set-operations")renderSetLab(root);
+      else if(id==="predicate-logic")renderPredicateLab(root);
+      else if(["peano-axioms","natural-numbers"].includes(id))renderPeanoLab(root);
+      else if(id==="mathematical-induction")renderInductionLab(root);
+      else if(id==="integers")renderIntegerLineLab(root);
+      else if(id==="overflow")renderOverflowLab(root);
+      else if(["place-value","base-conversion"].includes(id))renderConversionLab(root);
+      else if(["bits-bytes","unsigned","twos-complement"].includes(id))renderIntegerLab(root,id==="twos-complement");
+      else if(id==="floating-point")renderFloatLab(root);
+      else if(id==="character-codes")renderCharacterLab(root);
+      else if(id==="endianness")renderEndiannessLab(root);
+      else if(id==="bitwise-operations")renderBitwiseLab(root);
+      else if(["boolean-algebra","logic-gates","boolean-simplification","adders"].includes(id))renderLogicLab(root,id==="adders");
+      else if(["shortest-paths","routing"].includes(id))renderShortestPathLab(root);
+      else if(["graph-theory","graph-representation","bfs-dfs"].includes(id))renderGraphLab(root);
+      else if(id==="complexity")renderComplexityLab(root);
+      else if(id==="calculus")renderCalculusLab(root);
+      else if(id==="machine-learning")renderLearningLab(root);
+      else if(id==="sorting")renderSortingLab(root);
+      else if(["algorithm","control-flow"].includes(id))renderSearchLab(root);
+      else if(id==="trees")renderTreeLab(root);
+      else if(id==="cache")renderCacheLab(root);
+      else if(id==="cpu-pipeline")renderPipelineLab(root);
+      else if(id==="scheduling")renderSchedulingLab(root);
+      else if(id==="virtual-memory")renderVirtualMemoryLab(root);
+      else if(id==="databases")renderDatabaseLab(root);
+      else if(["networking","transport-protocols","application-protocols"].includes(id))renderPacketLab(root);
+      else if(["synchronization","processes-threads"].includes(id))renderRaceLab(root);
+      else renderRelationLab(root,nodeById[id]);
+    }
+    function renderLabsPage(){
+      const groups=Object.keys(groupMeta).map(key=>({key,items:catalog.nodes.filter(node=>node.group===key&&hasLab(node.id))})).filter(g=>g.items.length);
+      const sections=groups.map(g=>`<details class="lab-group" open>
+        <summary><span>${escapeHTML(groupMeta[g.key].label)}</span><small>${g.items.length} 个实验</small></summary>
+        <div class="lab-grid">${g.items.map(node=>`<button class="lab-card" data-open-lab="${node.id}">
+          <b>${escapeHTML(node.title)}</b><small>${escapeHTML(node.book)}</small></button>`).join("")}</div></details>`).join("");
+      openOverview("实验",LAB_IDS.length+" 个已注册实验",sections);
+      studyContent.querySelectorAll("[data-open-lab]").forEach(button=>{
+        button.addEventListener("click",()=>openLab(button.dataset.openLab));
+      });
+    }
+    function openLab(id){
+      const n=nodeById[id];
+      if(!n||!hasLab(id))return;
+      selected=id;
+      if(is3D)graph3D?.pause();
+      setStudyTitle(n.title);
+      detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
+      studyContent.innerHTML=`<div class="study-back-row"><button class="back-button" id="lab-back">← 实验列表</button></div>
+        <p class="study-lead">${escapeHTML(n.book)}</p>
+        <div class="lab-card" id="lab-single"></div>`;
+      studyContent.querySelector("#lab-back").addEventListener("click",()=>renderLabsPage());
+      renderLabInto(id,studyContent.querySelector("#lab-single"));
+      studyView.scrollTop=0;
+      scheduleSaveView();
+    }
+    function renderAxiomaticLab(root){
+      const hands=["石头","剪刀","布"];
+      const ruleSets={
+        standard:{title:"标准规则",beats:{石头:["剪刀"],剪刀:["布"],布:["石头"]}},
+        variant:{title:"变体：石头胜布",beats:{石头:["剪刀","布"],剪刀:["布"],布:[]}}
+      };
+      const judge=(beats,a,b)=>a===b?"平":beats[a].includes(b)?"胜":"负";
+      root.innerHTML=`<h3>规则实验：检验一条推论</h3>
+        <p>选择一组胜负规则，查看九种对局结果，再检验“是否存在一种手势能胜过其余两种”。</p>
+        <div class="lab-controls"><label>规则 <select id="rule-set"><option value="standard">标准规则</option><option value="variant">变体：石头胜布</option></select></label></div>
+        <div id="rule-table"></div>
+        <div class="lab-controls"><button class="study-button primary" id="rule-check">检验推论</button></div>
+        <div class="lab-output" id="rule-result"></div>`;
+      const renderTable=()=>{
+        const key=document.getElementById("rule-set").value,beats=ruleSets[key].beats;
+        document.getElementById("rule-table").innerHTML=`<figure class="lesson-fig"><table class="lesson-table"><caption>表：${ruleSets[key].title}（行为出手方，列为对方）</caption>
+          <thead><tr><th>出手方＼对方</th>${hands.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+          <tbody>${hands.map(a=>`<tr><th>${a}</th>${hands.map(b=>`<td>${judge(beats,a,b)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
+        document.getElementById("rule-result").textContent="";
+      };
+      const check=()=>{
+        const key=document.getElementById("rule-set").value,beats=ruleSets[key].beats;
+        const rows=hands.map(a=>{
+          const others=hands.filter(b=>b!==a);
+          const wins=others.filter(b=>beats[a].includes(b));
+          const loses=others.filter(b=>beats[b].includes(a));
+          return {hand:a,others,wins,loses,all:wins.length===others.length};
+        });
+        const all=rows.filter(r=>r.all);
+        const lines=rows.map(r=>`${r.hand}：胜 ${r.wins.join("、")||"无"}；负于 ${r.loses.join("、")||"无"} → ${r.all?"能胜过其余全部":"不能胜过其余全部"}`);
+        document.getElementById("rule-result").innerHTML=`<b>${ruleSets[key].title}</b><br>${lines.join("<br>")}<br><br>`+
+          (all.length?`结论：存在能胜过其余全部手势的手势——<b>${all.map(r=>r.hand).join("、")}</b>。`
+                       :`结论：<b>不存在</b>能胜过其余全部手势的手势。逐一检查三种情形后，定理成立。`);
+      };
+      document.getElementById("rule-set").addEventListener("change",renderTable);
+      document.getElementById("rule-check").addEventListener("click",check);
+      renderTable();
+    }
+    function renderMembershipLab(root){
+      root.innerHTML=`<h3>成员关系与子集检查</h3><p>输入有限集合 A、B 和元素 x，观察 x∈A 与 A⊆B 的定义如何逐项检查。</p>
+        <div class="lab-controls"><label>A <input id="member-a" value="1, 2"></label><label>B <input id="member-b" value="1, 2, 3"></label><label>x <input id="member-x" value="2"></label></div>
+        <div class="lab-output" id="member-output"></div>`;
+      const update=()=>{
+        const parse=id=>new Set(document.getElementById(id).value.split(",").map(x=>x.trim()).filter(Boolean));
+        const a=parse("member-a"),b=parse("member-b"),x=document.getElementById("member-x").value.trim();
+        const inA=a.has(x),subset=[...a].every(v=>b.has(v));
+        document.getElementById("member-output").innerHTML=`x∈A：<b>${inA?"真":"假"}</b><br>A⊆B：<b>${subset?"真":"假"}</b><br>子集检查逐个验证 A 的每个元素是否也属于 B。`;
+      };
+      root.querySelectorAll("input").forEach(el=>el.addEventListener("input",update));update();
+    }
+    function renderPredicateLab(root){
+      root.innerHTML=`<h3>有限论域上的量词实验</h3><p>在 D={1,2,3,4,5,6} 上选择谓词，观察全称量词与存在量词的真假。</p>
+        <div class="lab-controls"><label>谓词 <select id="predicate-mode"><option value="even">P(x)：x 是偶数</option><option value="greater">P(x)：x ≥ k</option></select></label>
+        <label>k <input id="predicate-k" type="range" min="1" max="6" value="4"><b id="predicate-k-label">4</b></label></div>
+        <div class="lab-step" id="predicate-domain"></div><div class="lab-output" id="predicate-output"></div>`;
+      const update=()=>{
+        const mode=document.getElementById("predicate-mode").value,k=Number(document.getElementById("predicate-k").value),domain=[1,2,3,4,5,6];
+        const holds=x=>mode==="even"?x%2===0:x>=k,truths=domain.filter(holds),all=truths.length===domain.length,exists=truths.length>0;
+        document.getElementById("predicate-k-label").textContent=k;
+        document.getElementById("predicate-domain").innerHTML=domain.map(x=>`<span class="lab-token ${holds(x)?"active":""}">${x}</span>`).join("");
+        document.getElementById("predicate-output").innerHTML=`满足 P(x) 的对象：{${truths.join(", ")||"∅"}}<br>∀x∈D P(x)：<b>${all?"真":"假"}</b>${all?"":"（反例："+domain.find(x=>!holds(x))+"）"}<br>∃x∈D P(x)：<b>${exists?"真":"假"}</b>${exists?"（见证："+truths[0]+"）":""}`;
+      };
+      root.querySelectorAll("select,input").forEach(x=>x.addEventListener("input",update));update();
     }
     function renderSetLab(root){
       root.innerHTML=`<h3>集合运算实验</h3><p>修改集合 A、B，观察并集、交集与差集。</p>
@@ -774,6 +958,26 @@
         document.getElementById("peano-output").innerHTML=`递归定义：a+0=a；a+S(b)=S(a+b)<br>因此 ${a}+${b}=<b>${a+b}</b>，从 ${a} 开始应用后继函数 S ${b} 次。`;
       };
       root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
+    }
+    function renderInductionLab(root){
+      root.innerHTML=`<h3>数学归纳法：自然数求和</h3><p>用 P(n): 1+2+…+n=n(n+1)/2 演示基础步、归纳假设和归纳步。</p>
+        <div class="lab-controls"><label>归纳步中的 k <input id="induction-k" type="range" min="1" max="12" value="4"><b id="induction-k-label">4</b></label></div>
+        <div class="lab-step" id="induction-steps"></div><div class="lab-output" id="induction-output"></div>`;
+      const update=()=>{
+        const k=Number(document.getElementById("induction-k").value);
+        document.getElementById("induction-k-label").textContent=k;
+        document.getElementById("induction-steps").innerHTML=[
+          `<span class="lab-token active">基础步：P(1)</span>`,
+          `<span class="lab-token active">归纳假设：P(${k})</span>`,
+          `<span class="lab-token active">推出：P(${k+1})</span>`
+        ].join("");
+        const assumed=k*(k+1)/2,stepLeft=assumed+(k+1),stepRight=(k+1)*(k+2)/2;
+        document.getElementById("induction-output").innerHTML=`基础步：1=1×2/2 成立。<br>
+          假设 1+…+${k}=${k}×(${k}+1)/2=${assumed}。<br>
+          加上 ${k+1} 后：${assumed}+${k+1}=${stepLeft}=(${k+1})×(${k+2})/2。<br>
+          因而 P(${k})⇒P(${k+1})。结合基础步，P(n) 对所有正整数 n 成立。`;
+      };
+      document.getElementById("induction-k").addEventListener("input",update);update();
     }
     function renderIntegerLineLab(root){
       root.innerHTML=`<h3>整数加法数轴</h3><p>把加正数看成向右移动，加负数看成向左移动。</p>
@@ -1190,7 +1394,7 @@
       document.getElementById("race-run").addEventListener("click",run);document.getElementById("race-mode").addEventListener("change",run);run();
     }
     function renderRelationLab(root,n){
-      const ids=[...n.pre,...n.ext].filter((id,i,a)=>nodeById[id]&&a.indexOf(id)===i);
+      const ids=[...n.pre,...extensionIds(n.id)].filter((id,i,a)=>nodeById[id]&&a.indexOf(id)===i);
       root.innerHTML=`<h3>知识关系探索</h3><p>从「${escapeHTML(n.title)}」沿依赖图继续探索。选择一个相邻知识点可直接打开它的学习页。</p>
         <div class="related-list">${ids.length?ids.map(id=>`<button class="related-button" data-related="${id}">${escapeHTML(nodeById[id].title)}</button>`).join(""):"<span>该节点的专用实验正在规划中。</span>"}</div>`;
       root.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
@@ -1202,27 +1406,13 @@
     function renderTab() {
       if(!selected)return;
       const n=nodeById[selected];
-      if(activeTab==="intro") {
-        body.innerHTML=`<p>${n.summary}</p>
-          <div class="section-label">前置知识 · ${n.pre.length}</div>
-          <div class="rel-list">${n.pre.length?n.pre.map(id=>chip(id,"pre")).join(""):'<span style="color:#98a5a9;font-size:10px">图谱入口暂无必需前置</span>'}</div>
-          <div class="section-label">扩展知识 · ${n.ext.length}</div>
-          <div class="rel-list">${n.ext.length?n.ext.map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
-          <div class="objective"><b>学完你将能够</b><span>${n.goal}</span></div>`;
-      } else if(activeTab==="exercise") {
-        body.innerHTML=`<p>完成下面的小练习，检查你是否理解「${n.title}」。</p>
-          <div class="objective"><b>练习 01 · 概念检查</b><span>${n.goal}</span></div>
-          <p style="margin-top:13px">选择“做练习”打开完整练习页，提交答案后会即时得到反馈和解析。</p>
-          <button class="rel-chip" data-open-page="exercise">打开练习页 ↗</button>`;
-      } else {
-        body.innerHTML=`<p>通过动手操作观察「${n.title}」的规则如何影响结果。</p>
-          <div class="objective"><b>实验目标</b><span>调整一个参数，预测结果，再运行实验验证你的猜想。</span></div>
-          <p style="margin-top:13px">选择“做实验”打开交互实验页；部分知识点已有可调整参数的实验，其余节点先提供关系探索。</p>
-          <button class="rel-chip" data-open-page="lab">打开实验台 ↗</button>`;
-      }
+      body.innerHTML=`<p>${n.summary}</p>
+        <div class="section-label">前置知识 · ${n.pre.length}</div>
+        <div class="rel-list">${n.pre.length?n.pre.map(id=>chip(id,"pre")).join(""):'<span style="color:#98a5a9;font-size:10px">图谱入口暂无必需前置</span>'}</div>
+        <div class="section-label">扩展知识 · ${extensionIds(n.id).length}</div>
+        <div class="rel-list">${extensionIds(n.id).length?extensionIds(n.id).map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
+        <div class="objective"><b>学完你将能够</b><span>${n.goal}</span></div>`;
       body.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>selectNode(b.dataset.jump)));
-      body.querySelectorAll("[data-toast]").forEach(b=>b.addEventListener("click",()=>showToast(b.dataset.toast)));
-      body.querySelectorAll("[data-open-page]").forEach(b=>b.addEventListener("click",()=>openStudy(b.dataset.openPage,selected)));
     }
     function selectNode(id) {
       selected=id; activeTab="intro"; const n=nodeById[id];
@@ -1230,11 +1420,9 @@
       document.getElementById("detail-title").textContent=n.title;
       document.getElementById("detail-id").textContent=n.en+"  ·  "+n.id;
       document.getElementById("detail-book").textContent=n.book;
-      document.querySelectorAll(".detail-tab").forEach(t=>t.classList.toggle("active",t.dataset.tab==="intro"));
       detail.classList.add("open"); renderTab(); applyVisualState();scheduleSaveView();
     }
     document.getElementById("close-detail").addEventListener("click",()=>{detail.classList.remove("open");selected=null;applyVisualState();scheduleSaveView();});
-    document.querySelectorAll(".detail-tab").forEach(t=>t.addEventListener("click",()=>{activeTab=t.dataset.tab;document.querySelectorAll(".detail-tab").forEach(x=>x.classList.toggle("active",x===t));renderTab();}));
     document.querySelectorAll(".action").forEach(b=>b.addEventListener("click",()=>openStudy(b.dataset.action,selected)));
     function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2200);}
     document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{
@@ -1266,13 +1454,14 @@
     document.getElementById("zoom-in").addEventListener("click",()=>is3D?graph3D?.zoomBy(.88):setZoom(zoom+.1));
     document.getElementById("zoom-out").addEventListener("click",()=>is3D?graph3D?.zoomBy(1.14):setZoom(zoom-.1));
     document.getElementById("reset").addEventListener("click",()=>{
-      if(is3D)graph3D?.resetView();else applyResponsiveLayout(true);
+      if(is3D)graph3D?.resetView();else{applyResponsiveLayout(true);setDefaultMapView();}
       search.value="";graph3D?.setSearch("");filter="all";document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("selected",x.dataset.filter==="all"));
       document.getElementById("map-count").textContent=`显示全部 · ${nodes.length} 个`;selected=null;detail.classList.remove("open");applyVisualState();
       scheduleSaveView();
     });
     document.getElementById("map-count").textContent=`显示全部 · ${nodes.length} 个`;
     applyResponsiveLayout(true);
+    setDefaultMapView();
     restoreViewState();
     window.addEventListener("resize",()=>{applyResponsiveLayout();if(graph3D)update3DData();scheduleSaveView();});
     window.addEventListener("beforeunload",saveViewState);

@@ -35,6 +35,7 @@ function usage() {
   --goal        学习目标
   --pre         直接前置知识 ID，逗号分隔（可选）
   --ext         扩展知识 ID，逗号分隔（可选）
+  --start       将此知识点设为唯一学习起点（不能有前置知识）
   --dry-run     只校验并预览，不写文件
   --help        显示此帮助`);
 }
@@ -76,6 +77,10 @@ if (nodes.some((node) => node.id === args.id)) {
 const parseIDs = (value) => value ? [...new Set(String(value).split(",").map((x) => x.trim()).filter(Boolean))] : [];
 const pre = parseIDs(args.pre);
 const ext = parseIDs(args.ext);
+if (args.start && pre.length) {
+  console.error("学习起点不能有必需前置知识。");
+  process.exit(1);
+}
 const existingIDs = new Set(nodes.map((node) => node.id));
 for (const id of [...pre, ...ext]) {
   if (id === args.id) {
@@ -100,6 +105,13 @@ const node = {
   ext,
   contentStatus: "draft",
 };
+if (args.start) node.entryPoint = true;
+if (args.start) {
+  for (const oldRoot of nodes.filter((item) => item.entryPoint)) {
+    delete oldRoot.entryPoint;
+    if (!oldRoot.pre.includes(node.id)) oldRoot.pre.push(node.id);
+  }
+}
 
 function hasPrerequisiteCycle(candidateNodes) {
   const byID = new Map(candidateNodes.map((item) => [item.id, item]));
@@ -127,6 +139,13 @@ if (fs.existsSync(path.join(draftDir, `${args.id}.md`))) {
 }
 
 catalog.nodes.push(node);
+// 反向补全：父节点的扩展关系里加入新知识点，保证图谱双向一致。
+for (const parentID of pre) {
+  const parent = catalog.nodes.find((item) => item.id === parentID);
+  if (!parent) continue;
+  parent.ext ??= [];
+  if (!parent.ext.includes(node.id)) parent.ext.push(node.id);
+}
 catalog.lessonLibrary[args.id] = {
   lead: args.summary,
   sections: [

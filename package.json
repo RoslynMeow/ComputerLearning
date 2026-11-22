@@ -1,0 +1,15 @@
+{
+  "name": "cslearning",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "CSLearning 知识图谱教材（静态站，无需后端）",
+  "scripts": {
+    "dev": "vite --port 5180",
+    "build": "vite build && node scripts/copy-runtime-assets.mjs",
+    "preview": "vite preview --port 5181"
+  },
+  "devDependencies": {
+    "vite": "^7.3.6"
+  }
+}
