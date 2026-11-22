@@ -208,6 +208,20 @@
     .study-body { max-width:1000px; margin:0 auto; padding:30px 34px 60px; }
     .study-content { max-width:none; margin:0; padding:0; }
     .study-head-title { color:#2c4a52; font-size:14px; font-weight:700; letter-spacing:-.01em; }
+    .lab-group { border:1px solid #e5ece9; border-radius:12px; background:#fbfdfc; margin:10px 0; }
+    .lab-group > summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; cursor:pointer; list-style:none; }
+    .lab-group > summary::-webkit-details-marker { display:none; }
+    .lab-group > summary span { color:#31505a; font-size:13px; font-weight:700; }
+    .lab-group > summary small { color:#93a2a8; font-size:10px; }
+    .lab-group > summary::after { content:"▾"; color:#9db0b4; font-size:11px; }
+    .lab-group[open] > summary { border-bottom:1px solid #eef3f1; }
+    .lab-group[open] > summary::after { content:"▴"; }
+    .lab-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; padding:12px 14px 14px; }
+    .lab-card { display:flex; flex-direction:column; gap:4px; text-align:left; border:1px solid #e3ebe8; border-radius:10px; background:#fff; padding:11px 12px; cursor:pointer; }
+    .lab-card:hover { border-color:#a9d2c6; background:#f4faf7; }
+    .lab-card b { color:#2f4e56; font-size:12px; font-weight:650; }
+    .lab-card small { color:#93a2a8; font-size:10px; }
+    .study-back-row { margin-bottom:6px; }
     .lab-list { display:flex; flex-direction:column; gap:8px; }
     .lab-item { border:1px solid #e5ece9; border-radius:11px; background:#fbfdfc; overflow:hidden; }
     .lab-toggle { display:flex; flex-direction:column; gap:3px; width:100%; text-align:left; border:0; background:transparent; padding:12px 14px; cursor:pointer; }
@@ -822,20 +836,29 @@
     }
     function renderLabsPage(){
       const groups=Object.keys(groupMeta).map(key=>({key,items:catalog.nodes.filter(node=>node.group===key&&hasLab(node.id))})).filter(g=>g.items.length);
-      const cards=groups.map(g=>`<section class="lesson-section"><h3>${escapeHTML(groupMeta[g.key].title)}</h3>
-        <div class="lab-list">${g.items.map(node=>`<div class="lab-item">
-          <button class="lab-toggle" data-lab-toggle="${node.id}"><span>${escapeHTML(node.title)}</span><small>${escapeHTML(node.book)}</small></button>
-          <div class="lab-host" data-lab-host="${node.id}" hidden></div></div>`).join("")}</div></section>`).join("");
-      openOverview("实验",LAB_IDS.length+" 个已注册实验",`<p class="study-lead">下列实验来自各知识点。展开任意一项即可直接操作，作为学习工具使用。</p>${cards}`);
-      studyContent.querySelectorAll("[data-lab-toggle]").forEach(button=>{
-        button.addEventListener("click",()=>{
-          const id=button.dataset.labToggle;
-          const host=studyContent.querySelector(`[data-lab-host="${id}"]`);
-          if(host.hidden&&!host.dataset.mounted){renderLabInto(id,host);host.dataset.mounted="1";}
-          host.hidden=!host.hidden;
-          button.classList.toggle("open",!host.hidden);
-        });
+      const sections=groups.map(g=>`<details class="lab-group" open>
+        <summary><span>${escapeHTML(groupMeta[g.key].label)}</span><small>${g.items.length} 个实验</small></summary>
+        <div class="lab-grid">${g.items.map(node=>`<button class="lab-card" data-open-lab="${node.id}">
+          <b>${escapeHTML(node.title)}</b><small>${escapeHTML(node.book)}</small></button>`).join("")}</div></details>`).join("");
+      openOverview("实验",LAB_IDS.length+" 个已注册实验",sections);
+      studyContent.querySelectorAll("[data-open-lab]").forEach(button=>{
+        button.addEventListener("click",()=>openLab(button.dataset.openLab));
       });
+    }
+    function openLab(id){
+      const n=nodeById[id];
+      if(!n||!hasLab(id))return;
+      selected=id;
+      if(is3D)graph3D?.pause();
+      setStudyTitle(n.title);
+      detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
+      studyContent.innerHTML=`<div class="study-back-row"><button class="back-button" id="lab-back">← 实验列表</button></div>
+        <p class="study-lead">${escapeHTML(n.book)}</p>
+        <div class="lab-card" id="lab-single"></div>`;
+      studyContent.querySelector("#lab-back").addEventListener("click",()=>renderLabsPage());
+      renderLabInto(id,studyContent.querySelector("#lab-single"));
+      studyView.scrollTop=0;
+      scheduleSaveView();
     }
     function renderAxiomaticLab(root){
       const hands=["石头","剪刀","布"];
