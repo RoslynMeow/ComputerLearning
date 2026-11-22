@@ -224,6 +224,8 @@
     .lab-card:hover { border-color:#a9d2c6; background:#f4faf7; }
     .lab-card b { color:#2f4e56; font-size:12px; font-weight:650; }
     .lab-card small { color:#93a2a8; font-size:10px; }
+    .lab-card svg { min-width:0; }
+    .lab-card .lesson-fig { max-width:100%; overflow-x:auto; }
     .study-back-row { margin-bottom:6px; }
     .lab-list { display:flex; flex-direction:column; gap:8px; }
     .lab-item { border:1px solid #e5ece9; border-radius:11px; background:#fbfdfc; overflow:hidden; }
@@ -333,7 +335,7 @@
     <nav class="top-links">
       <button class="top-link active" data-nav="graph">知识图谱</button>
       <button class="top-link" data-nav="books">教材</button>
-      <button class="top-link" data-nav="labs">实验</button>
+      <button class="top-link" data-nav="labs">工具</button>
     </nav>
     <div class="top-spacer"></div>
     <label class="search"><span>⌕</span><input id="search" placeholder="搜索知识点…" autocomplete="off" /><kbd>/</kbd></label>
@@ -401,6 +403,7 @@
   </main>
   <script type="module">
     import { KnowledgeGraph3D } from "./src/graph3d.js";
+    import { TOOLS, TOOL_BY_ID, NODE_TOOL, mountTool } from "./src/tools.js";
     import katex from "./vendor/katex/katex.js";
     const catalog = await fetch("./data/catalog.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("无法载入知识图谱数据");return r.json();});
     const {nodes,groupMeta,lessonLibrary,lessonNotes,exerciseBank}=catalog;
@@ -768,15 +771,20 @@
         <div class="worked-example"><b>具体例子</b>${escapeHTML(note.worked)}</div>
         <aside class="pitfall-note"><b>容易混淆</b>${escapeHTML(note.pitfall)}</aside></section>`:"";
       const references=lesson.references?.length?`<section class="lesson-section"><h3>延伸阅读</h3><ul class="reference-list">${lesson.references.map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul></section>`:"";
+      const hasInlineExperiment=lesson.sections.some(s=>s.experiment);
+      const tool=TOOL_BY_ID[NODE_TOOL[n.id]];
+      const toolBanner=!hasInlineExperiment&&tool?`<div class="objective"><b>相关工具</b><span>${escapeHTML(tool.title)} · ${escapeHTML(tool.summary)}
+        <button class="study-button" data-open-tool="${tool.id}" style="margin-left:8px">打开工具</button></span></div>`:"";
       const draft=n.contentStatus==="draft"?'<div class="draft-banner">新知识点脚手架 · 正文、例题与专属练习待补充</div>':"";
       studyContent.innerHTML=`${draft}
         <p class="study-lead">${escapeHTML(lesson.lead)}</p>
-        <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${history}${sections}${enrichment}${references}
+        <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${toolBanner}${history}${sections}${enrichment}${references}
         <section class="lesson-section" id="lesson-practice"><h3>练习</h3>${practiceHTML(n)}</section>
         <div class="study-cta">${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
         ${n.pre.map(id=>`<button data-related="${id}">先学：${escapeHTML(nodeById[id]?.title||id)}</button>`).join("")}</div>`;
       bindPractice(studyContent,n);
       studyContent.querySelectorAll("[data-inline-lab]").forEach(host=>{if(hasLab(host.dataset.inlineLab))renderLabInto(host.dataset.inlineLab,host);});
+      studyContent.querySelectorAll("[data-open-tool]").forEach(b=>b.addEventListener("click",()=>openLab(b.dataset.openTool,()=>openStudy("lesson",n.id),"← 返回知识点")));
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
       applyMath(studyContent);
     }
@@ -835,596 +843,41 @@
         });
       });
     }
-    const LAB_IDS=["axiomatic-method","sets","set-operations","predicate-logic","peano-axioms","natural-numbers","mathematical-induction","integers","overflow","place-value","base-conversion","bits-bytes","unsigned","twos-complement","floating-point","character-codes","endianness","bitwise-operations","boolean-algebra","logic-gates","boolean-simplification","adders","shortest-paths","routing","graph-theory","graph-representation","bfs-dfs","complexity","calculus","machine-learning","sorting","algorithm","control-flow","trees","cache","cpu-pipeline","scheduling","virtual-memory","databases","networking","transport-protocols","application-protocols","synchronization","processes-threads"];
-    function hasLab(id){return LAB_IDS.includes(id);}
+    function hasLab(id){return Boolean(NODE_TOOL[id]||TOOL_BY_ID[id]);}
     function renderLabInto(id,root){
-      if(id==="axiomatic-method")renderAxiomaticLab(root);
-      else if(id==="sets")renderMembershipLab(root);
-      else if(id==="set-operations")renderSetLab(root);
-      else if(id==="predicate-logic")renderPredicateLab(root);
-      else if(["peano-axioms","natural-numbers"].includes(id))renderPeanoLab(root);
-      else if(id==="mathematical-induction")renderInductionLab(root);
-      else if(id==="integers")renderIntegerLineLab(root);
-      else if(id==="overflow")renderOverflowLab(root);
-      else if(["place-value","base-conversion"].includes(id))renderConversionLab(root);
-      else if(["bits-bytes","unsigned","twos-complement"].includes(id))renderIntegerLab(root,id==="twos-complement");
-      else if(id==="floating-point")renderFloatLab(root);
-      else if(id==="character-codes")renderCharacterLab(root);
-      else if(id==="endianness")renderEndiannessLab(root);
-      else if(id==="bitwise-operations")renderBitwiseLab(root);
-      else if(["boolean-algebra","logic-gates","boolean-simplification","adders"].includes(id))renderLogicLab(root,id==="adders");
-      else if(["shortest-paths","routing"].includes(id))renderShortestPathLab(root);
-      else if(["graph-theory","graph-representation","bfs-dfs"].includes(id))renderGraphLab(root);
-      else if(id==="complexity")renderComplexityLab(root);
-      else if(id==="calculus")renderCalculusLab(root);
-      else if(id==="machine-learning")renderLearningLab(root);
-      else if(id==="sorting")renderSortingLab(root);
-      else if(["algorithm","control-flow"].includes(id))renderSearchLab(root);
-      else if(id==="trees")renderTreeLab(root);
-      else if(id==="cache")renderCacheLab(root);
-      else if(id==="cpu-pipeline")renderPipelineLab(root);
-      else if(id==="scheduling")renderSchedulingLab(root);
-      else if(id==="virtual-memory")renderVirtualMemoryLab(root);
-      else if(id==="databases")renderDatabaseLab(root);
-      else if(["networking","transport-protocols","application-protocols"].includes(id))renderPacketLab(root);
-      else if(["synchronization","processes-threads"].includes(id))renderRaceLab(root);
-      else renderRelationLab(root,nodeById[id]);
+      const toolId=NODE_TOOL[id]??(TOOL_BY_ID[id]?id:null);
+      if(!toolId)return;
+      mountTool(toolId,root);
     }
     function renderLabsPage(){
-      const groups=Object.keys(groupMeta).map(key=>({key,items:catalog.nodes.filter(node=>node.group===key&&hasLab(node.id))})).filter(g=>g.items.length);
-      const sections=groups.map(g=>`<details class="lab-group" open>
-        <summary><span>${escapeHTML(groupMeta[g.key].label)}</span><small>${g.items.length} 个实验</small></summary>
-        <div class="lab-grid">${g.items.map(node=>`<button class="lab-card" data-open-lab="${node.id}">
-          <b>${escapeHTML(node.title)}</b><small>${escapeHTML(node.book)}</small></button>`).join("")}</div></details>`).join("");
-      openOverview("实验",LAB_IDS.length+" 个已注册实验",sections);
-      studyContent.querySelectorAll("[data-open-lab]").forEach(button=>{
-        button.addEventListener("click",()=>openLab(button.dataset.openLab));
+      const groups=Object.keys(groupMeta).map(key=>({key,tools:TOOLS.filter(tool=>tool.group===key)})).filter(group=>group.tools.length);
+      const sections=groups.map(group=>`<details class="lab-group" open>
+        <summary><span>${escapeHTML(groupMeta[group.key].label)}</span><small>${group.tools.length} 个工具</small></summary>
+        <div class="lab-grid">${group.tools.map(tool=>`<button class="lab-card" data-open-tool="${tool.id}">
+          <b>${escapeHTML(tool.title)}</b><small>${escapeHTML(tool.summary)}</small>
+          ${tool.nodes.length>1?`<small>可服务 ${tool.nodes.length} 个知识点</small>`:""}</button>`).join("")}</div></details>`).join("");
+      openOverview("工具",`${TOOLS.length} 个通用工具 · ${Object.keys(NODE_TOOL).length} 个知识点已接入`,
+        `<div class="study-kicker">TOOLS · 通用工具</div>
+        <h1 class="study-title">工具</h1>
+        <p class="study-lead">工具与单个知识点解耦：同一个工具可以服务多个知识点，也可以脱离课程单独使用。选择工具进入独立页面。</p>${sections}`);
+      studyContent.querySelectorAll("[data-open-tool]").forEach(button=>{
+        button.addEventListener("click",()=>openLab(button.dataset.openTool));
       });
     }
-    function openLab(id){
-      const n=nodeById[id];
-      if(!n||!hasLab(id))return;
-      selected=id;
+    function openLab(toolId,backTo=null,backLabel="← 工具列表"){
+      const tool=TOOL_BY_ID[toolId];
+      if(!tool)return;
       if(is3D)graph3D?.pause();
-      setStudyTitle(n.title);
+      setStudyTitle(tool.title);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
-      studyContent.innerHTML=`<div class="study-back-row"><button class="back-button" id="lab-back">← 实验列表</button></div>
-        <p class="study-lead">${escapeHTML(n.book)}</p>
+      studyContent.innerHTML=`<div class="study-back-row"><button class="back-button" id="lab-back">${backLabel}</button></div>
+        <p class="study-lead">${escapeHTML(tool.summary)}</p>
         <div class="lab-card" id="lab-single"></div>`;
-      studyContent.querySelector("#lab-back").addEventListener("click",()=>renderLabsPage());
-      renderLabInto(id,studyContent.querySelector("#lab-single"));
+      studyContent.querySelector("#lab-back").addEventListener("click",()=>backTo?backTo():renderLabsPage());
+      mountTool(toolId,studyContent.querySelector("#lab-single"));
       applyMath(studyContent);
       studyView.scrollTop=0;
       scheduleSaveView();
-    }
-    function renderAxiomaticLab(root){
-      const hands=["石头","剪刀","布"];
-      const ruleSets={
-        standard:{title:"标准规则",beats:{石头:["剪刀"],剪刀:["布"],布:["石头"]}},
-        variant:{title:"变体：石头胜布",beats:{石头:["剪刀","布"],剪刀:["布"],布:[]}}
-      };
-      const judge=(beats,a,b)=>a===b?"平":beats[a].includes(b)?"胜":"负";
-      root.innerHTML=`<h3>规则实验：检验一条推论</h3>
-        <p>选择一组胜负规则，查看九种对局结果，再检验“是否存在一种手势能胜过其余两种”。</p>
-        <div class="lab-controls"><label>规则 <select id="rule-set"><option value="standard">标准规则</option><option value="variant">变体：石头胜布</option></select></label></div>
-        <div id="rule-table"></div>
-        <div class="lab-controls"><button class="study-button primary" id="rule-check">检验推论</button></div>
-        <div class="lab-output" id="rule-result"></div>`;
-      const renderTable=()=>{
-        const key=document.getElementById("rule-set").value,beats=ruleSets[key].beats;
-        document.getElementById("rule-table").innerHTML=`<figure class="lesson-fig"><table class="lesson-table"><caption>表：${ruleSets[key].title}（行为出手方，列为对方）</caption>
-          <thead><tr><th>出手方＼对方</th>${hands.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
-          <tbody>${hands.map(a=>`<tr><th>${a}</th>${hands.map(b=>`<td>${judge(beats,a,b)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
-        document.getElementById("rule-result").textContent="";
-      };
-      const check=()=>{
-        const key=document.getElementById("rule-set").value,beats=ruleSets[key].beats;
-        const rows=hands.map(a=>{
-          const others=hands.filter(b=>b!==a);
-          const wins=others.filter(b=>beats[a].includes(b));
-          const loses=others.filter(b=>beats[b].includes(a));
-          return {hand:a,others,wins,loses,all:wins.length===others.length};
-        });
-        const all=rows.filter(r=>r.all);
-        const lines=rows.map(r=>`${r.hand}：胜 ${r.wins.join("、")||"无"}；负于 ${r.loses.join("、")||"无"} → ${r.all?"能胜过其余全部":"不能胜过其余全部"}`);
-        document.getElementById("rule-result").innerHTML=`<b>${ruleSets[key].title}</b><br>${lines.join("<br>")}<br><br>`+
-          (all.length?`结论：存在能胜过其余全部手势的手势——<b>${all.map(r=>r.hand).join("、")}</b>。`
-                       :`结论：<b>不存在</b>能胜过其余全部手势的手势。逐一检查三种情形后，定理成立。`);
-      };
-      document.getElementById("rule-set").addEventListener("change",renderTable);
-      document.getElementById("rule-check").addEventListener("click",check);
-      renderTable();
-    }
-    function renderMembershipLab(root){
-      root.innerHTML=`<h3>成员关系与子集检查</h3><p>输入有限集合 A、B 和元素 x，观察 x∈A 与 A⊆B 的定义如何逐项检查。</p>
-        <div class="lab-controls"><label>A <input id="member-a" value="1, 2"></label><label>B <input id="member-b" value="1, 2, 3"></label><label>x <input id="member-x" value="2"></label></div>
-        <div class="lab-output" id="member-output"></div>`;
-      const update=()=>{
-        const parse=id=>new Set(document.getElementById(id).value.split(",").map(x=>x.trim()).filter(Boolean));
-        const a=parse("member-a"),b=parse("member-b"),x=document.getElementById("member-x").value.trim();
-        const inA=a.has(x),subset=[...a].every(v=>b.has(v));
-        document.getElementById("member-output").innerHTML=`x∈A：<b>${inA?"真":"假"}</b><br>A⊆B：<b>${subset?"真":"假"}</b><br>子集检查逐个验证 A 的每个元素是否也属于 B。`;
-      };
-      root.querySelectorAll("input").forEach(el=>el.addEventListener("input",update));update();
-    }
-    function renderPredicateLab(root){
-      root.innerHTML=`<h3>有限论域上的量词实验</h3><p>在 D={1,2,3,4,5,6} 上选择谓词，观察全称量词与存在量词的真假。</p>
-        <div class="lab-controls"><label>谓词 <select id="predicate-mode"><option value="even">P(x)：x 是偶数</option><option value="greater">P(x)：x ≥ k</option></select></label>
-        <label>k <input id="predicate-k" type="range" min="1" max="6" value="4"><b id="predicate-k-label">4</b></label></div>
-        <div class="lab-step" id="predicate-domain"></div><div class="lab-output" id="predicate-output"></div>`;
-      const update=()=>{
-        const mode=document.getElementById("predicate-mode").value,k=Number(document.getElementById("predicate-k").value),domain=[1,2,3,4,5,6];
-        const holds=x=>mode==="even"?x%2===0:x>=k,truths=domain.filter(holds),all=truths.length===domain.length,exists=truths.length>0;
-        document.getElementById("predicate-k-label").textContent=k;
-        document.getElementById("predicate-domain").innerHTML=domain.map(x=>`<span class="lab-token ${holds(x)?"active":""}">${x}</span>`).join("");
-        document.getElementById("predicate-output").innerHTML=`满足 P(x) 的对象：{${truths.join(", ")||"∅"}}<br>∀x∈D P(x)：<b>${all?"真":"假"}</b>${all?"":"（反例："+domain.find(x=>!holds(x))+"）"}<br>∃x∈D P(x)：<b>${exists?"真":"假"}</b>${exists?"（见证："+truths[0]+"）":""}`;
-      };
-      root.querySelectorAll("select,input").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderSetLab(root){
-      root.innerHTML=`<h3>集合运算实验</h3><p>修改集合 A、B，观察并集、交集与差集。</p>
-        <div class="lab-controls"><label>A <input id="set-a" value="1, 2, 3"></label><label>B <input id="set-b" value="2, 3, 4"></label></div>
-        <div class="lab-output" id="set-output"></div>`;
-      const update=()=>{
-        const parse=id=>new Set(document.getElementById(id).value.split(",").map(x=>x.trim()).filter(Boolean));
-        const a=parse("set-a"),b=parse("set-b"),sort=s=>[...s].sort((x,y)=>x.localeCompare(y,"zh-CN"));
-        const union=new Set([...a,...b]),intersection=new Set([...a].filter(x=>b.has(x))),difference=new Set([...a].filter(x=>!b.has(x)));
-        document.getElementById("set-output").innerHTML=`A ∪ B = {${sort(union).map(escapeHTML).join(", ")}}<br>A ∩ B = {${sort(intersection).map(escapeHTML).join(", ")}}<br>A \\ B = {${sort(difference).map(escapeHTML).join(", ")}}`;
-      };
-      root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderPeanoLab(root){
-      root.innerHTML=`<h3>后继函数与递归加法</h3><p>自然数从 0 开始；每应用一次后继函数 S，就得到下一个自然数。</p>
-        <div class="lab-controls"><label>a <input id="peano-a" type="range" min="0" max="8" value="3"><b id="peano-a-value">3</b></label>
-        <label>b <input id="peano-b" type="range" min="0" max="8" value="2"><b id="peano-b-value">2</b></label></div>
-        <div class="lab-step" id="peano-steps"></div><div class="lab-output" id="peano-output"></div>`;
-      const update=()=>{
-        const a=Number(document.getElementById("peano-a").value),b=Number(document.getElementById("peano-b").value);
-        document.getElementById("peano-a-value").textContent=a;document.getElementById("peano-b-value").textContent=b;
-        document.getElementById("peano-steps").innerHTML=Array.from({length:b+1},(_,i)=>`<span class="lab-token ${i===b?"active":""}">${i===0?`${a}+0=${a}`:`S(${a}+${i-1})=${a+i}`}</span>`).join("");
-        document.getElementById("peano-output").innerHTML=`递归定义：a+0=a；a+S(b)=S(a+b)<br>因此 ${a}+${b}=<b>${a+b}</b>，从 ${a} 开始应用后继函数 S ${b} 次。`;
-      };
-      root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderInductionLab(root){
-      root.innerHTML=`<h3>数学归纳法：自然数求和</h3><p>用 P(n): 1+2+…+n=n(n+1)/2 演示基础步、归纳假设和归纳步。</p>
-        <div class="lab-controls"><label>归纳步中的 k <input id="induction-k" type="range" min="1" max="12" value="4"><b id="induction-k-label">4</b></label></div>
-        <div class="lab-step" id="induction-steps"></div><div class="lab-output" id="induction-output"></div>`;
-      const update=()=>{
-        const k=Number(document.getElementById("induction-k").value);
-        document.getElementById("induction-k-label").textContent=k;
-        document.getElementById("induction-steps").innerHTML=[
-          `<span class="lab-token active">基础步：P(1)</span>`,
-          `<span class="lab-token active">归纳假设：P(${k})</span>`,
-          `<span class="lab-token active">推出：P(${k+1})</span>`
-        ].join("");
-        const assumed=k*(k+1)/2,stepLeft=assumed+(k+1),stepRight=(k+1)*(k+2)/2;
-        document.getElementById("induction-output").innerHTML=`基础步：1=1×2/2 成立。<br>
-          假设 1+…+${k}=${k}×(${k}+1)/2=${assumed}。<br>
-          加上 ${k+1} 后：${assumed}+${k+1}=${stepLeft}=(${k+1})×(${k+2})/2。<br>
-          因而 P(${k})⇒P(${k+1})。结合基础步，P(n) 对所有正整数 n 成立。`;
-      };
-      document.getElementById("induction-k").addEventListener("input",update);update();
-    }
-    function renderIntegerLineLab(root){
-      root.innerHTML=`<h3>整数加法数轴</h3><p>把加正数看成向右移动，加负数看成向左移动。</p>
-        <div class="lab-controls"><label>起点 a <input id="integer-a" type="range" min="-10" max="10" value="3"><b id="integer-a-value">3</b></label>
-        <label>变化量 b <input id="integer-b" type="range" min="-10" max="10" value="-5"><b id="integer-b-value">−5</b></label></div>
-        <div class="lab-step" id="integer-line"></div><div class="lab-output" id="integer-output"></div>`;
-      const update=()=>{
-        const a=Number(document.getElementById("integer-a").value),b=Number(document.getElementById("integer-b").value),r=a+b;
-        document.getElementById("integer-a-value").textContent=a;document.getElementById("integer-b-value").textContent=b<0?`−${-b}`:b;
-        document.getElementById("integer-line").innerHTML=Array.from({length:21},(_,i)=>i-10).map(n=>`<span class="lab-token ${n===a?"active":""}" style="padding:6px 8px">${n}</span>`).join("");
-        document.getElementById("integer-output").textContent=`${a} + (${b}) = ${r}。${b<0?`从 ${a} 向左移动 ${-b} 格。`:`从 ${a} 向右移动 ${b} 格。`}`;
-      };
-      root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderOverflowLab(root){
-      root.innerHTML=`<h3>定长加法与溢出</h3><p>选择有符号或无符号解释，观察固定位宽如何影响加法结果。</p>
-        <div class="lab-controls"><label>位宽 <input id="overflow-width" type="range" min="2" max="8" value="4"><b id="overflow-width-label">4 bit</b></label>
-        <label>数 a <input id="overflow-a" type="number" value="7"></label><label>数 b <input id="overflow-b" type="number" value="1"></label>
-        <label>解释 <select id="overflow-mode"><option value="signed">补码有符号数</option><option value="unsigned">无符号数</option></select></label></div>
-        <div class="lab-output" id="overflow-output"></div>`;
-      const update=()=>{
-        const width=Number(document.getElementById("overflow-width").value),a=Math.trunc(Number(document.getElementById("overflow-a").value)||0),b=Math.trunc(Number(document.getElementById("overflow-b").value)||0);
-        const signed=document.getElementById("overflow-mode").value==="signed",mod=2**width,min=signed?-(mod/2):0,max=signed?mod/2-1:mod-1;
-        const raw=a+b,bits=((raw%mod)+mod)%mod,decoded=signed&&bits>=mod/2?bits-mod:bits,overflow=raw<min||raw>max;
-        document.getElementById("overflow-width-label").textContent=`${width} bit`;
-        document.getElementById("overflow-output").innerHTML=`可表示范围：${min} 到 ${max}<br>${a} + ${b} 的数学结果：${raw}<br>保留低 ${width} 位：<code>${bits.toString(2).padStart(width,"0")}</code>，按当前格式解释为 <b>${decoded}</b><br>
-          ${overflow?'<span style="color:#b45d47">结果溢出：位串结果与数学结果不同。</span>':'当前结果未超出表示范围。'}`;
-      };
-      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderConversionLab(root){
-      root.innerHTML=`<h3>整数进制转换</h3><p>输入一个十进制整数，逐步观察除基取余的过程。</p>
-        <div class="lab-controls"><label>十进制数 <input id="convert-value" type="number" min="0" max="65535" value="13"></label>
-        <label>目标基数 <select id="convert-base"><option value="2">2（二进制）</option><option value="8">8（八进制）</option><option value="16">16（十六进制）</option></select></label></div>
-        <div class="lab-output" id="convert-output"></div>`;
-      const update=()=>{
-        const value=Math.min(65535,Math.max(0,Math.trunc(Number(document.getElementById("convert-value").value)||0)));
-        const base=Number(document.getElementById("convert-base").value);
-        const result=value.toString(base).toUpperCase();let q=value,rows=[];
-        if(q===0)rows.push("<tr><td>0</td><td>—</td><td>0</td></tr>");
-        while(q>0){const next=Math.floor(q/base),r=q%base;rows.push(`<tr><td>${q}</td><td>${base}</td><td>${r.toString(base).toUpperCase()}</td></tr>`);q=next;}
-        document.getElementById("convert-output").innerHTML=`<b>${value}<sub>10</sub> = ${result}<sub>${base}</sub></b>
-          <table class="lab-table"><thead><tr><th>当前被除数</th><th>除数</th><th>余数（从下往上读）</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
-      };
-      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderIntegerLab(root,signed){
-      root.innerHTML=`<h3>${signed?"补码":"定长整数"}表示</h3><p>改变位宽或数值，观察可表示范围与位串如何变化。</p>
-        <div class="lab-controls"><label>位宽 <input id="bit-width" type="range" min="2" max="16" value="8"><b id="bit-width-label">8 bit</b></label>
-        <label>整数 <input id="bit-value" type="number" value="${signed?-5:13}"></label></div><div class="lab-output" id="bit-output"></div>`;
-      const update=()=>{
-        const width=Number(document.getElementById("bit-width").value),v=Math.trunc(Number(document.getElementById("bit-value").value)||0);
-        const mod=2**width,min=signed?-(2**(width-1)):0,max=signed?(2**(width-1))-1:mod-1;
-        const bits=((v%mod)+mod)%mod,encoded=bits.toString(2).padStart(width,"0");
-        document.getElementById("bit-width-label").textContent=`${width} bit`;
-        document.getElementById("bit-output").innerHTML=`<b>范围：${min} 到 ${max}</b><br>位串：<code>${encoded}</code><br>${v<min||v>max?'<span style="color:#b45d47">超出范围：该值无法由当前位宽准确表示。</span>':'当前数值在表示范围内。'}`;
-      };
-      root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderLogicLab(root,showSum){
-      root.innerHTML=`<h3>逻辑运算${showSum?"与一位加法":"实验"}</h3><p>切换输入位，观察逻辑函数的输出。</p>
-        <div class="lab-controls"><label>A <select id="logic-a"><option value="0">0</option><option value="1">1</option></select></label>
-        <label>B <select id="logic-b"><option value="0">0</option><option value="1">1</option></select></label>
-        <label>运算 <select id="logic-op"><option value="AND">AND（与）</option><option value="OR">OR（或）</option><option value="XOR">XOR（异或）</option></select></label></div>
-        <div class="lab-output" id="logic-output"></div>`;
-      const update=()=>{
-        const a=Number(document.getElementById("logic-a").value),b=Number(document.getElementById("logic-b").value),op=document.getElementById("logic-op").value;
-        const out=op==="AND"?a&b:op==="OR"?a|b:a^b;
-        document.getElementById("logic-output").innerHTML=showSum?`和位（A XOR B）：<b>${a^b}</b><br>进位（A AND B）：<b>${a&b}</b>`:`${a} ${op} ${b} = <b>${out}</b>`;
-      };
-      root.querySelectorAll("select").forEach(x=>x.addEventListener("change",update));update();
-    }
-    function renderGraphLab(root){
-      const adj={A:["B","C"],B:["D"],C:["D","E"],D:["F"],E:["F"],F:[]};
-      let queue=["A"],visited=new Set(["A"]),order=[],current=null;
-      root.innerHTML=`<h3>图遍历：广度优先搜索</h3><p>从 A 出发，每一步取出队首，再把尚未访问的邻居加入队尾。</p>
-        <div class="lab-step" id="graph-nodes"></div><div class="lab-output" id="graph-state"></div>
-        <div class="study-cta"><button class="study-button primary" id="graph-next">下一步</button><button class="study-button" id="graph-reset">重置</button></div>`;
-      const update=()=>{
-        document.getElementById("graph-nodes").innerHTML=Object.keys(adj).map(v=>`<span class="lab-token ${visited.has(v)?"active":""}">${v}</span>`).join("");
-        document.getElementById("graph-state").innerHTML=`当前：${current||"尚未开始"}<br>访问顺序：${order.join(" → ")||"—"}<br>队列：${queue.join(", ")||"空"}`;
-        document.getElementById("graph-next").disabled=queue.length===0;
-      };
-      document.getElementById("graph-next").addEventListener("click",()=>{
-        current=queue.shift();order.push(current);
-        for(const v of adj[current])if(!visited.has(v)){visited.add(v);queue.push(v);}
-        update();
-      });
-      document.getElementById("graph-reset").addEventListener("click",()=>{queue=["A"];visited=new Set(["A"]);order=[];current=null;update();});
-      update();
-    }
-    function renderComplexityLab(root){
-      root.innerHTML=`<h3>增长率比较</h3><p>调整输入规模 n，比较线性、n log n 与平方级工作量。</p>
-        <div class="lab-controls"><label>输入规模 n <input id="complexity-n" type="range" min="2" max="100" value="20"><b id="complexity-value">20</b></label></div>
-        <div class="lab-output" id="complexity-output"></div>`;
-      const update=()=>{
-        const n=Number(document.getElementById("complexity-n").value),values=[n,Math.round(n*Math.log2(n)),n*n],max=10000;
-        document.getElementById("complexity-value").textContent=n;
-        document.getElementById("complexity-output").innerHTML=values.map((v,i)=>`<div style="margin:8px 0">${["n","n log₂ n","n²"][i]}：${v}<div style="height:7px;width:${Math.max(3,Math.min(100,v/max*100))}%;background:${["#68a9d2","#8f80cb","#e6a14a"][i]};border-radius:8px"></div></div>`).join("");
-      };
-      document.getElementById("complexity-n").addEventListener("input",update);update();
-    }
-    function renderCalculusLab(root){
-      root.innerHTML=`<h3>函数变化率观察</h3><p>对 f(x)=x²，移动 x，观察函数值和切线斜率如何变化。</p>
-        <div class="lab-controls"><label>x <input id="calc-x" type="range" min="-5" max="5" step="0.5" value="2"><b id="calc-x-label">2</b></label></div>
-        <div class="lab-output" id="calc-output"></div>`;
-      const update=()=>{
-        const x=Number(document.getElementById("calc-x").value),fx=x*x,slope=2*x;
-        document.getElementById("calc-x-label").textContent=x;
-        document.getElementById("calc-output").innerHTML=`函数值：f(${x})=${fx}<br>导数：f′(x)=2x，因此当前位置的斜率为 <b>${slope}</b><br>切线：y−${fx}=${slope}(x−${x})`;
-      };
-      document.getElementById("calc-x").addEventListener("input",update);update();
-    }
-    function renderLearningLab(root){
-      root.innerHTML=`<h3>梯度下降观察器</h3><p>在简单损失函数 L(w)=(w−3)² 上调整学习率，观察参数如何向最小值 w=3 移动。</p>
-        <div class="lab-controls"><label>学习率 η <input id="learn-rate" type="range" min="0.05" max="1.2" step="0.05" value="0.2"><b id="learn-rate-label">0.20</b></label>
-        <label>更新次数 <input id="learn-steps" type="range" min="1" max="12" value="6"><b id="learn-steps-label">6</b></label></div>
-        <div class="lab-step" id="learn-history"></div><div class="lab-output" id="learn-result"></div>`;
-      const update=()=>{
-        const rate=Number(document.getElementById("learn-rate").value),count=Number(document.getElementById("learn-steps").value);let w=-4,history=[w];
-        for(let i=0;i<count;i++){w-=rate*2*(w-3);history.push(w);}
-        document.getElementById("learn-rate-label").textContent=rate.toFixed(2);document.getElementById("learn-steps-label").textContent=count;
-        document.getElementById("learn-history").innerHTML=history.map((v,i)=>`<span class="lab-token ${i===history.length-1?"active":""}">w${i}=${v.toFixed(2)}</span>`).join("");
-        document.getElementById("learn-result").textContent=`最终损失 L(w)=${((w-3)**2).toFixed(4)}。学习率过大时，更新可能越过最低点并来回振荡，甚至发散。`;
-      };
-      root.querySelectorAll("input").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderFloatLab(root){
-      root.innerHTML=`<h3>IEEE 754 单精度观察器</h3><p>输入十进制小数，观察它舍入为 32 位浮点数后的值与位字段。</p>
-        <div class="lab-controls"><label>输入数值 <input id="float-value" type="number" step="any" value="0.1"></label></div>
-        <div class="lab-output" id="float-output"></div>`;
-      const update=()=>{
-        const value=Number(document.getElementById("float-value").value);
-        const f=new Float32Array([value])[0],buffer=new ArrayBuffer(4),view=new DataView(buffer);view.setFloat32(0,value);
-        const bits=view.getUint32(0).toString(2).padStart(32,"0");
-        document.getElementById("float-output").innerHTML=`单精度存储值：<b>${f}</b><br>舍入误差：${Number.isFinite(f)?Math.abs(f-value):"超出范围"}<br>
-          符号位：<code>${bits[0]}</code>　指数：<code>${bits.slice(1,9)}</code><br>有效数字字段：<code>${bits.slice(9)}</code>`;
-      };
-      document.getElementById("float-value").addEventListener("input",update);update();
-    }
-    function renderCharacterLab(root){
-      root.innerHTML=`<h3>Unicode 与 UTF-8 编码器</h3><p>输入文本，逐字符查看 Unicode 码点以及 UTF-8 字节序列。一个可见字符可能由多个码点组成。</p>
-        <div class="lab-controls"><label>文本 <input id="encoding-text" value="A中🙂" maxlength="40"></label></div>
-        <div class="lab-output" id="encoding-output"></div>`;
-      const update=()=>{
-        const text=document.getElementById("encoding-text").value,encoder=new TextEncoder();
-        const rows=Array.from(text).map(ch=>{const cp=ch.codePointAt(0),bytes=[...encoder.encode(ch)].map(x=>x.toString(16).padStart(2,"0").toUpperCase()).join(" ");
-          return `<tr><td>${escapeHTML(ch)}</td><td>U+${cp.toString(16).toUpperCase().padStart(cp<=0xffff?4:6,"0")}</td><td><code>${bytes}</code></td><td>${bytes?bytes.split(" ").length:0}</td></tr>`;});
-        const stream=[...encoder.encode(text)].map(x=>x.toString(16).padStart(2,"0").toUpperCase()).join(" ");
-        document.getElementById("encoding-output").innerHTML=`UTF-8 字节流：<code>${stream||"（空）"}</code><table class="lab-table"><thead><tr><th>字符</th><th>码点</th><th>UTF-8 字节</th><th>字节数</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
-      };
-      document.getElementById("encoding-text").addEventListener("input",update);update();
-    }
-    function renderEndiannessLab(root){
-      root.innerHTML=`<h3>大小端内存观察器</h3><p>输入一个 32 位十六进制数，比较它在大端序和小端序中的字节地址排列。</p>
-        <div class="lab-controls"><label>32 位数值 <input id="endian-value" value="12345678" maxlength="8"></label></div><div class="lab-output" id="endian-output"></div>`;
-      const update=()=>{
-        let hex=document.getElementById("endian-value").value.replace(/[^0-9a-f]/gi,"").slice(-8).padStart(8,"0").toUpperCase();
-        const bytes=hex.match(/../g)||[],big=bytes,small=[...bytes].reverse();
-        const table=arr=>arr.map((b,i)=>`<tr><td>${i}</td><td>${b}</td></tr>`).join("");
-        document.getElementById("endian-output").innerHTML=`数值：0x${hex}<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
-          <div><b>大端：低地址存最高有效字节</b><table class="lab-table"><tbody>${table(big)}</tbody></table></div>
-          <div><b>小端：低地址存最低有效字节</b><table class="lab-table"><tbody>${table(small)}</tbody></table></div></div>`;
-      };
-      document.getElementById("endian-value").addEventListener("input",update);update();
-    }
-    function renderBitwiseLab(root){
-      root.innerHTML=`<h3>8 位位运算实验</h3><p>调整两个无符号字节，观察按位运算。掩码 00001111 可保留低四位。</p>
-        <div class="lab-controls"><label>A <input id="bitwise-a" type="number" min="0" max="255" value="180"></label>
-        <label>B / 掩码 <input id="bitwise-b" type="number" min="0" max="255" value="15"></label>
-        <label>运算 <select id="bitwise-op"><option value="and">AND</option><option value="or">OR</option><option value="xor">XOR</option><option value="not">NOT A</option><option value="shift">A << 1</option></select></label></div>
-        <div class="lab-output" id="bitwise-output"></div>`;
-      const update=()=>{
-        const a=Math.max(0,Math.min(255,Math.trunc(Number(document.getElementById("bitwise-a").value)||0)));
-        const b=Math.max(0,Math.min(255,Math.trunc(Number(document.getElementById("bitwise-b").value)||0)));
-        const op=document.getElementById("bitwise-op").value;
-        const value=op==="and"?a&b:op==="or"?a|b:op==="xor"?a^b:op==="not"?(~a)&255:(a<<1)&255;
-        const bin=x=>x.toString(2).padStart(8,"0");
-        document.getElementById("bitwise-output").innerHTML=`A = <code>${bin(a)}</code> (${a})<br>${op==="not"?"~A":op==="shift"?"A << 1":`B = ${bin(b)} (${b})`}<br>结果 = <b><code>${bin(value)}</code> (${value})</b>`;
-      };
-      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderSortingLab(root){
-      root.innerHTML=`<h3>排序过程可视化</h3><p>输入一组小整数，逐步查看冒泡排序或选择排序如何改变数组。</p>
-        <div class="lab-controls"><label>数组 <input id="sort-values" value="8, 3, 6, 1, 5"></label>
-        <label>算法 <select id="sort-method"><option value="bubble">冒泡排序</option><option value="selection">选择排序</option></select></label>
-        <button class="study-button primary" id="sort-start">生成步骤</button></div>
-        <div id="sort-bars" style="height:190px;display:flex;align-items:flex-end;gap:9px;padding:12px 4px"></div>
-        <div class="lab-output" id="sort-caption"></div>
-        <div class="lab-controls"><button class="study-button" id="sort-prev">上一步</button><input id="sort-step" type="range" min="0" max="0" value="0" style="flex:1"><button class="study-button" id="sort-next">下一步</button><span id="sort-counter"></span></div>`;
-      let frames=[],index=0;
-      const build=()=>{
-        const values=document.getElementById("sort-values").value.split(/[,\s]+/).map(Number).filter(Number.isFinite).slice(0,12);
-        if(!values.length)return;
-        const arr=values.slice(),method=document.getElementById("sort-method").value;
-        frames=[{arr:arr.slice(),a:-1,b:-1,text:"初始数组"}];
-        if(method==="bubble"){
-          for(let end=arr.length-1;end>0;end--)for(let j=0;j<end;j++){
-            let text=`比较位置 ${j} 与 ${j+1}`;
-            if(arr[j]>arr[j+1]){[arr[j],arr[j+1]]=[arr[j+1],arr[j]];text+="，逆序，交换";}
-            else text+="，顺序正确，不交换";
-            frames.push({arr:arr.slice(),a:j,b:j+1,text});
-          }
-        }else{
-          for(let i=0;i<arr.length-1;i++){
-            let min=i;for(let j=i+1;j<arr.length;j++){if(arr[j]<arr[min])min=j;frames.push({arr:arr.slice(),a:min,b:j,text:`在未排序部分寻找最小值：检查位置 ${j}`});}
-            if(min!==i){[arr[i],arr[min]]=[arr[min],arr[i]];frames.push({arr:arr.slice(),a:i,b:min,text:`将最小值放到位置 ${i}`});}
-          }
-        }
-        frames.push({arr:arr.slice(),a:-1,b:-1,text:"排序完成"});
-        index=0;const slider=document.getElementById("sort-step");slider.max=frames.length-1;slider.value=0;show();
-      };
-      const show=()=>{
-        if(!frames.length)return;
-        const f=frames[index],max=Math.max(...frames[0].arr,1);
-        document.getElementById("sort-bars").innerHTML=f.arr.map((v,i)=>`<div style="flex:1;max-width:58px;height:${Math.max(28,135*v/max)}px;border-radius:8px 8px 3px 3px;background:${i===f.a||i===f.b?"#e6a34b":"#68a8a1"};display:flex;align-items:flex-start;justify-content:center;padding-top:6px;color:#fff;font-weight:750;font-size:12px">${v}</div>`).join("");
-        document.getElementById("sort-caption").textContent=f.text;
-        document.getElementById("sort-counter").textContent=`${index+1} / ${frames.length}`;
-        document.getElementById("sort-step").value=index;
-      };
-      document.getElementById("sort-start").addEventListener("click",build);
-      document.getElementById("sort-prev").addEventListener("click",()=>{index=Math.max(0,index-1);show();});
-      document.getElementById("sort-next").addEventListener("click",()=>{index=Math.min(frames.length-1,index+1);show();});
-      document.getElementById("sort-step").addEventListener("input",e=>{index=Number(e.target.value);show();});
-      build();
-    }
-    function renderSearchLab(root){
-      root.innerHTML=`<h3>线性查找逐步执行</h3><p>设定数组和目标值，逐项比较，观察算法在何时找到目标或确认其不存在。</p>
-        <div class="lab-controls"><label>数组 <input id="search-array" value="7, 2, 9, 4, 6"></label><label>目标 <input id="search-target" type="number" value="4"></label>
-        <button class="study-button primary" id="search-reset">重置</button><button class="study-button" id="search-next">下一步</button></div>
-        <div class="lab-step" id="search-items"></div><div class="lab-output" id="search-state"></div>`;
-      let values=[],target=0,index=0,done=false,found=-1;
-      const reset=()=>{
-        values=document.getElementById("search-array").value.split(/[,\s]+/).map(Number).filter(Number.isFinite).slice(0,20);
-        target=Number(document.getElementById("search-target").value);index=0;done=false;found=-1;show();
-      };
-      const show=()=>{
-        document.getElementById("search-items").innerHTML=values.map((v,i)=>`<span class="lab-token ${i===index&&!done?"active":""} ${i===found?"active":""}">${i}: ${v}</span>`).join("");
-        document.getElementById("search-state").textContent=done?(found>=0?`在索引 ${found} 找到目标 ${target}。`:`扫描结束：数组中没有 ${target}。`):`准备比较索引 ${index} 的值 ${values[index]} 与目标 ${target}。`;
-        document.getElementById("search-next").disabled=done||values.length===0;
-      };
-      document.getElementById("search-reset").addEventListener("click",reset);
-      document.getElementById("search-next").addEventListener("click",()=>{
-        if(values[index]===target){found=index;done=true;}
-        else if(index>=values.length-1)done=true;
-        else index++;
-        show();
-      });
-      reset();
-    }
-    function renderTreeLab(root){
-      const tree={A:["B","C"],B:["D","E"],C:["F","G"],D:[],E:[],F:[],G:[]};
-      root.innerHTML=`<h3>二叉树遍历</h3><p>选择遍历规则，逐步观察访问顺序。树结构固定为 A 的左右子树 B、C。</p>
-        <div class="lab-controls"><label>遍历 <select id="tree-order"><option value="pre">前序</option><option value="in">中序</option><option value="post">后序</option><option value="level">层序</option></select></label>
-        <button class="study-button" id="tree-prev">上一步</button><button class="study-button primary" id="tree-next">下一步</button><button class="study-button" id="tree-reset">重置</button></div>
-        <div class="lab-step" id="tree-nodes"></div><div class="lab-output" id="tree-state"></div>`;
-      let order=[],step=0;
-      const build=()=>{
-        const type=document.getElementById("tree-order").value;order=[];
-        const dfs=(n)=>{if(!n)return;if(type==="pre")order.push(n);if(type!=="level")dfs(tree[n][0]);if(type==="in")order.push(n);if(type!=="level")dfs(tree[n][1]);if(type==="post")order.push(n);};
-        if(type==="level"){const q=["A"];while(q.length){const n=q.shift();order.push(n);q.push(...tree[n]);}}
-        else dfs("A");
-        step=0;show();
-      };
-      const show=()=>{
-        const current=step?order[step-1]:null;
-        document.getElementById("tree-nodes").innerHTML=Object.keys(tree).map(n=>`<span class="lab-token ${n===current?"active":""}">${n}</span>`).join("");
-        document.getElementById("tree-state").textContent=`已访问：${order.slice(0,step).join(" → ")||"—"}　下一节点：${order[step]||"遍历完成"}`;
-        document.getElementById("tree-next").disabled=step>=order.length;
-      };
-      document.getElementById("tree-order").addEventListener("change",build);
-      document.getElementById("tree-next").addEventListener("click",()=>{step=Math.min(order.length,step+1);show();});
-      document.getElementById("tree-prev").addEventListener("click",()=>{step=Math.max(0,step-1);show();});
-      document.getElementById("tree-reset").addEventListener("click",build);build();
-    }
-    function renderCacheLab(root){
-      root.innerHTML=`<h3>直接映射缓存模拟</h3><p>输入内存块访问序列，比较每次访问的缓存行、标签以及命中或未命中。</p>
-        <div class="lab-controls"><label>块地址序列 <input id="cache-sequence" value="0, 1, 4, 0, 2, 4"></label>
-        <label>缓存行数 <select id="cache-size"><option>2</option><option selected>4</option><option>8</option></select></label></div>
-        <div class="lab-output" id="cache-result"></div>`;
-      const update=()=>{
-        const seq=document.getElementById("cache-sequence").value.split(/[,\s]+/).map(Number).filter(x=>Number.isInteger(x)&&x>=0).slice(0,30);
-        const size=Number(document.getElementById("cache-size").value),lines=Array(size).fill(null);let hits=0;
-        const rows=seq.map((addr,i)=>{const line=addr%size,tag=Math.floor(addr/size),hit=lines[line]===tag;if(hit)hits++;lines[line]=tag;return `<tr><td>${i+1}</td><td>${addr}</td><td>${line}</td><td>${tag}</td><td style="color:${hit?"#16806f":"#bd6c46"}">${hit?"命中":"未命中"}</td></tr>`;});
-        document.getElementById("cache-result").innerHTML=`<b>命中 ${hits} 次 / 共 ${seq.length} 次</b><table class="lab-table"><thead><tr><th>次序</th><th>块地址</th><th>缓存行</th><th>标签</th><th>结果</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
-      };
-      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderPipelineLab(root){
-      root.innerHTML=`<h3>五级流水线时空图</h3><p>观察多条指令如何在 IF、ID、EX、MEM、WB 阶段重叠；勾选 load-use 依赖以插入一个停顿。</p>
-        <div class="lab-controls"><label><input id="pipeline-stall" type="checkbox"> 第 2 条 load 后立即使用结果</label></div>
-        <div id="pipeline-table"></div><div class="lab-output" id="pipeline-info"></div>`;
-      const update=()=>{
-        const stall=document.getElementById("pipeline-stall").checked;
-        const ins=["I₁: add","I₂: lw","I₃: add","I₄: sub"],stages=["IF","ID","EX","MEM","WB"];
-        const starts=stall?[[0,1,2,3,4],[1,2,3,4,5],[2,3,5,6,7],[4,5,6,7,8]]:[[0,1,2,3,4],[1,2,3,4,5],[2,3,4,5,6],[3,4,5,6,7]];
-        const cycles=Math.max(...starts.flat())+1,rows=ins.map((name,i)=>`<tr><th>${name}</th>${Array.from({length:cycles},(_,c)=>{
-          const stage=starts[i].indexOf(c);
-          if(stall&&i===2&&c===4)return '<td style="background:#fff2db;color:#a87524">停顿</td>';
-          return `<td style="${stage>=0?"background:#e5f2ee;color:#438173":""}">${stage>=0?stages[stage]:""}</td>`;
-        }).join("")}</tr>`).join("");
-        document.getElementById("pipeline-table").innerHTML=`<table class="lab-table"><thead><tr><th>指令</th>${Array.from({length:cycles},(_,i)=>`<th>C${i+1}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
-        document.getElementById("pipeline-info").textContent=stall?"load-use 依赖使消费者停顿一个周期，后续指令也相应延后。":"理想情况下阶段重叠；每周期可推进一条新指令。";
-      };
-      document.getElementById("pipeline-stall").addEventListener("change",update);update();
-    }
-    function renderSchedulingLab(root){
-      root.innerHTML=`<h3>CPU 调度模拟</h3><p>所有进程同时到达。选择 FCFS 或轮转调度，观察执行区间和完成时间。</p>
-        <div class="lab-controls"><label>运行时间 <input id="schedule-bursts" value="5, 3, 2"></label>
-        <label>策略 <select id="schedule-policy"><option value="fcfs">FCFS</option><option value="rr">轮转</option></select></label>
-        <label>时间片 <input id="schedule-quantum" type="number" min="1" max="10" value="2" style="width:60px"></label></div>
-        <div class="lab-step" id="schedule-gantt"></div><div class="lab-output" id="schedule-stats"></div>`;
-      const update=()=>{
-        const bursts=document.getElementById("schedule-bursts").value.split(/[,\s]+/).map(Number).filter(n=>Number.isInteger(n)&&n>0).slice(0,8);
-        const policy=document.getElementById("schedule-policy").value,q=Math.max(1,Number(document.getElementById("schedule-quantum").value)||1);
-        let time=0,segments=[],completion=Array(bursts.length).fill(0);
-        if(policy==="fcfs")bursts.forEach((b,i)=>{segments.push({i,start:time,end:time+b});time+=b;completion[i]=time;});
-        else{
-          const remain=bursts.slice(),queue=bursts.map((_,i)=>i);
-          while(queue.length){const i=queue.shift(),run=Math.min(q,remain[i]);segments.push({i,start:time,end:time+run});time+=run;remain[i]-=run;if(remain[i]===0)completion[i]=time;else queue.push(i);}
-        }
-        document.getElementById("schedule-gantt").innerHTML=segments.map(s=>`<span class="lab-token" style="flex:${s.end-s.start};background:${["#dcefe8","#e8e2f4","#f7e9d6","#dcecf2"][s.i%4]}">${"P"+(s.i+1)}<br><small>${s.start}–${s.end}</small></span>`).join("");
-        document.getElementById("schedule-stats").innerHTML=completion.map((c,i)=>`P${i+1} 完成时间 ${c}；等待时间 ${c-bursts[i]}`).join("<br>");
-      };
-      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderVirtualMemoryLab(root){
-      const frameMap=[2,0,3,1,null,null,null,null],pageSize=4;
-      root.innerHTML=`<h3>虚拟地址转换</h3><p>页大小为 4 字节。输入虚拟地址，拆分虚拟页号与页内偏移，再查页表得到物理地址或缺页。</p>
-        <div class="lab-controls"><label>虚拟地址 <input id="virtual-address" type="number" min="0" max="31" value="9"></label></div>
-        <div class="lab-output" id="virtual-result"></div>`;
-      const update=()=>{
-        const va=Math.max(0,Math.min(31,Math.trunc(Number(document.getElementById("virtual-address").value)||0)));
-        const page=Math.floor(va/pageSize),offset=va%pageSize,frame=frameMap[page],table=frameMap.map((f,i)=>`<tr><td>${i}</td><td>${f===null?"未驻留":f}</td></tr>`).join("");
-        document.getElementById("virtual-result").innerHTML=`虚拟页号：<b>${page}</b>　页内偏移：<b>${offset}</b><br>${frame===null?"该页当前不在物理内存中：发生缺页。":`物理页框：<b>${frame}</b>　物理地址：<b>${frame*pageSize+offset}</b>`}
-          <table class="lab-table"><thead><tr><th>虚拟页</th><th>物理页框</th></tr></thead><tbody>${table}</tbody></table>`;
-      };
-      document.getElementById("virtual-address").addEventListener("input",update);update();
-    }
-    function renderDatabaseLab(root){
-      const rows=[{id:1,name:"Ada",course:"数学",score:92},{id:2,name:"Lin",course:"计算机",score:88},{id:3,name:"Grace",course:"计算机",score:97},{id:4,name:"Alan",course:"数学",score:76}];
-      root.innerHTML=`<h3>关系查询小实验</h3><p>调整筛选条件，观察关系表中哪些元组满足查询。</p>
-        <div class="lab-controls"><label>课程 <select id="db-course"><option value="all">全部</option><option>数学</option><option>计算机</option></select></label>
-        <label>最低分 <input id="db-min" type="number" min="0" max="100" value="80" style="width:70px"></label></div><div class="lab-output" id="db-result"></div>`;
-      const update=()=>{
-        const course=document.getElementById("db-course").value,min=Number(document.getElementById("db-min").value)||0;
-        const result=rows.filter(r=>(course==="all"||r.course===course)&&r.score>=min);
-        document.getElementById("db-result").innerHTML=`返回 ${result.length} 行<table class="lab-table"><thead><tr><th>id</th><th>name</th><th>course</th><th>score</th></tr></thead><tbody>${result.map(r=>`<tr><td>${r.id}</td><td>${r.name}</td><td>${r.course}</td><td>${r.score}</td></tr>`).join("")}</tbody></table>`;
-      };
-      root.querySelectorAll("input,select").forEach(x=>x.addEventListener("input",update));update();
-    }
-    function renderShortestPathLab(root){
-      const graph={A:[["B",4],["C",2]],B:[["D",5]],C:[["B",1],["D",8],["E",10]],D:[["E",2]],E:[]};
-      let dist,prev,done,last=null,step=0;
-      root.innerHTML=`<h3>Dijkstra 最短路径演示</h3><p>从 A 出发，每一步选取当前距离最小的未确定顶点，并尝试松弛它的出边。</p>
-        <div class="lab-step" id="path-nodes"></div><div class="lab-output" id="path-state"></div>
-        <div class="study-cta"><button class="study-button primary" id="path-next">下一步</button><button class="study-button" id="path-reset">重置</button></div>`;
-      const reset=()=>{dist={A:0,B:Infinity,C:Infinity,D:Infinity,E:Infinity};prev={};done=new Set();last=null;step=0;show();};
-      const show=()=>{
-        document.getElementById("path-nodes").innerHTML=Object.keys(graph).map(v=>`<span class="lab-token ${done.has(v)?"active":""}">${v}: ${Number.isFinite(dist[v])?dist[v]:"∞"}</span>`).join("");
-        document.getElementById("path-state").innerHTML=`已确定：${[...done].join(", ")||"—"}<br>${last||"起点 A 的暂定距离为 0。"}<br>步数：${step}`;
-        document.getElementById("path-next").disabled=Object.keys(graph).every(v=>done.has(v)||!Number.isFinite(dist[v]));
-      };
-      document.getElementById("path-next").addEventListener("click",()=>{
-        const v=Object.keys(graph).filter(x=>!done.has(x)).sort((a,b)=>dist[a]-dist[b])[0];
-        if(!v||!Number.isFinite(dist[v]))return;
-        done.add(v);const changes=[];
-        for(const [w,cost] of graph[v])if(!done.has(w)&&dist[v]+cost<dist[w]){dist[w]=dist[v]+cost;prev[w]=v;changes.push(`${w} 更新为 ${dist[w]}`);}
-        last=`确定 ${v}，检查出边：${changes.join("；")||"没有更短距离"}`;step++;show();
-      });
-      document.getElementById("path-reset").addEventListener("click",reset);reset();
-    }
-    function renderPacketLab(root){
-      const layers=[
-        {name:"应用层",data:"HTTP：GET /index.html"},
-        {name:"运输层",data:"TCP：源端口 → 目标端口"},
-        {name:"网络层",data:"IP：源地址 → 目标地址"},
-        {name:"链路层",data:"Ethernet：帧头 + 帧校验"}
-      ];
-      root.innerHTML=`<h3>分层封装与解封装</h3><p>逐层添加协议首部，观察应用数据如何变成链路帧；接收端按反方向逐层解析。</p>
-        <div class="lab-controls"><label>方向 <select id="packet-direction"><option value="down">发送端：封装</option><option value="up">接收端：解封装</option></select></label>
-        <button class="study-button" id="packet-prev">上一步</button><button class="study-button primary" id="packet-next">下一步</button><button class="study-button" id="packet-reset">重置</button></div>
-        <div class="lab-step" id="packet-layers"></div><div class="lab-output" id="packet-state"></div>`;
-      let step=0;
-      const update=()=>{
-        const down=document.getElementById("packet-direction").value==="down";
-        const remaining=down?step:layers.length-step;
-        const activeIndex=down?step-1:layers.length-step;
-        document.getElementById("packet-layers").innerHTML=layers.map((x,j)=>`<span class="lab-token ${j===activeIndex?"active":""}">${x.name}</span>`).join("");
-        const visible=layers.slice(0,remaining);
-        document.getElementById("packet-state").textContent=step===0?(down?"原始应用数据尚未封装。":"收到的完整链路帧尚未解封装。"):remaining?`${down?"当前协议数据单元包含":"移除外层首部后仍包含"}：${visible.map(x=>x.data).join("  |  ")}`:"链路、网络与运输层首部已移除，应用数据交付给应用程序。";
-        document.getElementById("packet-next").disabled=step>=layers.length;
-      };
-      document.getElementById("packet-next").addEventListener("click",()=>{step=Math.min(layers.length,step+1);update();});
-      document.getElementById("packet-prev").addEventListener("click",()=>{step=Math.max(0,step-1);update();});
-      document.getElementById("packet-reset").addEventListener("click",()=>{step=0;update();});
-      document.getElementById("packet-direction").addEventListener("change",()=>{step=0;update();});update();
-    }
-    function renderRaceLab(root){
-      root.innerHTML=`<h3>并发更新与竞态条件</h3><p>两个线程都执行“读取 counter、加一、写回”。交错顺序可能让一次更新丢失。</p>
-        <div class="lab-controls"><label>执行方式 <select id="race-mode"><option value="race">交错执行（无锁）</option><option value="serial">互斥执行</option></select></label>
-        <button class="study-button primary" id="race-run">运行交错</button></div><div class="lab-step" id="race-steps"></div>
-        <div class="lab-output" id="race-result"></div>`;
-      const run=()=>{
-        const serial=document.getElementById("race-mode").value==="serial";
-        const steps=serial?[
-          ["T1","读取 counter=0"],["T1","写回 counter=1"],["T2","读取 counter=1"],["T2","写回 counter=2"]
-        ]:[
-          ["T1","读取 counter=0"],["T2","读取 counter=0"],["T1","写回 counter=1"],["T2","写回 counter=1"]
-        ];
-        document.getElementById("race-steps").innerHTML=steps.map((x,i)=>`<span class="lab-token">${i+1}. ${x[0]}：${x[1]}</span>`).join("");
-        document.getElementById("race-result").innerHTML=`最终 counter = <b>${serial?2:1}</b><br>${serial?"互斥让两个读-改-写操作依次完成，结果正确。":"两个线程都读到旧值 0，后写入的 1 覆盖了另一个更新，发生丢失更新。"}`;
-      };
-      document.getElementById("race-run").addEventListener("click",run);document.getElementById("race-mode").addEventListener("change",run);run();
-    }
-    function renderRelationLab(root,n){
-      const ids=[...n.pre,...extensionIds(n.id)].filter((id,i,a)=>nodeById[id]&&a.indexOf(id)===i);
-      root.innerHTML=`<h3>知识关系探索</h3><p>从「${escapeHTML(n.title)}」沿依赖图继续探索。选择一个相邻知识点可直接打开它的学习页。</p>
-        <div class="related-list">${ids.length?ids.map(id=>`<button class="related-button" data-related="${id}">${escapeHTML(nodeById[id].title)}</button>`).join(""):"<span>该节点的专用实验正在规划中。</span>"}</div>`;
-      root.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
     }
     function chip(id,type) {
       const n=nodeById[id]; if(!n)return "";

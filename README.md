@@ -34,6 +34,7 @@ npm run preview   # 预览构建结果，http://localhost:5181
 
 - 教材正文规范：`docs/LESSON_SPEC.md`
 - 新增知识点：`docs/ADD_KNOWLEDGE.md`，使用 `scripts/add-knowledge.mjs`
+- 通用工具（原实验）：注册在 `src/tools.js` 的 `TOOLS`，一个工具可服务多个知识点
 - 分片合并：把片段放入 `content/fragments/`，运行 `node scripts/merge-fragments.mjs`
 
 ## 部署（GitHub Pages）
