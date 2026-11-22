@@ -244,26 +244,10 @@
     .lab-card.tool-page-card { margin-top:0; }
     .tool-page-card { position:relative; border-radius:18px; background:#fff; padding:22px 24px; box-shadow:0 18px 45px rgba(28,67,62,.07); overflow:hidden; }
     .tool-page-card::before { content:""; position:absolute; inset:0 0 auto; height:4px; background:linear-gradient(90deg,#168c81,#62b8a9 48%,#8f80cb); }
-    .tool-hero { position:relative; display:flex; align-items:center; gap:16px; margin:0 0 18px; padding:18px 20px; border:1px solid #dcece7; border-radius:15px; background:linear-gradient(135deg,#f3fbf8,#f4f8fc 62%,#fbf7ff); overflow:hidden; }
-    .tool-hero::after { content:""; position:absolute; right:-45px; top:-60px; width:190px; height:190px; border-radius:50%; background:radial-gradient(circle,rgba(22,140,129,.1),transparent 70%); }
-    .tool-hero-icon { flex:0 0 auto; width:54px; height:54px; border-radius:16px; display:grid; place-items:center; color:#fff; font-size:21px; font-weight:800; letter-spacing:-.04em; background:linear-gradient(135deg,#168c81,#55b8a8); box-shadow:0 10px 24px rgba(22,140,129,.22); }
-    .tool-hero-copy { flex:1; min-width:0; position:relative; z-index:1; }
-    .tool-hero-copy h3 { margin:0; color:#24464e; font-size:23px; letter-spacing:-.03em; }
-    .tool-hero-copy p { margin:6px 0 0; color:#5b747b; font-size:12.5px; line-height:1.75; }
-    .tool-eyebrow { margin-bottom:4px; color:#16877e; font-size:9px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
-    .tool-live { flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:6px 9px; border:1px solid #d8ebe4; border-radius:999px; background:#fff; color:#558078; font-size:9px; font-weight:700; }
-    .tool-live i { width:6px; height:6px; border-radius:50%; background:#25b07f; box-shadow:0 0 0 3px rgba(37,176,127,.12); animation:tool-pulse 1.8s infinite; }
-    @keyframes tool-pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
     @keyframes tool-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
     .tool-page-card { animation:tool-in .35s cubic-bezier(.2,.7,.3,1) both; }
-    .tool-hero-repr .tool-hero-icon { background:linear-gradient(135deg,#3b7fc4,#6fb9e8); box-shadow:0 10px 24px rgba(59,127,196,.22); }
-    .tool-hero-prog .tool-hero-icon { background:linear-gradient(135deg,#6d62c9,#a78bfa); box-shadow:0 10px 24px rgba(109,98,201,.22); }
-    .tool-hero-hardware .tool-hero-icon { background:linear-gradient(135deg,#c7842e,#eab65c); box-shadow:0 10px 24px rgba(199,132,46,.22); }
-    .tool-hero-os .tool-hero-icon { background:linear-gradient(135deg,#d06b4e,#f0a37e); box-shadow:0 10px 24px rgba(208,107,78,.22); }
-    .tool-hero-network .tool-hero-icon { background:linear-gradient(135deg,#2b93a8,#65c7d8); box-shadow:0 10px 24px rgba(43,147,168,.22); }
-    .tool-hero-data .tool-hero-icon { background:linear-gradient(135deg,#3f8f73,#78c49f); box-shadow:0 10px 24px rgba(63,143,115,.22); }
-    .tool-hero-ai .tool-hero-icon { background:linear-gradient(135deg,#b8528a,#e58ab8); box-shadow:0 10px 24px rgba(184,82,138,.22); }
     .tool-page-card .lab-formulas { background:linear-gradient(135deg,#f5fcf9,#f3f8ff); border-color:#dcece7; }
+    .tool-page-card > .lab-formulas:first-child { margin-top:0; }
     .tool-page-card .lab-controls { padding:12px 14px; border:1px solid #e2eee9; border-radius:12px; background:linear-gradient(180deg,#fbfdfc,#f6fbf9); }
     .tool-page-card .lab-controls label { display:flex; align-items:center; gap:7px; }
     .lab-controls input:not([type=range]):not([type=checkbox]), .lab-controls select { box-sizing:border-box; }

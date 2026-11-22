@@ -3,16 +3,7 @@
 
 const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-const GROUP_META = {
-  math: { label: "数学基础", icon: "∑", tone: "math" },
-  repr: { label: "信息表示", icon: "01", tone: "repr" },
-  prog: { label: "编程与算法", icon: "⌘", tone: "prog" },
-  hardware: { label: "处理器与硬件", icon: "▦", tone: "hardware" },
-  os: { label: "操作系统", icon: "◫", tone: "os" },
-  network: { label: "计算机网络", icon: "⇄", tone: "network" },
-  data: { label: "数据库", icon: "▤", tone: "data" },
-  ai: { label: "人工智能", icon: "✦", tone: "ai" }
-};
+
 
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (ch) => ({
@@ -2345,25 +2336,21 @@ export function mountTool(toolId, root, context = {}) {
   if (context.standalone) {
     const heading = root.querySelector("h3");
     const intro = heading && heading.nextElementSibling?.tagName === "P" ? heading.nextElementSibling : null;
-    const meta = GROUP_META[tool.group] ?? { label: "互动工具", icon: "◇", tone: "math" };
-    const hero = document.createElement("div");
-    hero.className = `tool-hero tool-hero-${meta.tone}`;
-    hero.innerHTML = `<div class="tool-hero-icon">${esc(meta.icon)}</div>
-      <div class="tool-hero-copy"><div class="tool-eyebrow">互动工具 · ${esc(meta.label)}</div></div>
-      <span class="tool-live"><i></i>实时演算</span>`;
-    const copy = hero.querySelector(".tool-hero-copy");
-    if (heading) copy.append(heading);
-    if (intro) copy.append(intro);
-    root.prepend(hero);
+    heading?.remove();
+    intro?.remove();
   }
 
   if (tool.formulas?.length) {
     const formulaBox = document.createElement("div");
     formulaBox.className = "lab-formulas";
     formulaBox.innerHTML = `<b>公式</b>${tool.formulas.map((tex) => `<div class="lab-formula">$$${esc(tex)}$$</div>`).join("")}`;
-    const anchor = root.querySelector(".tool-hero") ?? root.querySelector("p");
-    if (anchor) anchor.insertAdjacentElement("afterend", formulaBox);
-    else root.prepend(formulaBox);
+    if (context.standalone) {
+      root.prepend(formulaBox);
+    } else {
+      const anchor = root.querySelector("p");
+      if (anchor) anchor.insertAdjacentElement("afterend", formulaBox);
+      else root.prepend(formulaBox);
+    }
   }
 
   if (typeof context.applyMath === "function") {
