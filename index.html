@@ -298,7 +298,6 @@
     </div>
     <nav class="top-links">
       <button class="top-link active" data-nav="graph">知识图谱</button>
-      <button class="top-link" data-nav="path">学习路径</button>
       <button class="top-link" data-nav="books">教材</button>
     </nav>
     <div class="top-spacer"></div>
@@ -662,15 +661,6 @@
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
       scheduleSaveView();
     }
-    function renderPathPage(){
-      const ids=["axiomatic-method","propositional-logic","predicate-logic","proofs","sets","set-operations","peano-axioms","natural-numbers","mathematical-induction","integers","powers","place-value","base-conversion","bits-bytes","unsigned","twos-complement","boolean-algebra","logic-gates","adders","machine-instructions","cpu-datapath","memory-hierarchy","operating-systems","networking","graph-theory","graph-representation","bfs-dfs","shortest-paths","routing"];
-      const steps=ids.map((id,i)=>{const n=nodeById[id];return `<button class="related-button" data-open-lesson="${id}"><b>${String(i+1).padStart(2,"0")}</b>　${escapeHTML(n.title)}<br><small>${escapeHTML(label[n.group])}</small></button>`;}).join("");
-      openOverview("建议学习路径","从数值表示到系统与网络",`<div class="study-kicker">GUIDED ROUTE · 可跳转的建议路线</div>
-        <h1 class="study-title">从公理、逻辑与集合，到一台计算机</h1>
-        <p class="study-lead">这是一条可调整的入门路线，不是唯一顺序。每个节点仍可从知识图谱直接进入；遇到先修缺口时，回到图谱查看依赖。</p>
-        <div class="study-goal"><b>路线说明</b>　数学概念在需要时穿插出现；课程历史会随相关知识点展开，而不是要求先学完一条年代线。</div>
-        <div class="related-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px">${steps}</div>`);
-    }
     function renderBooksPage(){
       const groups=new Map();
       for(const n of nodes){const title=n.book.split(" · ")[0];if(!groups.has(title))groups.set(title,[]);groups.get(title).push(n);}
@@ -685,7 +675,6 @@
     document.querySelectorAll(".top-link").forEach(b=>b.addEventListener("click",()=>{
       activateNav(b.dataset.nav);
       if(b.dataset.nav==="graph")backToGraph();
-      else if(b.dataset.nav==="path")renderPathPage();
       else renderBooksPage();
     }));
     function renderLesson(n){
