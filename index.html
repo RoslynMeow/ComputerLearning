@@ -760,7 +760,7 @@
           {title:"学习目标",body:n.goal}
         ]
       };
-      const sections=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3>
+      const sectionHTML=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3>
         ${s.body?`<p>${escapeHTML(s.body)}</p>`:""}
         ${s.def?`<div class="def-box"><b>${escapeHTML(s.def.label)}</b><p>${escapeHTML(s.def.text)}</p></div>`:""}
         ${s.points?`<ul class="lesson-points">${s.points.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`:""}
@@ -768,7 +768,7 @@
         ${s.table?lessonTableHTML(s.table):""}
         ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
         ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}
-        ${s.experiment?`<div class="lab-card lesson-embed"><div data-inline-lab="${escapeHTML(s.experiment)}"></div></div>`:""}</section>`).join("");
+        ${s.experiment?`<div class="lab-card lesson-embed"><div data-inline-lab="${escapeHTML(s.experiment)}"></div></div>`:""}</section>`);
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
       const enrichment=note?`<section class="lesson-section"><h3>例子与易错点</h3>
@@ -777,18 +777,24 @@
       const references=lesson.references?.length?`<section class="lesson-section"><h3>延伸阅读</h3><ul class="reference-list">${lesson.references.map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul></section>`:"";
       const hasInlineExperiment=lesson.sections.some(s=>s.experiment);
       const tool=TOOL_BY_ID[NODE_TOOL[n.id]];
-      const toolBanner=!hasInlineExperiment&&tool?`<div class="objective"><b>相关工具</b><span>${escapeHTML(tool.title)} · ${escapeHTML(tool.summary)}
-        <button class="study-button" data-open-tool="${tool.id}" style="margin-left:8px">打开工具</button></span></div>`:"";
+      const inlineTool=!hasInlineExperiment&&tool?`<section class="lesson-section lesson-tool-section">
+        <div class="section-label">工具</div>
+        <div class="lab-card lesson-embed" data-inline-tool="${tool.id}"></div></section>`:"";
+      if(inlineTool){
+        const summaryIndex=lesson.sections.findIndex(s=>/(本节要点|小结|总结)/.test(s.title));
+        sectionHTML.splice(summaryIndex>=0?summaryIndex:sectionHTML.length,0,inlineTool);
+      }
+      const sections=sectionHTML.join("");
       const draft=n.contentStatus==="draft"?'<div class="draft-banner">新知识点脚手架 · 正文、例题与专属练习待补充</div>':"";
       studyContent.innerHTML=`${draft}
         <p class="study-lead">${escapeHTML(lesson.lead)}</p>
-        <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${toolBanner}${history}${sections}${enrichment}${references}
+        <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${history}${sections}${enrichment}${references}
         <section class="lesson-section" id="lesson-practice"><h3>练习</h3>${practiceHTML(n)}</section>
         <div class="study-cta">${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
         ${n.pre.map(id=>`<button data-related="${id}">先学：${escapeHTML(nodeById[id]?.title||id)}</button>`).join("")}</div>`;
       bindPractice(studyContent,n);
       studyContent.querySelectorAll("[data-inline-lab]").forEach(host=>{if(hasLab(host.dataset.inlineLab))renderLabInto(host.dataset.inlineLab,host);});
-      studyContent.querySelectorAll("[data-open-tool]").forEach(b=>b.addEventListener("click",()=>openLab(b.dataset.openTool,()=>openStudy("lesson",n.id),"← 返回知识点")));
+      studyContent.querySelectorAll("[data-inline-tool]").forEach(host=>mountTool(host.dataset.inlineTool,host,{applyMath}));
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
       applyMath(studyContent);
     }
