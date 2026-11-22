@@ -163,11 +163,9 @@
       transition:transform .25s ease,opacity .22s ease; pointer-events:none;
     }
     .detail.open { transform:translateX(0); opacity:1; pointer-events:auto; }
-    .detail-toolbar { display:flex; gap:6px; align-items:center; padding:11px 15px; border-bottom:1px solid #edf1ef; }
-    .detail-toolbar .action { flex:1; padding:8px 4px; }
-    .detail-toolbar .detail-close { flex:0 0 auto; padding:0 2px; }
-    .detail-top { padding:16px 20px 15px; border-bottom:1px solid #edf1ef; }
-    .detail-close { border:0; background:transparent; color:#91a0a5; font-size:21px; cursor:pointer; line-height:1; }
+    .detail-top { position:relative; padding:20px 20px 16px; border-bottom:1px solid #edf1ef; }
+    .detail-close { position:absolute; top:12px; right:14px; border:0; background:transparent; color:#91a0a5; font-size:21px; line-height:1; cursor:pointer; }
+    .detail-cta { display:block; width:100%; margin-top:15px; padding:10px 6px; }
     .type-label { color:#16877e; font-size:9px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     .detail h2 { margin:6px 0 5px; font-size:20px; letter-spacing:-.035em; }
     .detail-en { color:#9aa7ac; font-size:10px; }
@@ -358,15 +356,13 @@
         <div class="graph-tooltip" id="graph-tooltip"></div>
       </div>
       <aside class="detail" id="detail" aria-live="polite">
-        <div class="detail-toolbar">
-          <button class="action primary" data-action="lesson">进入学习</button>
-          <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
-        </div>
         <div class="detail-top">
+          <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
           <div class="type-label" id="detail-domain"></div>
           <h2 id="detail-title"></h2>
           <div class="detail-en" id="detail-id"></div>
           <div class="book-tag"><span>▤</span><span id="detail-book"></span></div>
+          <button class="action primary detail-cta" data-action="lesson">进入学习</button>
         </div>
         <div class="detail-body" id="detail-body"></div>
       </aside>
