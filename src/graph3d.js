@@ -384,7 +384,7 @@ export class KnowledgeGraph3D {
     const fontSize = Math.max(9, Math.min(12, 10.5 * scale));
     ctx.font = `${node.id === this.selectedID ? "700" : "500"} ${fontSize}px "Segoe UI","Microsoft YaHei",sans-serif`;
     ctx.textBaseline = "middle";
-    ctx.fillStyle = dim ? "#b5c5cc" : "#eef7f7";
+    ctx.fillStyle = dim ? "#b5c5cc" : (node.contentStatus === "complete" ? "#eef7f7" : "#ffb3a3");
     ctx.shadowColor = "#06111bcc";
     ctx.shadowBlur = 4;
     const labelX = x + radius + 5, labelY = y;
