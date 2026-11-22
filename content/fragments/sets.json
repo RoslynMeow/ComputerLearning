@@ -152,12 +152,12 @@
           "text": "空集是不含任何成员的集合，记作 $\\varnothing$；对每个对象 $x$，$x\\notin \\varnothing$。"
         },
         "proof": {
-          "label": "定理 1.7　对任意集合 A，∅⊆A",
+          "label": "定理 1.7　对任意集合 $A$，$\\varnothing\\subseteq A$",
           "text": "设 $A$ 为任意集合。按子集定义，需要证明 $\\forall x(x\\in \\varnothing \\to x\\in A)$。\n任取对象 $x$。由空集的定义，$x\\in \\varnothing$ 为假；蕴涵的前件为假时整个蕴涵为真，故 $x\\in \\varnothing \\to x\\in A$ 为真。\n由于 $x$ 是任意对象，$\\forall x(x\\in \\varnothing \\to x\\in A)$ 成立。\n由子集定义，$\\varnothing \\subseteq A$。"
         }
       },
       {
-        "title": "x、{x}、∅ 与 {∅}",
+        "title": "$x$、$\\{x\\}$、$\\varnothing$ 与 $\\{\\varnothing\\}$",
         "body": "这四个写法容易混淆，因为其中有的指对象，有的指集合。表 2 以任意对象 $x$ 为例对照它们的身份与成员关系；表中“成员”一列列出该写法所指对象含有的全部成员。",
         "table": {
           "caption": "表 2　$x$、$\\{x\\}$、$\\varnothing$ 与 $\\{\\varnothing\\}$ 的对照",

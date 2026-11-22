@@ -182,7 +182,7 @@
           "text": "设 $T:\\mathbb{Z}^{n}\\to \\mathbb{Z}^{m}$ 为函数。若对任意 $x$、$y\\in \\mathbb{Z}^{n}$ 与任意 $c\\in \\mathbb{Z}$，都有 $T(x+y)=T(x)+T(y)$ 与 $T(cx)=cT(x)$，则称 $T$ 为线性映射或线性变换。第一条称为可加性，第二条称为齐次性。"
         },
         "proof": {
-          "label": "定理 1.7　设 A 为 m×n 矩阵，定义 T_A(x)=Ax，则 T_A 是从 ℤⁿ 到 ℤᵐ 的线性映射",
+          "label": "定理 1.7　设 $A$ 为 $m\\times n$ 矩阵，定义 $T_A(x)=Ax$，则 $T_A$ 是从 $\\mathbb{Z}^{n}$ 到 $\\mathbb{Z}^{m}$ 的线性映射",
           "text": "设 $A=(a_{ij})$ 为 $m\\times n$ 矩阵，$T_A(x)=Ax$。\n第一步：对每个 $x\\in \\mathbb{Z}^{n}$，定义 1.4 给出唯一的一组分量 $(Ax)_i$，且每个分量是整数之和，故 $Ax\\in \\mathbb{Z}^{m}$。因此 $T_A$ 是从 $\\mathbb{Z}^{n}$ 到 $\\mathbb{Z}^{m}$ 的函数。\n第二步（可加性）：任取 $x$、$y\\in \\mathbb{Z}^{n}$。对每个 $i\\in \\{1,\\dots ,m\\}$，\n$(T_A(x+y))_i = \\sum_{j=1}^{n} a_{ij}(x_j+y_j)$　（定义 1.4）\n$= \\sum_{j=1}^{n} (a_{ij}x_j+a_{ij}y_j)$　（整数乘法对加法的分配律）\n$= \\sum_{j=1}^{n} a_{ij}x_j + \\sum_{j=1}^{n} a_{ij}y_j$　（有限和的可加性，对项数归纳）\n$= (Ax)_i+(Ay)_i$　（定义 1.4）\n$= (Ax+Ay)_i$。　（定义 1.2）\n第三步（齐次性）：任取 $c\\in \\mathbb{Z}$。对每个 $i$，\n$(T_A(cx))_i = \\sum_{j=1}^{n} a_{ij}(cx_j)$　（定义 1.4）\n$= \\sum_{j=1}^{n} (a_{ij}c)x_j$　（整数乘法的结合律与交换律）\n$= c\\sum_{j=1}^{n} a_{ij}x_j$　（整数乘法的分配律）\n$= c(Ax)_i$　（定义 1.4）\n$= (cAx)_i$。　（定义 1.2）\n第四步：第二步与第三步说明 $T_A(x+y)$ 与 $T_A(x)+T_A(y)$ 的每个分量相等，$T_A(cx)$ 与 $cT_A(x)$ 的每个分量相等。由定义 1.1 的向量相等判据，两个向量等式成立。按定义 1.6，$T_A$ 是线性映射。",
           "qed": true
         },
@@ -216,7 +216,7 @@
           "text": "$n$ 阶单位矩阵 $I_n$ 是 $n\\times n$ 矩阵，其第 $i$ 行第 $j$ 列的元素在 $i=j$ 时为 1，在 $i\\ne j$ 时为 0。对每个 $x\\in \\mathbb{Z}^{n}$，有 $I_nx=x$。"
         },
         "proof": {
-          "label": "定理 1.11　设 A 为 m×n 矩阵，B 为 n×p 矩阵，则对每个 x∈ℤᵖ，A(Bx)=(AB)x",
+          "label": "定理 1.11　设 $A$ 为 $m\\times n$ 矩阵，$B$ 为 $n\\times p$ 矩阵，则对每个 $x\\in\\mathbb{Z}^{p}$，$A(Bx)=(AB)x$",
           "text": "设 $A=(a_{ij})$ 为 $m\\times n$ 矩阵，$B=(b_{jk})$ 为 $n\\times p$ 矩阵，$C=AB=(c_{ik})$，其中 $c_{ik}=\\sum_{j=1}^{n} a_{ij}b_{jk}$。\n第一步：$Bx$ 是 $n$ 维向量，其第 $j$ 个分量为 $(Bx)_j=\\sum_{k=1}^{p} b_{jk}x_k$（定义 1.4，$B$ 有 $n$ 行）。\n第二步：$A(Bx)$ 是 $m$ 维向量。对每个 $i$，\n$(A(Bx))_i = \\sum_{j=1}^{n} a_{ij}(Bx)_j$　（定义 1.4，$A$ 有 $n$ 列）\n$= \\sum_{j=1}^{n} a_{ij}(\\sum_{k=1}^{p} b_{jk}x_k)$　（第一步）\n$= \\sum_{j=1}^{n} \\sum_{k=1}^{p} a_{ij}b_{jk}x_k$。　（整数乘法的分配律）\n第三步：$AB$ 是 $m\\times p$ 矩阵。对每个 $i$，\n$((AB)x)_i = \\sum_{k=1}^{p} c_{ik}x_k$　（定义 1.4）\n$= \\sum_{k=1}^{p} (\\sum_{j=1}^{n} a_{ij}b_{jk})x_k$　（定义 1.8）\n$= \\sum_{k=1}^{p} \\sum_{j=1}^{n} a_{ij}b_{jk}x_k$。　（整数乘法的分配律）\n第四步：两个二重和只是求和次序不同。整数加法满足交换律与结合律，有限和可以按任意次序相加，故第二步与第三步的结果相等，即 $(A(Bx))_i=((AB)x)_i$ 对每个 $i$ 成立。由定义 1.1，$A(Bx)=(AB)x$。\n第五步：对每个 $x\\in \\mathbb{Z}^{p}$，先作用 $B$ 再作用 $A$ 的复合映射在 $x$ 处的值是 $A(Bx)$，而由乘积 $AB$ 给出的映射在 $x$ 处的值是 $(AB)x$；由第四步，两者相等。两个映射的定义域都是 $\\mathbb{Z}^{p}$、陪域都是 $\\mathbb{Z}^{m}$，且逐点相等，故它们是同一个映射。",
           "qed": true
         },

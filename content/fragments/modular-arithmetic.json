@@ -83,7 +83,7 @@
         },
         "formula": "$$a=mq+r,\\qquad 0\\le r<m,\\qquad a\\bmod m=r$$",
         "proof": {
-          "label": "定理 1.2　设 a 为整数，m 为正整数，则存在唯一的整数 q、r，使 a=mq+r 且 0≤r<m",
+          "label": "定理 1.2　设 $a$ 为整数，$m$ 为正整数，则存在唯一的整数 $q$、$r$，使 $a=mq+r$ 且 $0\\le r<m$",
           "text": "存在性：先设 $a=n\\ge 0$，对 $n$ 归纳。命题 $P(n)$ 为：存在整数 $q$、$r$，使 $n=mq+r$ 且 $0\\le r<m$。\n基础步：$n=0$ 时取 $q=0$、$r=0$；因 $m>0$，故 $0\\le 0<m$，$P(0)$ 成立。\n归纳假设：设 $k\\ge 0$，且 $k=mq+r$，其中 $0\\le r<m$。\n归纳步：若 $r+1<m$，则 $k+1=mq+(r+1)$，取商 $q$、余数 $r+1$；若 $r+1=m$，则 $k+1=mq+m=m(q+1)+0$，取商 $q+1$、余数 0。由于 $r<m$ 且 $r$ 为整数，$r+1\\le m$，这两种情形覆盖全部可能。故 $P(k+1)$ 成立。\n由归纳原理，每个 $n\\ge 0$ 都有这样的 $q$、$r$。\n再设 $a<0$，令 $n=-a>0$。对 $n$ 用上述结论，得 $n=mq+r$，$0\\le r<m$。若 $r=0$，则 $a=m(-q)+0$；若 $r>0$，则 $a=-n=m(-q)-r=m(-q-1)+(m-r)$，且 $0<m-r<m$。故 $a$ 也有这样的 $q$、$r$。\n唯一性：设 $a=mq+r=mq'+r'$，其中 $0\\le r<m$、$0\\le r'<m$。两式相减得 $m(q-q')=r'-r$，故 $m\\mid (r'-r)$。又 $-m<r'-r<m$；若 $r'-r=mk$ 且 $k\\ge 1$，则 $r'-r\\ge m$，若 $k\\le -1$，则 $r'-r\\le -m$，两者都与 $-m<r'-r<m$ 矛盾；故在这个范围内 $m$ 的倍数只有 0。于是 $r'-r=0$，即 $r'=r$。代回得 $m(q-q')=0$；因 $m>0$，故 $q=q'$。\n存在性与唯一性都成立，证毕。",
           "qed": true
         },
@@ -112,7 +112,7 @@
         "title": "同余是等价关系",
         "body": "同余把整数按余数归类，因此应当满足等价关系的三条性质：每个整数与自己同余，同余关系可以交换方向，两次同余可以衔接。以下逐条验证。",
         "proof": {
-          "label": "定理 1.4　同余关系 ≡ 在 ℤ 上是自反的、对称的、传递的",
+          "label": "定理 1.4　同余关系 $\\equiv$ 在 $\\mathbb{Z}$ 上是自反的、对称的、传递的",
           "text": "自反性：对任意 $a\\in \\mathbb{Z}$，$a-a=0=m\\cdot 0$，故 $m\\mid (a-a)$，即 $a\\equiv a \\pmod{m}$。\n对称性：设 $a\\equiv b \\pmod{m}$，则存在 $k\\in \\mathbb{Z}$ 使 $a-b=mk$。于是 $b-a=-mk=m(-k)$，故 $m\\mid (b-a)$，即 $b\\equiv a \\pmod{m}$。\n传递性：设 $a\\equiv b \\pmod{m}$ 且 $b\\equiv c \\pmod{m}$，则存在 $k$、$l\\in \\mathbb{Z}$ 使 $a-b=mk$、$b-c=ml$。两式相加得 $a-c=m(k+l)$，故 $m\\mid (a-c)$，即 $a\\equiv c \\pmod{m}$。\n三条性质都成立，故同余是 $\\mathbb{Z}$ 上的等价关系。证毕。",
           "qed": true
         },
@@ -138,7 +138,7 @@
         "title": "同余式对加法与乘法的相容性",
         "body": "同余式可以像等式一样相加、相乘，这是它比单个余数更有用的原因。若两个整数分别与 $b$、$d$ 同余，则它们的和、积分别与 $b+d$、$bd$ 同余；因此计算大数的余数时，可以随时把数替换成与它同余的较小数。",
         "proof": {
-          "label": "定理 1.6　若 a≡b (mod m) 且 c≡d (mod m)，则 a+c≡b+d (mod m) 且 ac≡bd (mod m)",
+          "label": "定理 1.6　若 $a\\equiv b\\ (\\mathrm{mod}\\ m)$ 且 $c\\equiv d\\ (\\mathrm{mod}\\ m)$，则 $a+c\\equiv b+d\\ (\\mathrm{mod}\\ m)$ 且 $ac\\equiv bd\\ (\\mathrm{mod}\\ m)$",
           "text": "设 $a\\equiv b \\pmod{m}$、$c\\equiv d \\pmod{m}$。由定义 1.3，存在 $k$、$l\\in \\mathbb{Z}$ 使 $a-b=mk$、$c-d=ml$，即 $a=b+mk$、$c=d+ml$。\n加法：$a+c=(b+mk)+(d+ml)=b+d+m(k+l)$，故 $(a+c)-(b+d)=m(k+l)$，即 $m\\mid ((a+c)-(b+d))$。按定义 1.3，$a+c\\equiv b+d \\pmod{m}$。\n乘法：$ac=(b+mk)(d+ml)=bd+bml+dmk+m^{2}kl=bd+m(bl+dk+mkl)$，故 $ac-bd=m(bl+dk+mkl)$，即 $m\\mid (ac-bd)$。按定义 1.3，$ac\\equiv bd \\pmod{m}$。\n两种运算都保持同余，证毕。",
           "qed": true
         },
@@ -151,7 +151,7 @@
         ]
       },
       {
-        "title": "例题：用相容性计算 3⁴ mod 5",
+        "title": "例题：用相容性计算 $3^{4}\\bmod 5$",
         "body": "幂的余数可以逐层化简：先把底数换成较小的同余数，再用定理 1.6 的乘法部分把幂的同余传递下去。这样不必先算出整个幂的十进制值。",
         "example": "计算 $3^{4} \\bmod 5$，不先展开 $3^{4}$。由 $3^{2}=9$，而 $9-4=5$，故 $3^{2}\\equiv 4 \\pmod{5}$。由定理 1.6 的乘法部分，$3^{4}=(3^{2})^{2}\\equiv 4^{2}=16 \\pmod{5}$。又 $16-1=15=5\\cdot 3$，故 $16\\equiv 1 \\pmod{5}$。于是 $3^{4}\\equiv 1 \\pmod{5}$，即 $3^{4} \\bmod 5=1$。\n核对：$3^{4}=81$，而 $81=5\\cdot 16+1$，余数确实为 1。",
         "exampleLabel": "例 1.7",
@@ -162,7 +162,7 @@
         ]
       },
       {
-        "title": "同余类与 ℤ 的分组",
+        "title": "同余类与 $\\mathbb{Z}$ 的分组",
         "body": "同余是等价关系，因此每个整数恰好属于一个同余类。把与 $a$ 同余的全部整数收集起来，就得到 $a$ 的模 $m$ 同余类。由于余数只有 $m$ 个可能值，$\\mathbb{Z}$ 被分成 $m$ 个两两不相交的类。",
         "def": {
           "label": "定义 1.8（同余类）",
@@ -227,7 +227,7 @@
       }
     ],
     "references": [
-      "Carl Friedrich Gauss, Disquisitiones Arithmeticae, Leipzig, 1801.（同余记号 ≡ 与同余类的来源）",
+      "Carl Friedrich Gauss, Disquisitiones Arithmeticae, Leipzig, 1801.（同余记号与同余类的来源）",
       "Kenneth H. Rosen, Elementary Number Theory and Its Applications, 6th ed., Pearson, 2011.（带余除法与同余的基本性质）",
       "G. H. Hardy and E. M. Wright, An Introduction to the Theory of Numbers, 6th ed., Oxford University Press, 2008.（同余式的运算）"
     ]

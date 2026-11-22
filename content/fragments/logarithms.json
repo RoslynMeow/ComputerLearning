@@ -137,7 +137,7 @@
         "title": "指数与对数互逆",
         "body": "定义 1.1 把对数规定为指数方程的解，因此指数与对数在复合时互相抵消。以下两条恒等式是这种互逆关系的直接表达，也是后面化简与换底的基础。",
         "proof": {
-          "label": "定理 1.4（指数与对数互逆）　设 b>0、b≠1，n>0，x 为实数，则 (i) b^(log_b n)=n；(ii) log_b(bˣ)=x",
+          "label": "定理 1.4（指数与对数互逆）　设 $b>0$、$b\\ne1$、$n>0$，$x$ 为实数，则 (i) $b^{\\log_b n}=n$；(ii) $\\log_b(b^{x})=x$",
           "text": "(i) 由定义 1.1，$\\log_b n$ 是满足 $b^{y}=n$ 的实数 $y$。把 $y=\\log_b n$ 代入，得 $b^{\\log_b n}=n$。\n(ii) 正底数的任何实数次幂都为正，故 $b^{x}>0$，$\\log_b(b^{x})$ 有定义。由定义 1.1，$\\log_b(b^{x})$ 是满足 $b^{y}=b^{x}$ 的实数 $y$。$b>1$ 时 $b^{y}$ 随 $y$ 增大而严格增大，$0<b<1$ 时 $b^{y}$ 随 $y$ 增大而严格减小，因此 $b^{y}=b^{x}$ 推出 $y=x$，即 $\\log_b(b^{x})=x$。\n两条恒等式分别对应“先取对数再还原”与“先取幂再还原”，次序不同。证毕。",
           "qed": true
         },
@@ -181,7 +181,7 @@
           ]
         },
         "proof": {
-          "label": "定理 1.5（对数的运算律）　设 b>0、b≠1，M、N>0，k 为实数，则 (i) log_b(MN)=log_b M+log_b N；(ii) log_b(M/N)=log_b M−log_b N；(iii) log_b(M^k)=k·log_b M",
+          "label": "定理 1.5（对数的运算律）　设 $b>0$、$b\\ne1$，$M,N>0$，$k$ 为实数，则 (i) $\\log_b(MN)=\\log_b M+\\log_b N$；(ii) $\\log_b(M/N)=\\log_b M-\\log_b N$；(iii) $\\log_b(M^{k})=k\\log_b M$",
           "text": "令 $u=\\log_b M$，$v=\\log_b N$。由定义 1.1，$b^{u}=M$，$b^{v}=N$。\n(i) 由同底数幂相乘的指数律，$MN=b^{u}\\cdot b^{v}=b^{u+v}$。由定义 1.1，$\\log_b(MN)=u+v$，即 $\\log_b(MN)=\\log_b M+\\log_b N$。\n(ii) 由同底数幂相除的指数律，$M/N=b^{u}\\div b^{v}=b^{u-v}$。由定义 1.1，$\\log_b(M/N)=u-v$，即 $\\log_b(M/N)=\\log_b M-\\log_b N$。\n(iii) 由幂的幂的指数律，$M^{k}=(b^{u})^{k}=b^{uk}$。由定义 1.1，$\\log_b(M^{k})=uk=k\\cdot \\log_b M$。\n以上各步中，$u+v$、$u-v$、$uk$ 都是实数，所用指数律在实数指数下仍然成立。证毕。",
           "qed": true
         },

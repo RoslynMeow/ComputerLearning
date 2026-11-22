@@ -152,7 +152,7 @@
         "title": "补事件的概率",
         "body": "补事件把全部可能情形分成“$E$ 发生”与“$E$ 不发生”两部分，两部分互斥且合起来是整个样本空间。因此两者概率之和为 1，求 $E^{c}$ 的概率可以化为求 $E$ 的概率。",
         "proof": {
-          "label": "定理 1.4　对每个事件 E⊆Ω，P(Eᶜ)=1−P(E)",
+          "label": "定理 1.4　对每个事件 $E\\subseteq\\Omega$，$P(E^{c})=1-P(E)$",
           "text": "由定义 1.2，$E$ 与 $E^{c}$ 没有公共样本点，即 $E\\cap E^{c}=\\emptyset$，故二者互斥。\n由定义 1.2，$E\\cup E^{c}=\\Omega$：每个样本点或属于 $E$，或不属于 $E$，没有第三种情形。\n对互斥事件 $E$ 与 $E^{c}$ 使用可加性（公理 1.3 第三条）：$P(E\\cup E^{c})=P(E)+P(E^{c})$。\n左边由 $E\\cup E^{c}=\\Omega$ 与规范性（公理 1.3 第二条）得 $P(\\Omega)=1$。因此 $1=P(E)+P(E^{c})$。\n两边同时减去 $P(E)$，得 $P(E^{c})=1-P(E)$。",
           "qed": true
         },
@@ -193,7 +193,7 @@
         "title": "加法公式",
         "body": "两个事件不互斥时，直接把概率相加会把交事件算两次：交事件中的每个样本点同时属于两个事件，在两项中各被计入一次。加法公式减去重复计算的部分，对任意两个事件都成立。",
         "proof": {
-          "label": "定理 1.8（加法公式）　对任意事件 E、F⊆Ω，P(E∪F)=P(E)+P(F)−P(E∩F)",
+          "label": "定理 1.8（加法公式）　对任意事件 $E,F\\subseteq\\Omega$，$P(E\\cup F)=P(E)+P(F)-P(E\\cap F)$",
           "text": "第一步，说明 $E\\cup F=E\\cup (F\\cap E^{c})$。任取样本点 $\\omega$。若 $\\omega \\in E\\cup F$，则 $\\omega \\in E$ 或 $\\omega \\in F$；当 $\\omega \\notin E$ 时必有 $\\omega \\in F$，于是 $\\omega \\in F$ 且 $\\omega \\in E^{c}$，即 $\\omega \\in F\\cap E^{c}$；两种情形都给出 $\\omega \\in E\\cup (F\\cap E^{c})$。反之，$E\\subseteq E\\cup F$ 且 $F\\cap E^{c}\\subseteq F\\subseteq E\\cup F$，故 $E\\cup (F\\cap E^{c})\\subseteq E\\cup F$。两个方向合起来得 $E\\cup F=E\\cup (F\\cap E^{c})$。\n第二步，$E$ 与 $F\\cap E^{c}$ 互斥：$F\\cap E^{c}$ 的每个样本点都属于 $E^{c}$，而 $E\\cap E^{c}=\\emptyset$。由可加性（公理 1.3 第三条），$P(E\\cup F)=P(E)+P(F\\cap E^{c})$。\n第三步，说明 $F=(F\\cap E)\\cup (F\\cap E^{c})$。任取 $\\omega \\in F$，则 $\\omega \\in E$ 或 $\\omega \\notin E$：前者给出 $\\omega \\in F\\cap E$，后者给出 $\\omega \\in F\\cap E^{c}$，故 $\\omega$ 属于右边；反向包含由交事件是 $F$ 的子集直接得到。右边两项互斥，因为 $E\\cap E^{c}=\\emptyset$。由可加性，$P(F)=P(F\\cap E)+P(F\\cap E^{c})$。\n第四步，由第三步解出 $P(F\\cap E^{c})=P(F)-P(F\\cap E)$，并用 $F\\cap E=E\\cap F$。代入第二步，得 $P(E\\cup F)=P(E)+P(F)-P(E\\cap F)$。",
           "qed": true
         },
