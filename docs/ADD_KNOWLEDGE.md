@@ -68,7 +68,10 @@ node scripts/add-knowledge.mjs `
 | `group` | 工具列表分组，取 `groupMeta` 中的键 |
 | `summary` | 一句话说明，显示在工具卡片和知识点页 |
 | `nodes` | 可使用该工具的知识点 id 数组 |
+| `formulas` | 可选，工具页公式区要展示的 LaTeX 字符串数组 |
 | `mount(root, context)` | 把工具挂载到 `root` 的函数 |
+
+工具页的公式区由 `mountTool` 自动插入到简介之后，并用 KaTeX 渲染。工具动态输出的文本也可以直接写 `$...$` 或 `$$...$$`；`mountTool` 会监听 DOM 变化并重新排版公式。
 
 新增工具时：
 

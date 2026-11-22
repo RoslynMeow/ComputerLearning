@@ -225,7 +225,11 @@
     .lab-card b { color:#2f4e56; font-size:12px; font-weight:650; }
     .lab-card small { color:#93a2a8; font-size:10px; }
     .lab-card svg { min-width:0; }
-    .lab-card .lesson-fig { max-width:100%; overflow-x:auto; }
+    .lab-card .lesson-fig { max-width:100%; overflow-x:auto; overflow-y:hidden; }
+    .lab-formulas { margin:12px 0 4px; padding:12px 14px; border:1px solid #e3eee9; border-radius:11px; background:#f7fbf9; }
+    .lab-formulas > b { display:block; margin-bottom:4px; color:#4f6b70; font-size:10px; letter-spacing:.08em; }
+    .lab-formula { margin:6px 0; overflow-x:auto; overflow-y:hidden; color:#31515a; }
+    .lab-formula .katex-display { margin:0; }
     .study-back-row { margin-bottom:6px; }
     .lab-list { display:flex; flex-direction:column; gap:8px; }
     .lab-item { border:1px solid #e5ece9; border-radius:11px; background:#fbfdfc; overflow:hidden; }
@@ -847,7 +851,7 @@
     function renderLabInto(id,root){
       const toolId=NODE_TOOL[id]??(TOOL_BY_ID[id]?id:null);
       if(!toolId)return;
-      mountTool(toolId,root);
+      mountTool(toolId,root,{applyMath});
     }
     function renderLabsPage(){
       const groups=Object.keys(groupMeta).map(key=>({key,tools:TOOLS.filter(tool=>tool.group===key)})).filter(group=>group.tools.length);
@@ -874,7 +878,7 @@
         <p class="study-lead">${escapeHTML(tool.summary)}</p>
         <div class="lab-card" id="lab-single"></div>`;
       studyContent.querySelector("#lab-back").addEventListener("click",()=>backTo?backTo():renderLabsPage());
-      mountTool(toolId,studyContent.querySelector("#lab-single"));
+      mountTool(toolId,studyContent.querySelector("#lab-single"),{applyMath});
       applyMath(studyContent);
       studyView.scrollTop=0;
       scheduleSaveView();

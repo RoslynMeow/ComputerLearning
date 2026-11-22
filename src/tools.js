@@ -2122,6 +2122,132 @@ function setupRuleSystem(root) {
 /* 工具注册表                                                          */
 /* ------------------------------------------------------------------ */
 
+const FORMULAS = {
+  "rule-system": [
+    String.raw`x\succ y`,
+    String.raw`\forall y\in H\setminus\{x\}:x\succ y`
+  ],
+  "set-toolbox": [
+    String.raw`A\cup B=\{x\mid x\in A\lor x\in B\}`,
+    String.raw`A\cap B=\{x\mid x\in A\land x\in B\}`,
+    String.raw`A\setminus B=\{x\mid x\in A\land x\notin B\}`,
+    String.raw`|A\times B|=|A|\cdot|B|`
+  ],
+  "quantifier": [
+    String.raw`\forall x\in D\,P(x)`,
+    String.raw`\exists x\in D\,P(x)`,
+    String.raw`\neg\forall x\in D\,P(x)\iff\exists x\in D\,\neg P(x)`
+  ],
+  "successor": [
+    String.raw`a+0=a`,
+    String.raw`a+S(b)=S(a+b)`
+  ],
+  "induction": [
+    String.raw`P(1)\land(\forall k\,(P(k)\Rightarrow P(k+1)))\Rightarrow\forall n\,P(n)`,
+    String.raw`1+2+\cdots+n=\frac{n(n+1)}{2}`
+  ],
+  "number-line": [
+    String.raw`a+(-b)=a-b`,
+    String.raw`|a-b|`
+  ],
+  "base-converter": [
+    String.raw`(d_{n-1}\cdots d_0.d_{-1}\cdots d_{-m})_b=\sum_{i=-m}^{n-1}d_i b^i`,
+    String.raw`n=\sum_{i=0}^{k}r_i b^i,\quad 0\le r_i<b`
+  ],
+  "integer-codes": [
+    String.raw`u=\sum_{i=0}^{n-1}b_i2^i`,
+    String.raw`-x\equiv2^n-x\pmod{2^n}`,
+    String.raw`v=\begin{cases}u,&u<2^{n-1}\\u-2^n,&u\ge2^{n-1}\end{cases}`
+  ],
+  "overflow": [
+    String.raw`s=(a+b)\bmod2^n`,
+    String.raw`-2^{n-1}\le a+b\le2^{n-1}-1`
+  ],
+  "boolean": [
+    String.raw`S=A\oplus B\oplus C_{\mathrm{in}}`,
+    String.raw`C_{\mathrm{out}}=AB+C_{\mathrm{in}}(A\oplus B)`,
+    String.raw`\overline{A+B}=\bar A\cdot\bar B`
+  ],
+  "float": [
+    String.raw`(-1)^s(1.f)_2\,2^{e-\mathrm{bias}}`,
+    String.raw`\left|\hat x-x\right|`
+  ],
+  "unicode": [
+    String.raw`\texttt{U+4E2D}`,
+    String.raw`\text{UTF-8}(\texttt{U+4E2D})=\texttt{E4B8AD}`
+  ],
+  "endianness": [
+    String.raw`\texttt{12\,34\,56\,78}`,
+    String.raw`\texttt{78\,56\,34\,12}`
+  ],
+  "bitwise": [
+    String.raw`A\ \&\ B,\quad A\ \texttt{|}\ B,\quad A\oplus B`,
+    String.raw`A\ll k=(A\cdot2^k)\bmod2^n`,
+    String.raw`A\gg k=\left\lfloor A/2^k\right\rfloor`
+  ],
+  "graph-studio": [
+    String.raw`\sum_{v\in V}\deg(v)=2|E|`,
+    String.raw`d(v)\leftarrow\min\{d(v),d(u)+w(u,v)\}`
+  ],
+  "shortest-path": [
+    String.raw`d(v)=\min_{P:A\to v}\sum_{e\in P}w(e)`,
+    String.raw`d(v)\leftarrow\min\{d(v),d(u)+w(u,v)\}`
+  ],
+  "growth": [
+    String.raw`O(1)\subseteq O(\log n)\subseteq O(n)\subseteq O(n\log n)\subseteq O(n^2)\subseteq O(2^n)`
+  ],
+  "sorting": [
+    String.raw`a_{\pi(1)}\le a_{\pi(2)}\le\cdots\le a_{\pi(n)}`,
+    String.raw`\#\{(i,j):i<j,\ a_i>a_j\}`
+  ],
+  "trace": [
+    String.raw`\exists i\in[0,n-1]:a_i=t`,
+    String.raw`mid=\left\lfloor\frac{lo+hi}{2}\right\rfloor`,
+    String.raw`S=\sum_{i=0}^{n-1}a_i`
+  ],
+  "tree": [
+    String.raw`\left\lfloor\log_2(i+1)\right\rfloor`,
+    String.raw`\text{preorder}(T)=r,\text{preorder}(L),\text{preorder}(R)`
+  ],
+  "cache": [
+    String.raw`\ell=b\bmod m`,
+    String.raw`\mathrm{tag}=\left\lfloor b/m\right\rfloor`,
+    String.raw`\text{hit rate}=H/N`
+  ],
+  "pipeline": [
+    String.raw`T_{\text{pipe}}=k+(n-1)`,
+    String.raw`S=\frac{T_{\text{seq}}}{T_{\text{pipe}}}`
+  ],
+  "scheduling": [
+    String.raw`W_i=C_i-A_i-B_i`,
+    String.raw`\bar W=\frac{1}{n}\sum_{i=1}^{n}W_i`
+  ],
+  "paging": [
+    String.raw`VPN=\left\lfloor VA/S\right\rfloor`,
+    String.raw`\text{offset}=VA\bmod S`,
+    String.raw`PA=PF\cdot S+\text{offset}`
+  ],
+  "race": [
+    String.raw`\text{read}:r_i\leftarrow counter`,
+    String.raw`\text{write}:counter\leftarrow r_i+1`
+  ],
+  "relational": [
+    String.raw`\sigma_{\text{cond}}(R)`,
+    String.raw`\pi_{\text{attrs}}(R)`
+  ],
+  "encapsulation": [
+    String.raw`PDU_i=H_i\parallel PDU_{i-1}`
+  ],
+  "derivative": [
+    String.raw`f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}`,
+    String.raw`f'(x)\approx\frac{f(x+h)-f(x-h)}{2h}`
+  ],
+  "gradient": [
+    String.raw`L(w)=(w-w^*)^2`,
+    String.raw`w_{t+1}=w_t-\eta\nabla L(w_t)`
+  ]
+};
+
 export const TOOLS = [
   { id: "rule-system", title: "规则系统检验器", group: "math", summary: "编辑胜负关系，检验一条推论在模型中是否成立。", nodes: ["axiomatic-method"], mount: setupRuleSystem },
   { id: "set-toolbox", title: "集合工具", group: "math", summary: "检查成员与包含关系，计算并、交、差、对称差。", nodes: ["sets", "set-operations"], mount: setupSetTool },
@@ -2154,6 +2280,10 @@ export const TOOLS = [
   { id: "gradient", title: "梯度下降观察器", group: "ai", summary: "调整目标、初始值、学习率与迭代次数，观察收敛。", nodes: ["machine-learning"], mount: setupGradient }
 ];
 
+for (const tool of TOOLS) {
+  if (FORMULAS[tool.id]) tool.formulas = FORMULAS[tool.id];
+}
+
 export const TOOL_BY_ID = Object.fromEntries(TOOLS.map((tool) => [tool.id, tool]));
 
 export const NODE_TOOL = Object.fromEntries(TOOLS.flatMap((tool) => tool.nodes.map((nodeId) => [nodeId, tool.id])));
@@ -2163,5 +2293,30 @@ export function mountTool(toolId, root, context = {}) {
   if (!tool) return false;
   root.innerHTML = "";
   tool.mount(root, context);
+
+  if (tool.formulas?.length) {
+    const formulaBox = document.createElement("div");
+    formulaBox.className = "lab-formulas";
+    formulaBox.innerHTML = `<b>公式</b>${tool.formulas.map((tex) => `<div class="lab-formula">$$${esc(tex)}$$</div>`).join("")}`;
+    const intro = root.querySelector("p");
+    if (intro) intro.insertAdjacentElement("afterend", formulaBox);
+    else root.prepend(formulaBox);
+  }
+
+  if (typeof context.applyMath === "function") {
+    let queued = false;
+    const typeset = () => {
+      queued = false;
+      context.applyMath(root);
+    };
+    const observer = new MutationObserver(() => {
+      if (!queued) {
+        queued = true;
+        queueMicrotask(typeset);
+      }
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    context.applyMath(root);
+  }
   return true;
 }
