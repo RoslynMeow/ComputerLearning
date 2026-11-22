@@ -225,7 +225,14 @@
     .lab-card:hover { border-color:#a9d2c6; background:#f4faf7; }
     .lab-card[data-tool-group] { border-top-width:3px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease; }
     .lab-card[data-tool-group]:hover { transform:translateY(-2px); box-shadow:0 10px 22px rgba(28,67,62,.08); }
-    .lab-card[data-tool-group="math"] { border-top-color:#168c81; }
+    .lab-card[data-tool-group="logic"] { border-top-color:#8067b3; }
+    .lab-card[data-tool-group="sets"] { border-top-color:#a875c9; }
+    .lab-card[data-tool-group="numbers"] { border-top-color:#c58a48; }
+    .lab-card[data-tool-group="algebra"] { border-top-color:#6b7fc4; }
+    .lab-card[data-tool-group="calculus"] { border-top-color:#3f9e94; }
+    .lab-card[data-tool-group="probability"] { border-top-color:#c06f93; }
+    .lab-card[data-tool-group="combinatorics"] { border-top-color:#b08a45; }
+    .lab-card[data-tool-group="graph"] { border-top-color:#3f86b8; }
     .lab-card[data-tool-group="repr"] { border-top-color:#3b7fc4; }
     .lab-card[data-tool-group="prog"] { border-top-color:#6d62c9; }
     .lab-card[data-tool-group="hardware"] { border-top-color:#c7842e; }
@@ -609,22 +616,20 @@
       }else{
         svg.classList.remove("mobile-map");svg.style.height="";
         const collections=Object.fromEntries(groupOrder.map(group=>[group,sortedGroup(group,ranks)]));
-        const colsCount=2,rowGap=80,clusterWidth=420,columnGap=18,rowGapBetween=24;
+        const colsCount=2,rowGap=80,clusterWidth=420,columnGap=18,rowGapBetween=24,columnCount=4;
         const rowsOf=group=>Math.ceil(collections[group].length/colsCount);
         const heightOf=group=>110+Math.max(0,rowsOf(group)-1)*rowGap;
-        const rowCount=Math.ceil(groupOrder.length/4),rowHeights=[];
-        for(let row=0;row<rowCount;row++){
-          rowHeights[row]=Math.max(...groupOrder.slice(row*4,row*4+4).map(heightOf));
-        }
-        const rowY=[];let cursorY=92;
-        for(let row=0;row<rowCount;row++){rowY[row]=cursorY;cursorY+=rowHeights[row]+rowGapBetween;}
+        const columnY=Array(columnCount).fill(92);
         for(const group of groupOrder){
-          const index=groupOrder.indexOf(group),row=Math.floor(index/4),col=index%4;
-          const x=24+col*(clusterWidth+columnGap),y=rowY[row],members=collections[group],h=heightOf(group);
+          const members=collections[group],h=heightOf(group);
+          let col=0;
+          for(let i=1;i<columnCount;i++)if(columnY[i]<columnY[col])col=i;
+          const x=24+col*(clusterWidth+columnGap),y=columnY[col];
           addCluster(clusterLayer,{x,y,width:clusterWidth,height:h,group,title:groupMeta[group].title,caption:groupMeta[group].caption});
           members.forEach((n,i)=>{n.x=x+(i%2===0?110:310);n.y=y+58+Math.floor(i/2)*rowGap;});
+          columnY[col]=y+h+rowGapBetween;
         }
-        const viewHeight=Math.max(1080,cursorY+10);
+        const viewHeight=Math.max(1080,Math.max(...columnY)-rowGapBetween+10);
         svg.setAttribute("viewBox",`0 0 1800 ${viewHeight}`);
         svg.style.height=`${viewHeight*mapScroll.clientWidth/1800}px`;
       }

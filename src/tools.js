@@ -2288,13 +2288,13 @@ const FORMULAS = {
 };
 
 export const TOOLS = [
-  { id: "rule-system", title: "规则系统检验器", group: "math", summary: "编辑胜负关系，检验一条推论在模型中是否成立。", nodes: ["axiomatic-method"], mount: setupRuleSystem },
-  { id: "set-toolbox", title: "集合工具", group: "math", summary: "检查成员与包含关系，计算并、交、差、对称差。", nodes: ["sets", "set-operations"], mount: setupSetTool },
-  { id: "quantifier", title: "量词真值检查器", group: "math", summary: "在有限论域上检查 ∀ 与 ∃ 的真值，给出反例或见证。", nodes: ["predicate-logic"], mount: setupQuantifier },
-  { id: "successor", title: "后继与递归加法器", group: "math", summary: "用后继函数逐步展开自然数加法。", nodes: ["peano-axioms", "natural-numbers"], mount: setupSuccessor },
-  { id: "induction", title: "归纳验证器", group: "math", summary: "检查基础步、归纳假设与归纳步，并数值核对结论。", nodes: ["mathematical-induction"], mount: setupInduction },
-  { id: "number-line", title: "数轴加减器", group: "math", summary: "在数轴上观察正负数加减的移动方向。", nodes: ["integers"], mount: setupNumberLine },
-  { id: "base-converter", title: "任意进制转换", group: "repr", summary: "2–36 进制互换，支持负数与小数，并展示完整演算。", nodes: ["place-value", "base-conversion"], mount: mountBaseConverter },
+  { id: "rule-system", title: "规则系统检验器", group: "logic", summary: "编辑胜负关系，检验一条推论在模型中是否成立。", nodes: ["axiomatic-method"], mount: setupRuleSystem },
+  { id: "set-toolbox", title: "集合工具", group: "sets", summary: "检查成员与包含关系，计算并、交、差、对称差。", nodes: ["sets", "set-operations"], mount: setupSetTool },
+  { id: "quantifier", title: "量词真值检查器", group: "logic", summary: "在有限论域上检查 ∀ 与 ∃ 的真值，给出反例或见证。", nodes: ["predicate-logic"], mount: setupQuantifier },
+  { id: "successor", title: "后继与递归加法器", group: "numbers", summary: "用后继函数逐步展开自然数加法。", nodes: ["peano-axioms", "natural-numbers"], mount: setupSuccessor },
+  { id: "induction", title: "归纳验证器", group: "numbers", summary: "检查基础步、归纳假设与归纳步，并数值核对结论。", nodes: ["mathematical-induction"], mount: setupInduction },
+  { id: "number-line", title: "数轴加减器", group: "numbers", summary: "在数轴上观察正负数加减的移动方向。", nodes: ["integers"], mount: setupNumberLine },
+  { id: "base-converter", title: "任意进制转换", group: "numbers", summary: "2–36 进制互换，支持负数与小数，并展示完整演算。", nodes: ["place-value", "base-conversion"], mount: mountBaseConverter },
   { id: "integer-codes", title: "整数编码器", group: "repr", summary: "任意位宽下查看无符号、原码、反码与补码。", nodes: ["bits-bytes", "unsigned", "twos-complement"], mount: setupIntegerCodes },
   { id: "overflow", title: "定长加法与溢出", group: "repr", summary: "执行定长加法，查看 CF、OF 与位串结果。", nodes: ["overflow"], mount: setupOverflow },
   { id: "boolean", title: "布尔运算与加法器", group: "repr", summary: "查看逻辑运算真值表或一位全加器的和与进位。", nodes: ["boolean-algebra", "logic-gates", "boolean-simplification", "adders"], mount: setupBoolean },
@@ -2302,8 +2302,8 @@ export const TOOLS = [
   { id: "unicode", title: "Unicode 与 UTF-8 编码器", group: "repr", summary: "逐字符查看码点、UTF-16 码元与 UTF-8 字节。", nodes: ["character-codes"], mount: setupUnicode },
   { id: "endianness", title: "字节序查看器", group: "repr", summary: "比较 16/32/64 位整数在大端与小端中的字节排列。", nodes: ["endianness"], mount: setupEndianness },
   { id: "bitwise", title: "位运算器", group: "repr", summary: "在 8/16/32 位下执行与、或、异或、取反与移位。", nodes: ["bitwise-operations"], mount: setupBitwise },
-  { id: "graph-studio", title: "图工具", group: "prog", summary: "自由构造有向/无向、带权图，查看度数、连通性、遍历与最短路。", nodes: ["graph-theory", "graph-representation", "bfs-dfs"], mount: setupGraphStudio },
-  { id: "shortest-path", title: "最短路工具", group: "prog", summary: "编辑带权边表，运行 Dijkstra 并查看距离表与路径。", nodes: ["shortest-paths", "routing"], mount: setupShortestPath },
+  { id: "graph-studio", title: "图工具", group: "graph", summary: "自由构造有向/无向、带权图，查看度数、连通性、遍历与最短路。", nodes: ["graph-theory", "graph-representation", "bfs-dfs"], mount: setupGraphStudio },
+  { id: "shortest-path", title: "最短路工具", group: "graph", summary: "编辑带权边表，运行 Dijkstra 并查看距离表与路径。", nodes: ["shortest-paths", "routing"], mount: setupShortestPath },
   { id: "growth", title: "增长率比较器", group: "prog", summary: "比较 n、n log n、n² 与 2ⁿ 随规模增长的速度。", nodes: ["complexity"], mount: setupGrowth },
   { id: "sorting", title: "排序过程可视化", group: "prog", summary: "输入任意数组，逐步查看冒泡、选择或插入排序。", nodes: ["sorting"], mount: setupSorting },
   { id: "trace", title: "查找与循环追踪器", group: "prog", summary: "逐步执行线性查找、二分查找或循环累加。", nodes: ["algorithm", "control-flow"], mount: setupTrace },
@@ -2315,7 +2315,7 @@ export const TOOLS = [
   { id: "race", title: "竞态与互斥模拟器", group: "os", summary: "比较无锁交错执行与互斥执行的丢失更新。", nodes: ["synchronization", "processes-threads"], mount: setupRace },
   { id: "relational", title: "关系查询工具", group: "data", summary: "在关系表上组合选择、投影与排序条件。", nodes: ["databases"], mount: setupRelational },
   { id: "encapsulation", title: "协议封装查看器", group: "network", summary: "逐步查看应用数据如何加上各层首部并解封装。", nodes: ["networking", "transport-protocols", "application-protocols"], mount: setupEncapsulation },
-  { id: "derivative", title: "函数与导数观察器", group: "math", summary: "比较函数值、精确导数与数值差商，观察切线。", nodes: ["calculus"], mount: setupDerivative },
+  { id: "derivative", title: "函数与导数观察器", group: "calculus", summary: "比较函数值、精确导数与数值差商，观察切线。", nodes: ["calculus"], mount: setupDerivative },
   { id: "gradient", title: "梯度下降观察器", group: "ai", summary: "调整目标、初始值、学习率与迭代次数，观察收敛。", nodes: ["machine-learning"], mount: setupGradient }
 ];
 
