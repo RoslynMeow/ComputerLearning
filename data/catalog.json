@@ -128,7 +128,9 @@
       ],
       "ext": [
         "powers",
-        "modular-arithmetic"
+        "modular-arithmetic",
+        "algorithm",
+        "linear-algebra"
       ]
     },
     {
@@ -143,7 +145,11 @@
         "integers"
       ],
       "ext": [
-        "place-value"
+        "place-value",
+        "logarithms",
+        "floating-point",
+        "calculus",
+        "combinatorics"
       ]
     },
     {
@@ -159,7 +165,8 @@
       ],
       "ext": [
         "base-conversion",
-        "unsigned"
+        "unsigned",
+        "bits-bytes"
       ]
     },
     {
@@ -194,7 +201,10 @@
       "ext": [
         "set-operations",
         "peano-axioms",
-        "graph-theory"
+        "graph-theory",
+        "probability",
+        "combinatorics",
+        "automata"
       ]
     },
     {
@@ -246,7 +256,8 @@
       "ext": [
         "predicate-logic",
         "proofs",
-        "boolean-algebra"
+        "boolean-algebra",
+        "automata"
       ]
     },
     {
@@ -281,7 +292,8 @@
       ],
       "ext": [
         "graph-representation",
-        "routing"
+        "routing",
+        "shortest-paths"
       ]
     },
     {
@@ -296,7 +308,9 @@
         "sets"
       ],
       "ext": [
-        "complexity"
+        "complexity",
+        "machine-learning",
+        "statistics"
       ]
     },
     {
@@ -313,7 +327,12 @@
       "ext": [
         "unsigned",
         "character-codes",
-        "logic-gates"
+        "logic-gates",
+        "arrays",
+        "memory-hierarchy",
+        "bitwise-operations",
+        "floating-point",
+        "endianness"
       ]
     },
     {
@@ -330,7 +349,10 @@
       ],
       "ext": [
         "twos-complement",
-        "overflow"
+        "overflow",
+        "machine-instructions",
+        "bitwise-operations",
+        "endianness"
       ]
     },
     {
@@ -393,7 +415,8 @@
         "propositional-logic"
       ],
       "ext": [
-        "logic-gates"
+        "logic-gates",
+        "boolean-simplification"
       ]
     },
     {
@@ -443,7 +466,8 @@
       "ext": [
         "control-flow",
         "complexity",
-        "arrays"
+        "arrays",
+        "software-testing"
       ]
     },
     {
@@ -459,7 +483,10 @@
       ],
       "ext": [
         "arrays",
-        "recursion"
+        "recursion",
+        "functions-procedures",
+        "processes-threads",
+        "synchronization"
       ]
     },
     {
@@ -476,7 +503,11 @@
       ],
       "ext": [
         "trees",
-        "graph-representation"
+        "graph-representation",
+        "bfs-dfs",
+        "sorting",
+        "hash-tables",
+        "databases"
       ]
     },
     {
@@ -492,7 +523,9 @@
         "proofs"
       ],
       "ext": [
-        "shortest-paths"
+        "shortest-paths",
+        "sorting",
+        "dynamic-programming"
       ]
     },
     {
@@ -507,7 +540,8 @@
         "control-flow"
       ],
       "ext": [
-        "trees"
+        "trees",
+        "dynamic-programming"
       ]
     },
     {
@@ -590,7 +624,9 @@
       ],
       "ext": [
         "cpu-datapath",
-        "operating-systems"
+        "operating-systems",
+        "cpu-pipeline",
+        "compiler"
       ]
     },
     {
@@ -608,7 +644,8 @@
       ],
       "ext": [
         "cpu-pipeline",
-        "memory-hierarchy"
+        "memory-hierarchy",
+        "operating-systems"
       ]
     },
     {
@@ -625,7 +662,8 @@
       ],
       "ext": [
         "virtual-memory",
-        "operating-systems"
+        "operating-systems",
+        "cache"
       ]
     },
     {
@@ -642,7 +680,10 @@
       ],
       "ext": [
         "networking",
-        "synchronization"
+        "synchronization",
+        "processes-threads",
+        "virtual-memory",
+        "filesystems"
       ]
     },
     {
@@ -658,7 +699,10 @@
         "operating-systems"
       ],
       "ext": [
-        "routing"
+        "routing",
+        "transport-protocols",
+        "cybersecurity",
+        "distributed-systems"
       ]
     },
     {
@@ -724,7 +768,9 @@
         "graph-theory",
         "algorithm",
         "compiler",
-        "machine-learning"
+        "machine-learning",
+        "linear-algebra",
+        "calculus"
       ]
     },
     {
@@ -820,7 +866,9 @@
       ],
       "ext": [
         "recursion",
-        "compiler"
+        "compiler",
+        "software-engineering",
+        "version-control"
       ]
     },
     {
@@ -917,7 +965,8 @@
       ],
       "ext": [
         "scheduling",
-        "synchronization"
+        "synchronization",
+        "distributed-systems"
       ]
     },
     {
@@ -1218,7 +1267,8 @@
         "propositional-logic",
         "predicate-logic",
         "proofs",
-        "sets"
+        "sets",
+        "peano-axioms"
       ],
       "contentStatus": "complete",
       "entryPoint": true
@@ -1237,7 +1287,8 @@
       "ext": [
         "proofs",
         "sets",
-        "functions-mappings"
+        "functions-mappings",
+        "peano-axioms"
       ]
     },
     {

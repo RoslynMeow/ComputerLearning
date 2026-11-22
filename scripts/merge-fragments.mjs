@@ -79,5 +79,19 @@ if (!merged.length) {
   process.exit(1);
 }
 
+// 保证「前置 → 扩展」成对出现：每个先修边都补回父节点的 ext。
+const byID = new Map(catalog.nodes.map((n) => [n.id, n]));
+for (const node of catalog.nodes) {
+  for (const parentID of node.pre) {
+    const parent = byID.get(parentID);
+    if (!parent) continue;
+    parent.ext ??= [];
+    if (!parent.ext.includes(node.id)) parent.ext.push(node.id);
+  }
+}
+for (const node of catalog.nodes) {
+  node.ext = [...new Set(node.ext)].filter((id) => byID.has(id) && id !== node.id);
+}
+
 fs.writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`, "utf8");
 console.log(`已合并 ${merged.length} 个知识点：${merged.join(", ")}`);

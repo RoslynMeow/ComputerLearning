@@ -433,6 +433,12 @@
       zoom=mobileLayout?1:1.5;panX=0;panY=0;applyTransform();
       mapScroll.scrollLeft=0;mapScroll.scrollTop=0;
     }
+    function extensionIds(id){
+      const node=nodeById[id];
+      if(!node)return [];
+      const children=nodes.filter(other=>other.pre.includes(id)).map(other=>other.id);
+      return [...new Set([...(node.ext??[]),...children])].filter(target=>target!==id&&nodeById[target]);
+    }
     function calculateRanks(){
       const ranks={};
       function rank(id,visiting=new Set()){
@@ -481,7 +487,7 @@
       if(!graph3D)return;
       const vb=svg.viewBox.baseVal;
       graph3D.updateData({nodes,edges,groupMeta,ranks:calculateRanks(),layoutWidth:vb.width,layoutHeight:vb.height});
-      if(selected){const n=nodeById[selected];graph3D.setSelection(selected,n.pre,n.ext);}
+      if(selected){const n=nodeById[selected];graph3D.setSelection(selected,n.pre,extensionIds(selected));}
     }
     function ensure3D(){
       const vb=svg.viewBox.baseVal;
@@ -637,17 +643,18 @@
     });
     function applyVisualState() {
       const n=selected?nodeById[selected]:null;
-      if(graph3D)graph3D.setSelection(selected,n?.pre??[],n?.ext??[]);
+      const extIds=selected?extensionIds(selected):[];
+      if(graph3D)graph3D.setSelection(selected,n?.pre??[],selected?extensionIds(selected):[]);
       document.querySelectorAll(".node").forEach(el=>{
         const id=el.dataset.id, item=nodeById[id];
         el.classList.toggle("selected",id===selected);
         el.classList.toggle("hidden-by-filter",filter!=="all"&&item.group!==filter);
-        el.classList.toggle("dimmed",!!n&&id!==selected&&!n.pre.includes(id)&&!n.ext.includes(id));
+        el.classList.toggle("dimmed",!!n&&id!==selected&&!n.pre.includes(id)&&!extIds.includes(id));
         el.classList.toggle("prereq",!!n&&n.pre.includes(id));
-        el.classList.toggle("extension",!!n&&n.ext.includes(id));
+        el.classList.toggle("extension",!!n&&extIds.includes(id));
       });
       document.querySelectorAll(".edge").forEach(el=>{
-        const active=!!n&&((el.dataset.from===selected&&n.ext.includes(el.dataset.to))||(el.dataset.to===selected&&n.pre.includes(el.dataset.from)));
+        const active=!!n&&((el.dataset.from===selected&&extIds.includes(el.dataset.to))||(el.dataset.to===selected&&n.pre.includes(el.dataset.from)));
         el.classList.toggle("active",active);
       });
     }
@@ -1384,7 +1391,7 @@
       document.getElementById("race-run").addEventListener("click",run);document.getElementById("race-mode").addEventListener("change",run);run();
     }
     function renderRelationLab(root,n){
-      const ids=[...n.pre,...n.ext].filter((id,i,a)=>nodeById[id]&&a.indexOf(id)===i);
+      const ids=[...n.pre,...extensionIds(n.id)].filter((id,i,a)=>nodeById[id]&&a.indexOf(id)===i);
       root.innerHTML=`<h3>知识关系探索</h3><p>从「${escapeHTML(n.title)}」沿依赖图继续探索。选择一个相邻知识点可直接打开它的学习页。</p>
         <div class="related-list">${ids.length?ids.map(id=>`<button class="related-button" data-related="${id}">${escapeHTML(nodeById[id].title)}</button>`).join(""):"<span>该节点的专用实验正在规划中。</span>"}</div>`;
       root.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
@@ -1399,8 +1406,8 @@
       body.innerHTML=`<p>${n.summary}</p>
         <div class="section-label">前置知识 · ${n.pre.length}</div>
         <div class="rel-list">${n.pre.length?n.pre.map(id=>chip(id,"pre")).join(""):'<span style="color:#98a5a9;font-size:10px">图谱入口暂无必需前置</span>'}</div>
-        <div class="section-label">扩展知识 · ${n.ext.length}</div>
-        <div class="rel-list">${n.ext.length?n.ext.map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
+        <div class="section-label">扩展知识 · ${extensionIds(n.id).length}</div>
+        <div class="rel-list">${extensionIds(n.id).length?extensionIds(n.id).map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
         <div class="objective"><b>学完你将能够</b><span>${n.goal}</span></div>`;
       body.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>selectNode(b.dataset.jump)));
     }

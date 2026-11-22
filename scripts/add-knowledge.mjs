@@ -139,6 +139,13 @@ if (fs.existsSync(path.join(draftDir, `${args.id}.md`))) {
 }
 
 catalog.nodes.push(node);
+// 反向补全：父节点的扩展关系里加入新知识点，保证图谱双向一致。
+for (const parentID of pre) {
+  const parent = catalog.nodes.find((item) => item.id === parentID);
+  if (!parent) continue;
+  parent.ext ??= [];
+  if (!parent.ext.includes(node.id)) parent.ext.push(node.id);
+}
 catalog.lessonLibrary[args.id] = {
   lead: args.summary,
   sections: [
