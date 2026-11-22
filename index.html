@@ -210,7 +210,8 @@
     .study-head-meta { color:#839399; font-size:10px; }
     .study-body { max-width:1000px; margin:0 auto; padding:30px 34px 60px; }
     .study-content { max-width:none; margin:0; padding:0; }
-    .study-head-title { color:#2c4a52; font-size:14px; font-weight:700; letter-spacing:-.01em; }
+    .study-head-title { display:flex; align-items:baseline; gap:10px; min-width:0; color:#2c4a52; font-size:14px; font-weight:700; letter-spacing:-.01em; }
+    .study-head-sub { max-width:min(58vw,640px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#89999e; font-size:10px; font-weight:400; letter-spacing:0; }
     .lab-group { border:1px solid #e5ece9; border-radius:12px; background:#fbfdfc; margin:10px 0; }
     .lab-group > summary { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; cursor:pointer; list-style:none; }
     .lab-group > summary::-webkit-details-marker { display:none; }
@@ -240,6 +241,7 @@
     .lab-formulas > b { display:block; margin-bottom:4px; color:#4f6b70; font-size:10px; letter-spacing:.08em; }
     .lab-formula { margin:6px 0; overflow-x:auto; overflow-y:hidden; color:#31515a; }
     .lab-formula .katex-display { margin:0; }
+    .lab-card.tool-page-card { margin-top:0; }
     .tool-page-card { position:relative; border-radius:18px; background:#fff; padding:22px 24px; box-shadow:0 18px 45px rgba(28,67,62,.07); overflow:hidden; }
     .tool-page-card::before { content:""; position:absolute; inset:0 0 auto; height:4px; background:linear-gradient(90deg,#168c81,#62b8a9 48%,#8f80cb); }
     .tool-hero { position:relative; display:flex; align-items:center; gap:16px; margin:0 0 18px; padding:18px 20px; border:1px solid #dcece7; border-radius:15px; background:linear-gradient(135deg,#f3fbf8,#f4f8fc 62%,#fbf7ff); overflow:hidden; }
@@ -381,6 +383,7 @@
       .mode-toggle { display:none; }
       .study-view { border-radius:14px; }
       .study-head { padding:10px 12px; }
+      .study-head-sub { max-width:30vw; }
       .study-body { flex-direction:column; gap:14px; padding:16px 14px 40px; }
       .study-lead { font-size:14px; }
       .practice-card,.lab-card { padding:14px; }
@@ -733,9 +736,9 @@
     const workspace=document.querySelector(".workspace"), studyView=document.getElementById("study-view");
     const studyContent=document.getElementById("study-content"), studyMeta=document.getElementById("study-head-meta");
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    function setStudyTitle(title){
-      studyMeta.textContent=title||"";
+    function setStudyTitle(title,summary=""){
       studyMeta.className=title?"study-head-title":"study-head-meta";
+      studyMeta.innerHTML=title?`${escapeHTML(title)}${summary?`<span class="study-head-sub">${escapeHTML(summary)}</span>`:""}`:"";
     }
     function openStudy(mode,id){
       const n=nodeById[id];if(!n)return;
@@ -930,16 +933,13 @@
         button.addEventListener("click",()=>openLab(button.dataset.openTool));
       });
     }
-    function openLab(toolId,backTo=null,backLabel="← 工具列表"){
+    function openLab(toolId){
       const tool=TOOL_BY_ID[toolId];
       if(!tool)return;
       if(is3D)graph3D?.pause();
-      setStudyTitle(tool.title);
+      setStudyTitle(tool.title,tool.summary);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
-      studyContent.innerHTML=`<div class="study-back-row"><button class="back-button" id="lab-back">${backLabel}</button></div>
-        <p class="study-lead">${escapeHTML(tool.summary)}</p>
-        <div class="lab-card tool-page-card" id="lab-single"></div>`;
-      studyContent.querySelector("#lab-back").addEventListener("click",()=>backTo?backTo():renderLabsPage());
+      studyContent.innerHTML=`<div class="lab-card tool-page-card" id="lab-single"></div>`;
       mountTool(toolId,studyContent.querySelector("#lab-single"),{applyMath,standalone:true});
       applyMath(studyContent);
       studyView.scrollTop=0;
