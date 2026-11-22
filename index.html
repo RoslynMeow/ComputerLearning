@@ -695,7 +695,7 @@
         ${s.points?`<ul class="lesson-points">${s.points.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`:""}
         ${s.formula?`<div class="formula">${escapeHTML(s.formula)}</div>`:""}
         ${s.table?renderTable(s.table):""}
-        ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1?"　□":""}</p>`).join("")}</div>`:""}
+        ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
         ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}</section>`).join("");
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
@@ -800,50 +800,42 @@
       else renderRelationLab(root,n);
     }
     function renderAxiomaticLab(root){
-      const cases={
-        evenSum:{
-          title:"两个偶数之和仍是偶数",
-          steps:[
-            {statement:"a,b∈ℤ，且 a、b 都是偶数。",plain:"a 和 b 是整数，并且都能被 2 整除。",reason:"题目给定的前提"},
-            {statement:"∃m,n∈ℤ，使 a=2m、b=2n。",plain:"存在整数 m、n，分别满足 a=2×m、b=2×n。",reason:"偶数的定义"},
-            {statement:"a+b=2m+2n。",plain:"把 a、b 的表示代入 a+b。",reason:"代入前一步的等式"},
-            {statement:"a+b=2(m+n)。",plain:"提取公因数 2，写成 2 乘一个整数。",reason:"分配律"},
-            {statement:"m+n∈ℤ。",plain:"两个整数相加仍是整数。",reason:"整数对加法封闭"},
-            {statement:"令 k=m+n，则 a+b=2k，因此 a+b 是偶数。",plain:"这符合偶数的定义，所以结论成立。",reason:"回到定义，证明目标"}
-          ]
-        },
-        evenSquare:{
-          title:"偶数的平方仍是偶数",
-          steps:[
-            {statement:"n∈ℤ，且 n 是偶数。",plain:"n 是一个整数，而且能被 2 整除。",reason:"题目给定的前提"},
-            {statement:"∃k∈ℤ，使 n=2k。",plain:"存在整数 k，使 n 等于 2×k。",reason:"偶数的定义"},
-            {statement:"n²=(2k)²=4k²=2(2k²)。",plain:"把 n 换成 2×k，再整理乘法。",reason:"代入与代数运算"},
-            {statement:"2k²∈ℤ。",plain:"2×k² 仍然是整数。",reason:"整数对乘法封闭"},
-            {statement:"n²=2(2k²)，所以 n² 是偶数。",plain:"平方结果也符合偶数定义。",reason:"由定义推出结论"}
-          ]
-        }
+      const hands=["石头","剪刀","布"];
+      const ruleSets={
+        standard:{title:"标准规则",beats:{石头:["剪刀"],剪刀:["布"],布:["石头"]}},
+        variant:{title:"变体：石头胜布",beats:{石头:["剪刀","布"],剪刀:["布"],布:[]}}
       };
-      root.innerHTML=`<h3>公理、定义到定理：推导工作台</h3>
-        <p>选择一个命题，逐步查看前提如何通过定义和运算规则推出结论。先读白话说明，再对照数学表达式。</p>
-        <div class="objective"><b>先认符号</b><span>a、b、m、n 是整数变量；ℤ 表示整数集合（Z 源自德语 Zahlen）；∈ 读作“属于”；∃ 读作“存在”；= 表示相等；+ 表示加法；2m 表示 2 乘 m。它们都是有约定含义的简写。</span></div>
-        <div class="lab-controls"><label>命题 <select id="axiom-proof-case"><option value="evenSum">两个偶数之和仍是偶数</option><option value="evenSquare">偶数的平方仍是偶数</option></select></label>
-        <button class="study-button" id="axiom-proof-prev">上一步</button><button class="study-button primary" id="axiom-proof-next">下一步</button>
-        <button class="study-button" id="axiom-proof-reset">重置</button></div>
-        <div class="lab-step" id="axiom-proof-progress"></div><div class="lab-output" id="axiom-proof-result"></div>`;
-      let step=0;
-      const update=()=>{
-        const item=cases[document.getElementById("axiom-proof-case").value];
-        step=Math.min(step,item.steps.length-1);
-        document.getElementById("axiom-proof-progress").innerHTML=item.steps.map((s,i)=>`<span class="lab-token ${i===step?"active":""}">${i+1}</span>`).join("");
-        document.getElementById("axiom-proof-result").innerHTML=`<b>${item.title}</b><table class="lab-table"><thead><tr><th>步骤</th><th>数学表达</th><th>白话说明</th><th>理由</th></tr></thead><tbody>${item.steps.slice(0,step+1).map((s,i)=>`<tr style="${i===step?"background:#f1f8f5":""}"><td>${i+1}</td><td>${escapeHTML(s.statement)}</td><td>${escapeHTML(s.plain)}</td><td>${escapeHTML(s.reason)}</td></tr>`).join("")}</tbody></table>`;
-        document.getElementById("axiom-proof-prev").disabled=step===0;
-        document.getElementById("axiom-proof-next").disabled=step===item.steps.length-1;
+      const judge=(beats,a,b)=>a===b?"平":beats[a].includes(b)?"胜":"负";
+      root.innerHTML=`<h3>规则实验：检验一条推论</h3>
+        <p>选择一组胜负规则，查看九种对局结果，再检验“是否存在一种手势能胜过其余两种”。</p>
+        <div class="lab-controls"><label>规则 <select id="rule-set"><option value="standard">标准规则</option><option value="variant">变体：石头胜布</option></select></label></div>
+        <div id="rule-table"></div>
+        <div class="lab-controls"><button class="study-button primary" id="rule-check">检验推论</button></div>
+        <div class="lab-output" id="rule-result"></div>`;
+      const renderTable=()=>{
+        const key=document.getElementById("rule-set").value,beats=ruleSets[key].beats;
+        document.getElementById("rule-table").innerHTML=`<figure class="lesson-fig"><table class="lesson-table"><caption>表：${ruleSets[key].title}（行为出手方，列为对方）</caption>
+          <thead><tr><th>出手方＼对方</th>${hands.map(h=>`<th>${h}</th>`).join("")}</tr></thead>
+          <tbody>${hands.map(a=>`<tr><th>${a}</th>${hands.map(b=>`<td>${judge(beats,a,b)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
+        document.getElementById("rule-result").textContent="";
       };
-      document.getElementById("axiom-proof-case").addEventListener("change",()=>{step=0;update();});
-      document.getElementById("axiom-proof-prev").addEventListener("click",()=>{step=Math.max(0,step-1);update();});
-      document.getElementById("axiom-proof-next").addEventListener("click",()=>{const max=cases[document.getElementById("axiom-proof-case").value].steps.length-1;step=Math.min(max,step+1);update();});
-      document.getElementById("axiom-proof-reset").addEventListener("click",()=>{step=0;update();});
-      update();
+      const check=()=>{
+        const key=document.getElementById("rule-set").value,beats=ruleSets[key].beats;
+        const rows=hands.map(a=>{
+          const others=hands.filter(b=>b!==a);
+          const wins=others.filter(b=>beats[a].includes(b));
+          const loses=others.filter(b=>beats[b].includes(a));
+          return {hand:a,others,wins,loses,all:wins.length===others.length};
+        });
+        const all=rows.filter(r=>r.all);
+        const lines=rows.map(r=>`${r.hand}：胜 ${r.wins.join("、")||"无"}；负于 ${r.loses.join("、")||"无"} → ${r.all?"能胜过其余全部":"不能胜过其余全部"}`);
+        document.getElementById("rule-result").innerHTML=`<b>${ruleSets[key].title}</b><br>${lines.join("<br>")}<br><br>`+
+          (all.length?`结论：存在能胜过其余全部手势的手势——<b>${all.map(r=>r.hand).join("、")}</b>。`
+                       :`结论：<b>不存在</b>能胜过其余全部手势的手势。逐一检查三种情形后，定理成立。`);
+      };
+      document.getElementById("rule-set").addEventListener("change",renderTable);
+      document.getElementById("rule-check").addEventListener("click",check);
+      renderTable();
     }
     function renderMembershipLab(root){
       root.innerHTML=`<h3>成员关系与子集检查</h3><p>输入有限集合 A、B 和元素 x，观察 x∈A 与 A⊆B 的定义如何逐项检查。</p>
