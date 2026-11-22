@@ -210,7 +210,26 @@
     .back-button { border:1px solid #e0e9e6; background:#fff; border-radius:9px; padding:8px 11px; color:#5e747c; font-size:11px; cursor:pointer; }
     .back-button:hover { border-color:#a8d0c5; color:#16877e; }
     .study-head-meta { color:#839399; font-size:10px; }
-    .study-content { max-width:980px; margin:0 auto; padding:36px 34px 60px; }
+    .study-body { display:flex; gap:26px; max-width:1220px; margin:0 auto; padding:30px 32px 60px; align-items:flex-start; }
+    .study-content { flex:1; min-width:0; max-width:none; margin:0; padding:0; }
+    .study-aside {
+      position:sticky; top:74px; flex:0 0 244px; width:244px;
+      border:1px solid #e4ecea; border-radius:14px; background:#fbfdfc;
+      padding:16px 16px 14px; box-shadow:0 6px 20px rgba(35,66,72,.05);
+    }
+    .study-aside[hidden] { display:none; }
+    .aside-kicker { color:#16877e; font-size:9px; font-weight:800; letter-spacing:.12em; }
+    .aside-title { margin:7px 0 3px; font-size:18px; line-height:1.4; letter-spacing:-.02em; }
+    .aside-en { color:#93a2a8; font-size:10px; }
+    .aside-list { margin:14px 0 0; padding:0; }
+    .aside-list > div { display:flex; gap:8px; padding:6px 0; border-top:1px solid #eef3f1; font-size:11px; }
+    .aside-list dt { flex:0 0 34px; color:#93a2a8; }
+    .aside-list dd { margin:0; color:#5a707a; line-height:1.6; }
+    .aside-action {
+      margin-top:14px; width:100%; border:1px solid #d9e7e2; border-radius:9px; background:#fff;
+      padding:8px; color:#35736c; font-size:11px; font-weight:650; cursor:pointer;
+    }
+    .aside-action:hover { border-color:#a9d2c6; background:#f1f9f6; }
     .study-kicker { color:#16877e; font-size:10px; font-weight:800; letter-spacing:.12em; }
     .study-title { margin:8px 0 5px; font-size:30px; letter-spacing:-.04em; }
     .study-subtitle { color:#839298; font-size:12px; }
@@ -293,8 +312,8 @@
       .mode-toggle { display:none; }
       .study-view { border-radius:14px; }
       .study-head { padding:10px 12px; }
-      .study-content { padding:25px 17px 45px; }
-      .study-title { font-size:24px; }
+      .study-body { flex-direction:column; gap:14px; padding:16px 14px 40px; }
+      .study-aside { position:static; width:auto; flex:none; order:-1; }
       .study-lead { font-size:14px; }
       .practice-card,.lab-card { padding:14px; }
     }
@@ -377,7 +396,10 @@
         <button class="back-button" id="study-back">← 知识图谱</button>
         <span class="study-head-meta" id="study-head-meta"></span>
       </div>
-      <div class="study-content" id="study-content"></div>
+      <div class="study-body">
+        <div class="study-content" id="study-content"></div>
+        <aside class="study-aside" id="study-aside"></aside>
+      </div>
     </section>
   </main>
   <script type="module">
@@ -642,14 +664,32 @@
     const detail=document.getElementById("detail"), body=document.getElementById("detail-body");
     const workspace=document.querySelector(".workspace"), studyView=document.getElementById("study-view");
     const studyContent=document.getElementById("study-content"), studyMeta=document.getElementById("study-head-meta");
+    const studyAside=document.getElementById("study-aside");
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    function setStudyAside(node,mode){
+      if(!node){studyAside.hidden=true;studyAside.innerHTML="";return;}
+      const modeLabel={lesson:"讲授",exercise:"练习",lab:"实验"}[mode]||"";
+      studyAside.hidden=false;
+      studyAside.innerHTML=`<div class="aside-kicker">${escapeHTML(label[node.group])}</div>
+        <h2 class="aside-title">${escapeHTML(node.title)}</h2>
+        <div class="aside-en">${escapeHTML(node.en)}</div>
+        <dl class="aside-list">
+          <div><dt>教材</dt><dd>${escapeHTML(node.book)}</dd></div>
+          <div><dt>当前</dt><dd>${modeLabel}</dd></div>
+          <div><dt>前置</dt><dd>${node.pre.length?node.pre.map(id=>escapeHTML(nodeById[id]?.title||id)).join("、"):"无"}</dd></div>
+          <div><dt>后续</dt><dd>${node.ext.length?node.ext.map(id=>escapeHTML(nodeById[id]?.title||id)).join("、"):"暂无"}</dd></div>
+        </dl>
+        <button class="aside-action" id="aside-back">返回知识图谱</button>`;
+      studyAside.querySelector("#aside-back").addEventListener("click",backToGraph);
+    }
     function openStudy(mode,id){
       const n=nodeById[id];if(!n)return;
       selected=id;
       if(is3D)graph3D?.pause();
       document.body.classList.toggle("focus-view",mode==="exercise"||mode==="lab");
+      setStudyAside(n,mode);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
-      studyMeta.textContent=`${label[n.group]}  ·  ${n.book}`;
+      studyMeta.textContent="";
       if(mode==="lesson")renderLesson(n);
       else if(mode==="exercise")renderPractice(n);
       else renderLab(n);
@@ -668,6 +708,7 @@
     function activateNav(name){document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav===name));}
     function openOverview(title,meta,html){
       document.body.classList.remove("focus-view");
+      setStudyAside(null);
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
       studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
@@ -718,8 +759,7 @@
         <aside class="pitfall-note"><b>容易混淆</b>${escapeHTML(note.pitfall)}</aside></section>`:"";
       const references=lesson.references?.length?`<section class="lesson-section"><h3>延伸阅读</h3><ul class="reference-list">${lesson.references.map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul></section>`:"";
       const draft=n.contentStatus==="draft"?'<div class="draft-banner">新知识点脚手架 · 正文、例题与专属练习待补充</div>':"";
-      studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 知识点</div>${draft}
-        <h1 class="study-title">${escapeHTML(n.title)}</h1><div class="study-subtitle">${escapeHTML(n.en)} · ${escapeHTML(n.book)}</div>
+      studyContent.innerHTML=`${draft}
         <p class="study-lead">${escapeHTML(lesson.lead)}</p>
         <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${history}${sections}${enrichment}${references}
         <div class="study-cta"><button class="primary" data-study-action="exercise">开始练习</button><button data-study-action="lab">进入交互实验</button>
@@ -740,9 +780,7 @@
     }
     function renderPractice(n){
       const data=exerciseFor(n),questions=data.questions??[data];
-      studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 练习</div>
-        <h1 class="study-title">${escapeHTML(n.title)}：练习</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
-        ${questions.map((q,index)=>{
+      studyContent.innerHTML=`${questions.map((q,index)=>{
           if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
             <div class="study-cta"><button class="study-button primary" data-toggle-answer="${index}" aria-expanded="false">查看答案</button></div>
@@ -779,9 +817,7 @@
       });
     }
     function renderLab(n){
-      studyContent.innerHTML=`<div class="study-kicker">${escapeHTML(label[n.group])} · 交互实验</div>
-        <h1 class="study-title">${escapeHTML(n.title)}：实验台</h1><div class="study-subtitle">${escapeHTML(n.book)}</div>
-        <p class="study-lead">调整参数，先预测结果，再观察规则如何运行。</p><div class="lab-card" id="lab-root"></div>`;
+      studyContent.innerHTML=`<p class="study-lead">调整参数，先预测结果，再观察规则如何运行。</p><div class="lab-card" id="lab-root"></div>`;
       const root=document.getElementById("lab-root");
       if(n.id==="axiomatic-method")renderAxiomaticLab(root);
       else if(n.id==="sets")renderMembershipLab(root);
