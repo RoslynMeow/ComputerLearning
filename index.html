@@ -163,18 +163,16 @@
       transition:transform .25s ease,opacity .22s ease; pointer-events:none;
     }
     .detail.open { transform:translateX(0); opacity:1; pointer-events:auto; }
-    .detail-top { padding:20px 20px 15px; border-bottom:1px solid #edf1ef; }
-    .detail-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+    .detail-toolbar { display:flex; gap:6px; align-items:center; padding:11px 15px; border-bottom:1px solid #edf1ef; }
+    .detail-toolbar .action { flex:1; padding:8px 4px; }
+    .detail-toolbar .detail-close { flex:0 0 auto; padding:0 2px; }
+    .detail-top { padding:16px 20px 15px; border-bottom:1px solid #edf1ef; }
     .detail-close { border:0; background:transparent; color:#91a0a5; font-size:21px; cursor:pointer; line-height:1; }
     .type-label { color:#16877e; font-size:9px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     .detail h2 { margin:6px 0 5px; font-size:20px; letter-spacing:-.035em; }
     .detail-en { color:#9aa7ac; font-size:10px; }
     .book-tag { margin-top:13px; display:inline-flex; gap:7px; align-items:center; color:#6b7f87; background:#f4f7f6; border-radius:7px; padding:6px 8px; font-size:10px; }
-    .detail-tabs { display:flex; gap:17px; padding:0 20px; border-bottom:1px solid #edf1ef; }
-    .detail-tab { position:relative; border:0; background:none; padding:12px 0 10px; color:#98a4a8; font-size:11px; cursor:pointer; }
-    .detail-tab.active { color:#16877e; font-weight:750; }
-    .detail-tab.active:after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background:#168c81; border-radius:2px; }
-    .detail-body { overflow:auto; padding:17px 20px 20px; flex:1; }
+    .detail-body { overflow:auto; padding:17px 20px 22px; flex:1; }
     .detail-body p { margin:0 0 14px; color:#5f737d; font-size:11px; line-height:1.8; }
     .section-label { display:flex; align-items:center; gap:7px; margin:16px 0 8px; color:#89979c; font-size:9px; font-weight:800; letter-spacing:.08em; }
     .rel-list { display:flex; flex-wrap:wrap; gap:6px; }
@@ -185,7 +183,6 @@
     .objective { margin-top:15px; padding:11px 12px; background:#f4f8f6; border-radius:10px; }
     .objective b { display:block; color:#4f6b70; font-size:10px; margin-bottom:5px; }
     .objective span { color:#768b8e; font-size:10px; line-height:1.6; }
-    .action-row { padding:13px 17px 16px; border-top:1px solid #edf1ef; display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:7px; }
     .action {
       border:1px solid #e0e9e7; border-radius:9px; padding:9px 5px; background:#fff; color:#61757e;
       font-size:10px; font-weight:650; cursor:pointer;
@@ -370,24 +367,19 @@
         <div class="graph-tooltip" id="graph-tooltip"></div>
       </div>
       <aside class="detail" id="detail" aria-live="polite">
-        <div class="detail-top">
-          <div class="detail-head">
-            <div><div class="type-label" id="detail-domain"></div><h2 id="detail-title"></h2><div class="detail-en" id="detail-id"></div></div>
-            <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
-          </div>
-          <div class="book-tag"><span>▤</span><span id="detail-book"></span></div>
-        </div>
-        <div class="detail-tabs">
-          <button class="detail-tab active" data-tab="intro">知识介绍</button>
-          <button class="detail-tab" data-tab="exercise">练习</button>
-          <button class="detail-tab" data-tab="lab">交互实验</button>
-        </div>
-        <div class="detail-body" id="detail-body"></div>
-        <div class="action-row">
-          <button class="action primary" data-action="lesson">进入学习 ↗</button>
+        <div class="detail-toolbar">
+          <button class="action primary" data-action="lesson">进入学习</button>
           <button class="action" data-action="exercise">做练习</button>
           <button class="action" data-action="lab">做实验</button>
+          <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
         </div>
+        <div class="detail-top">
+          <div class="type-label" id="detail-domain"></div>
+          <h2 id="detail-title"></h2>
+          <div class="detail-en" id="detail-id"></div>
+          <div class="book-tag"><span>▤</span><span id="detail-book"></span></div>
+        </div>
+        <div class="detail-body" id="detail-body"></div>
       </aside>
       <div class="toast" id="toast"></div>
     </section>
@@ -1387,27 +1379,13 @@
     function renderTab() {
       if(!selected)return;
       const n=nodeById[selected];
-      if(activeTab==="intro") {
-        body.innerHTML=`<p>${n.summary}</p>
-          <div class="section-label">前置知识 · ${n.pre.length}</div>
-          <div class="rel-list">${n.pre.length?n.pre.map(id=>chip(id,"pre")).join(""):'<span style="color:#98a5a9;font-size:10px">图谱入口暂无必需前置</span>'}</div>
-          <div class="section-label">扩展知识 · ${n.ext.length}</div>
-          <div class="rel-list">${n.ext.length?n.ext.map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
-          <div class="objective"><b>学完你将能够</b><span>${n.goal}</span></div>`;
-      } else if(activeTab==="exercise") {
-        body.innerHTML=`<p>完成下面的小练习，检查你是否理解「${n.title}」。</p>
-          <div class="objective"><b>练习 01 · 概念检查</b><span>${n.goal}</span></div>
-          <p style="margin-top:13px">选择“做练习”打开完整练习页，提交答案后会即时得到反馈和解析。</p>
-          <button class="rel-chip" data-open-page="exercise">打开练习页 ↗</button>`;
-      } else {
-        body.innerHTML=`<p>通过动手操作观察「${n.title}」的规则如何影响结果。</p>
-          <div class="objective"><b>实验目标</b><span>调整一个参数，预测结果，再运行实验验证你的猜想。</span></div>
-          <p style="margin-top:13px">选择“做实验”打开交互实验页；部分知识点已有可调整参数的实验，其余节点先提供关系探索。</p>
-          <button class="rel-chip" data-open-page="lab">打开实验台 ↗</button>`;
-      }
+      body.innerHTML=`<p>${n.summary}</p>
+        <div class="section-label">前置知识 · ${n.pre.length}</div>
+        <div class="rel-list">${n.pre.length?n.pre.map(id=>chip(id,"pre")).join(""):'<span style="color:#98a5a9;font-size:10px">图谱入口暂无必需前置</span>'}</div>
+        <div class="section-label">扩展知识 · ${n.ext.length}</div>
+        <div class="rel-list">${n.ext.length?n.ext.map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
+        <div class="objective"><b>学完你将能够</b><span>${n.goal}</span></div>`;
       body.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>selectNode(b.dataset.jump)));
-      body.querySelectorAll("[data-toast]").forEach(b=>b.addEventListener("click",()=>showToast(b.dataset.toast)));
-      body.querySelectorAll("[data-open-page]").forEach(b=>b.addEventListener("click",()=>openStudy(b.dataset.openPage,selected)));
     }
     function selectNode(id) {
       selected=id; activeTab="intro"; const n=nodeById[id];
@@ -1415,11 +1393,9 @@
       document.getElementById("detail-title").textContent=n.title;
       document.getElementById("detail-id").textContent=n.en+"  ·  "+n.id;
       document.getElementById("detail-book").textContent=n.book;
-      document.querySelectorAll(".detail-tab").forEach(t=>t.classList.toggle("active",t.dataset.tab==="intro"));
       detail.classList.add("open"); renderTab(); applyVisualState();scheduleSaveView();
     }
     document.getElementById("close-detail").addEventListener("click",()=>{detail.classList.remove("open");selected=null;applyVisualState();scheduleSaveView();});
-    document.querySelectorAll(".detail-tab").forEach(t=>t.addEventListener("click",()=>{activeTab=t.dataset.tab;document.querySelectorAll(".detail-tab").forEach(x=>x.classList.toggle("active",x===t));renderTab();}));
     document.querySelectorAll(".action").forEach(b=>b.addEventListener("click",()=>openStudy(b.dataset.action,selected)));
     function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove("show"),2200);}
     document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",()=>{
