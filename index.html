@@ -249,7 +249,10 @@
     .practice-prompt { margin:0 0 17px; font-size:16px; line-height:1.7; }
     .answer-option { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; margin:7px 0; border:1px solid #e7eeeb; border-radius:10px; background:#fff; color:#526871; font-size:12px; cursor:pointer; }
     .answer-option:hover { border-color:#b5d8cd; }
-    .written-answer { display:block; width:100%; min-height:120px; resize:vertical; padding:12px; border:1px solid #dfe8e5; border-radius:10px; background:#fff; color:#405862; font-family:inherit; font-size:13px; line-height:1.8; }
+    .answer-panel { margin-top:10px; padding:12px 15px; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f4faf7; color:#3f5c5a; font-size:12.5px; line-height:1.95; }
+    .answer-panel[hidden] { display:none; }
+    body.focus-view .top-links { display:none; }
+
     .answer-option input { accent-color:#168c81; margin-top:1px; }
     .practice-feedback { min-height:24px; margin-top:13px; font-size:12px; line-height:1.7; }
     .lab-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:15px 0; color:#60767d; font-size:12px; }
@@ -638,6 +641,7 @@
       const n=nodeById[id];if(!n)return;
       selected=id;
       if(is3D)graph3D?.pause();
+      document.body.classList.toggle("focus-view",mode==="exercise"||mode==="lab");
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
       studyMeta.textContent=`${label[n.group]}  ·  ${n.book}`;
       if(mode==="lesson")renderLesson(n);
@@ -647,6 +651,7 @@
       scheduleSaveView();
     }
     function backToGraph(){
+      document.body.classList.remove("focus-view");
       studyView.classList.remove("active");workspace.style.display="flex";
       if(is3D)graph3D?.resume();
       document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav==="graph"));
@@ -656,6 +661,7 @@
     document.getElementById("study-back").addEventListener("click",backToGraph);
     function activateNav(name){document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav===name));}
     function openOverview(title,meta,html){
+      document.body.classList.remove("focus-view");
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
       studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
@@ -731,9 +737,8 @@
         ${questions.map((q,index)=>{
           if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
-            <textarea class="written-answer" id="written-answer-${index}" placeholder="在此写出你的解答…"></textarea>
-            <div class="study-cta"><button class="study-button primary" data-show-answer="${index}">查看参考答案</button></div>
-            <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
+            <div class="study-cta"><button class="study-button primary" data-toggle-answer="${index}" aria-expanded="false">查看答案</button></div>
+            <div class="answer-panel" id="practice-feedback-${index}" hidden>${escapeHTML(q.answerText)}</div></div>`;
           const choices=q.choices||q.options.map(text=>({value:text,text}));
           return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
@@ -743,9 +748,12 @@
       questions.forEach((q,index)=>{
         const feedback=document.getElementById(`practice-feedback-${index}`);
         if(q.type==="written"){
-          studyContent.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{
-            feedback.style.color="#526871";
-            feedback.textContent=`参考答案：${q.answerText}`;
+          const button=studyContent.querySelector(`[data-toggle-answer="${index}"]`);
+          button.addEventListener("click",()=>{
+            const open=feedback.hidden;
+            feedback.hidden=!open;
+            button.textContent=open?"隐藏答案":"查看答案";
+            button.setAttribute("aria-expanded",String(open));
           });
           return;
         }
