@@ -50,7 +50,12 @@ for (const file of fs.readdirSync(fragmentDir).filter((f) => f.endsWith(".json")
   }
   const badExercise = exercises.find((q) => q.type !== "written" || !q.prompt || !q.answerText || q.options || q.hint || q.checklist);
   if (badExercise) {
-    problems.push(`${file}: 练习题必须是 type=written，且只含 prompt/notation/answerText`);
+    problems.push(`${file}: 练习题必须是 type=written，且只含 prompt/notation/answerText/answerTable`);
+    continue;
+  }
+  const badAnswerTable = exercises.find((q) => q.answerTable && (!Array.isArray(q.answerTable.head) || !Array.isArray(q.answerTable.rows)));
+  if (badAnswerTable) {
+    problems.push(`${file}: answerTable 需要 head 与 rows 数组`);
     continue;
   }
   if (!data.notes || !data.notes.worked || !data.notes.pitfall) {

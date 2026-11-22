@@ -251,6 +251,8 @@
     .answer-option:hover { border-color:#b5d8cd; }
     .answer-panel { margin-top:10px; padding:12px 15px; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f4faf7; color:#3f5c5a; font-size:12.5px; line-height:1.95; }
     .answer-panel[hidden] { display:none; }
+    .answer-panel .answer-text { margin:0; white-space:pre-line; }
+    .answer-panel .lesson-fig { margin:12px 0 2px; }
     body.focus-view .top-links { display:none; }
 
     .answer-option input { accent-color:#168c81; margin-top:1px; }
@@ -683,6 +685,11 @@
       if(b.dataset.nav==="graph")backToGraph();
       else renderBooksPage();
     }));
+    function lessonTableHTML(t){
+      return `<figure class="lesson-fig"><table class="lesson-table">${t.caption?`<caption>${escapeHTML(t.caption)}</caption>`:""}
+        <thead><tr>${t.head.map(h=>`<th>${escapeHTML(h)}</th>`).join("")}</tr></thead>
+        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHTML(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
+    }
     function renderLesson(n){
       const lesson=lessonLibrary[n.id]||{
         lead:n.summary,
@@ -692,15 +699,12 @@
           {title:"学习目标",body:n.goal}
         ]
       };
-      const renderTable=(t)=>`<figure class="lesson-fig"><table class="lesson-table">${t.caption?`<caption>${escapeHTML(t.caption)}</caption>`:""}
-        <thead><tr>${t.head.map(h=>`<th>${escapeHTML(h)}</th>`).join("")}</tr></thead>
-        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${escapeHTML(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></figure>`;
       const sections=lesson.sections.map(s=>`<section class="lesson-section"><h3>${escapeHTML(s.title)}</h3>
         ${s.body?`<p>${escapeHTML(s.body)}</p>`:""}
         ${s.def?`<div class="def-box"><b>${escapeHTML(s.def.label)}</b><p>${escapeHTML(s.def.text)}</p></div>`:""}
         ${s.points?`<ul class="lesson-points">${s.points.map(x=>`<li>${escapeHTML(x)}</li>`).join("")}</ul>`:""}
         ${s.formula?`<div class="formula">${escapeHTML(s.formula)}</div>`:""}
-        ${s.table?renderTable(s.table):""}
+        ${s.table?lessonTableHTML(s.table):""}
         ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
         ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}</section>`).join("");
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
@@ -738,7 +742,7 @@
           if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
             <div class="study-cta"><button class="study-button primary" data-toggle-answer="${index}" aria-expanded="false">查看答案</button></div>
-            <div class="answer-panel" id="practice-feedback-${index}" hidden>${escapeHTML(q.answerText)}</div></div>`;
+            <div class="answer-panel" id="practice-feedback-${index}" hidden><p class="answer-text">${escapeHTML(q.answerText)}</p>${q.answerTable?lessonTableHTML(q.answerTable):""}</div></div>`;
           const choices=q.choices||q.options.map(text=>({value:text,text}));
           return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
             ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
