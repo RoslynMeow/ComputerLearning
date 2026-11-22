@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="./vendor/katex/katex.min.css" />
   <title>CSLearning · Computer Science Learning</title>
   <style>
     :root {
@@ -239,7 +240,10 @@
     .lesson-section { padding:17px 0; border-top:1px solid #edf1ef; }
     .lesson-section h3 { margin:0 0 9px; font-size:16px; }
     .lesson-section p { margin:7px 0; color:#5d727b; font-size:13px; line-height:1.9; }
-    .lesson-section .formula { display:inline-block; margin:7px 0; padding:11px 15px; border-radius:9px; background:#f4f8f6; color:#315a5a; font-family:Georgia,serif; font-size:17px; }
+    .lesson-section .formula { display:inline-block; margin:7px 0; padding:11px 15px; border-radius:9px; background:#f4f8f6; color:#315a5a; font-family:Georgia,serif; font-size:17px; max-width:100%; overflow-x:auto; }
+    .formula .katex-display { margin:0; }
+    .katex { font-size:1.02em; }
+    .katex-display { margin:6px 0; }
     .lesson-points { margin:9px 0; padding-left:21px; color:#5d727b; font-size:13px; line-height:1.9; }
     .def-box { margin:12px 0; padding:12px 15px; border:1px solid #dce8e3; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f7fbf9; }
     .def-box b { display:block; margin-bottom:5px; color:#1a6f66; font-size:12px; letter-spacing:.02em; }
@@ -397,6 +401,7 @@
   </main>
   <script type="module">
     import { KnowledgeGraph3D } from "./src/graph3d.js";
+    import katex from "./vendor/katex/katex.js";
     const catalog = await fetch("./data/catalog.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("无法载入知识图谱数据");return r.json();});
     const {nodes,groupMeta,lessonLibrary,lessonNotes,exerciseBank}=catalog;
     const edges = [];
@@ -694,7 +699,7 @@
       document.body.classList.remove("focus-view");
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
       studyMeta.className="study-head-meta";
-      studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;
+      studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;applyMath(studyContent);
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
       scheduleSaveView();
     }
@@ -715,6 +720,25 @@
       else if(b.dataset.nav==="labs")renderLabsPage();
       else renderBooksPage();
     }));
+    function applyMath(root){
+      if(!root) return;
+      const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+      const targets=[];
+      while(walker.nextNode()){const t=walker.currentNode;if(t.nodeValue&&t.nodeValue.includes("$"))targets.push(t);}
+      for(const node of targets){
+        const text=node.nodeValue;
+        const html=text.replace(/\$\$([^$]+)\$\$|\$([^$]+)\$/g,(whole,display,inline)=>{
+          const expr=(display??inline).trim();
+          try{return katex.renderToString(expr,{throwOnError:false,displayMode:!!display,strict:false});}
+          catch{return whole;}
+        });
+        if(html!==text){
+          const span=document.createElement("span");
+          span.innerHTML=html;
+          node.replaceWith(span);
+        }
+      }
+    }
     function lessonTableHTML(t){
       return `<figure class="lesson-fig"><table class="lesson-table">${t.caption?`<caption>${escapeHTML(t.caption)}</caption>`:""}
         <thead><tr>${t.head.map(h=>`<th>${escapeHTML(h)}</th>`).join("")}</tr></thead>
@@ -754,6 +778,7 @@
       bindPractice(studyContent,n);
       studyContent.querySelectorAll("[data-inline-lab]").forEach(host=>{if(hasLab(host.dataset.inlineLab))renderLabInto(host.dataset.inlineLab,host);});
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
+      applyMath(studyContent);
     }
     function exerciseFor(n){
       if(exerciseBank[n.id])return {...exerciseBank[n.id],multi:exerciseBank[n.id].multi??false};
@@ -791,6 +816,7 @@
           button.addEventListener("click",()=>{
             const open=feedback.hidden;
             feedback.hidden=!open;
+            if(open)applyMath(feedback);
             button.textContent=open?"隐藏答案":"查看答案";
             button.setAttribute("aria-expanded",String(open));
           });
@@ -867,6 +893,7 @@
         <div class="lab-card" id="lab-single"></div>`;
       studyContent.querySelector("#lab-back").addEventListener("click",()=>renderLabsPage());
       renderLabInto(id,studyContent.querySelector("#lab-single"));
+      applyMath(studyContent);
       studyView.scrollTop=0;
       scheduleSaveView();
     }
@@ -1413,6 +1440,7 @@
         <div class="rel-list">${extensionIds(n.id).length?extensionIds(n.id).map(id=>chip(id,"ext")).join(""):'<span style="color:#98a5a9;font-size:10px">后续知识点正在规划</span>'}</div>
         <div class="objective"><b>学完你将能够</b><span>${n.goal}</span></div>`;
       body.querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>selectNode(b.dataset.jump)));
+      applyMath(body);
     }
     function selectNode(id) {
       selected=id; activeTab="intro"; const n=nodeById[id];
