@@ -6,7 +6,7 @@
   "description": "CSLearning 知识图谱教材（静态站，无需后端）",
   "scripts": {
     "dev": "vite --port 5180",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-runtime-assets.mjs",
     "preview": "vite preview --port 5181"
   },
   "devDependencies": {

@@ -36,6 +36,16 @@ npm run preview   # 预览构建结果，http://localhost:5181
 - 新增知识点：`docs/ADD_KNOWLEDGE.md`，使用 `scripts/add-knowledge.mjs`
 - 分片合并：把片段放入 `content/fragments/`，运行 `node scripts/merge-fragments.mjs`
 
+## 部署（GitHub Pages）
+
+站点发布地址：<https://roslynmeow.github.io/ComputerLearning/>
+
+部署由 `.github/workflows/deploy-pages.yml` 负责，**只在推送到 `main` 时触发**；推送到 `dev` 不会部署。
+
+流程：`main` 更新 → `npm ci` → `npm run build`（输出 `dist/`，并复制 `data/`、`drafts/`）→ 发布到 Pages。
+
+构建使用相对路径（`vite.config.js` 中 `base: "./"`），因此可以部署在 `/ComputerLearning/` 这类子路径下。
+
 ## 分支
 
-`main` 只保存初始说明；开发在 `dev` 进行。
+`main` 为发布分支，`dev` 为开发分支；功能完成后由维护者决定是否合并到 `main`。
