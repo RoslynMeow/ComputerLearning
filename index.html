@@ -207,26 +207,17 @@
     .back-button { border:1px solid #e0e9e6; background:#fff; border-radius:9px; padding:8px 11px; color:#5e747c; font-size:11px; cursor:pointer; }
     .back-button:hover { border-color:#a8d0c5; color:#16877e; }
     .study-head-meta { color:#839399; font-size:10px; }
-    .study-body { display:flex; gap:26px; max-width:1220px; margin:0 auto; padding:30px 32px 60px; align-items:flex-start; }
-    .study-content { flex:1; min-width:0; max-width:none; margin:0; padding:0; }
-    .study-aside {
-      position:sticky; top:74px; flex:0 0 244px; width:244px;
-      border:1px solid #e4ecea; border-radius:14px; background:#fbfdfc;
-      padding:16px 16px 14px; box-shadow:0 6px 20px rgba(35,66,72,.05);
-    }
-    .study-aside[hidden] { display:none; }
-    .aside-kicker { color:#16877e; font-size:9px; font-weight:800; letter-spacing:.12em; }
-    .aside-title { margin:7px 0 3px; font-size:18px; line-height:1.4; letter-spacing:-.02em; }
-    .aside-en { color:#93a2a8; font-size:10px; }
-    .aside-list { margin:14px 0 0; padding:0; }
-    .aside-list > div { display:flex; gap:8px; padding:6px 0; border-top:1px solid #eef3f1; font-size:11px; }
-    .aside-list dt { flex:0 0 34px; color:#93a2a8; }
-    .aside-list dd { margin:0; color:#5a707a; line-height:1.6; }
-    .aside-action {
-      margin-top:14px; width:100%; border:1px solid #d9e7e2; border-radius:9px; background:#fff;
-      padding:8px; color:#35736c; font-size:11px; font-weight:650; cursor:pointer;
-    }
-    .aside-action:hover { border-color:#a9d2c6; background:#f1f9f6; }
+    .study-body { max-width:1000px; margin:0 auto; padding:30px 34px 60px; }
+    .study-content { max-width:none; margin:0; padding:0; }
+    .study-head-title { color:#2c4a52; font-size:14px; font-weight:700; letter-spacing:-.01em; }
+    .lab-list { display:flex; flex-direction:column; gap:8px; }
+    .lab-item { border:1px solid #e5ece9; border-radius:11px; background:#fbfdfc; overflow:hidden; }
+    .lab-toggle { display:flex; flex-direction:column; gap:3px; width:100%; text-align:left; border:0; background:transparent; padding:12px 14px; cursor:pointer; }
+    .lab-toggle span { color:#2f4e56; font-size:13px; font-weight:650; }
+    .lab-toggle small { color:#8d9ea4; font-size:10px; }
+    .lab-toggle:hover { background:#f3faf7; }
+    .lab-toggle.open { border-bottom:1px solid #eef3f1; background:#f3faf7; }
+    .lab-host { padding:14px; }
     .study-kicker { color:#16877e; font-size:10px; font-weight:800; letter-spacing:.12em; }
     .study-title { margin:8px 0 5px; font-size:30px; letter-spacing:-.04em; }
     .study-subtitle { color:#839298; font-size:12px; }
@@ -310,7 +301,6 @@
       .study-view { border-radius:14px; }
       .study-head { padding:10px 12px; }
       .study-body { flex-direction:column; gap:14px; padding:16px 14px 40px; }
-      .study-aside { position:static; width:auto; flex:none; order:-1; }
       .study-lead { font-size:14px; }
       .practice-card,.lab-card { padding:14px; }
     }
@@ -324,6 +314,7 @@
     <nav class="top-links">
       <button class="top-link active" data-nav="graph">知识图谱</button>
       <button class="top-link" data-nav="books">教材</button>
+      <button class="top-link" data-nav="labs">实验</button>
     </nav>
     <div class="top-spacer"></div>
     <label class="search"><span>⌕</span><input id="search" placeholder="搜索知识点…" autocomplete="off" /><kbd>/</kbd></label>
@@ -369,8 +360,6 @@
       <aside class="detail" id="detail" aria-live="polite">
         <div class="detail-toolbar">
           <button class="action primary" data-action="lesson">进入学习</button>
-          <button class="action" data-action="exercise">做练习</button>
-          <button class="action" data-action="lab">做实验</button>
           <button class="detail-close" id="close-detail" aria-label="关闭">×</button>
         </div>
         <div class="detail-top">
@@ -390,7 +379,6 @@
       </div>
       <div class="study-body">
         <div class="study-content" id="study-content"></div>
-        <aside class="study-aside" id="study-aside"></aside>
       </div>
     </section>
   </main>
@@ -656,35 +644,19 @@
     const detail=document.getElementById("detail"), body=document.getElementById("detail-body");
     const workspace=document.querySelector(".workspace"), studyView=document.getElementById("study-view");
     const studyContent=document.getElementById("study-content"), studyMeta=document.getElementById("study-head-meta");
-    const studyAside=document.getElementById("study-aside");
     const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    function setStudyAside(node,mode){
-      if(!node){studyAside.hidden=true;studyAside.innerHTML="";return;}
-      const modeLabel={lesson:"讲授",exercise:"练习",lab:"实验"}[mode]||"";
-      studyAside.hidden=false;
-      studyAside.innerHTML=`<div class="aside-kicker">${escapeHTML(label[node.group])}</div>
-        <h2 class="aside-title">${escapeHTML(node.title)}</h2>
-        <div class="aside-en">${escapeHTML(node.en)}</div>
-        <dl class="aside-list">
-          <div><dt>教材</dt><dd>${escapeHTML(node.book)}</dd></div>
-          <div><dt>当前</dt><dd>${modeLabel}</dd></div>
-          <div><dt>前置</dt><dd>${node.pre.length?node.pre.map(id=>escapeHTML(nodeById[id]?.title||id)).join("、"):"无"}</dd></div>
-          <div><dt>后续</dt><dd>${node.ext.length?node.ext.map(id=>escapeHTML(nodeById[id]?.title||id)).join("、"):"暂无"}</dd></div>
-        </dl>
-        <button class="aside-action" id="aside-back">返回知识图谱</button>`;
-      studyAside.querySelector("#aside-back").addEventListener("click",backToGraph);
+    function setStudyTitle(title){
+      studyMeta.textContent=title||"";
+      studyMeta.className=title?"study-head-title":"study-head-meta";
     }
     function openStudy(mode,id){
       const n=nodeById[id];if(!n)return;
       selected=id;
       if(is3D)graph3D?.pause();
-      document.body.classList.toggle("focus-view",mode==="exercise"||mode==="lab");
-      setStudyAside(n,mode);
+      document.body.classList.remove("focus-view");
+      setStudyTitle(n.title);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
-      studyMeta.textContent="";
-      if(mode==="lesson")renderLesson(n);
-      else if(mode==="exercise")renderPractice(n);
-      else renderLab(n);
+      renderLesson(n);
       studyView.scrollTop=0;
       scheduleSaveView();
     }
@@ -700,8 +672,8 @@
     function activateNav(name){document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav===name));}
     function openOverview(title,meta,html){
       document.body.classList.remove("focus-view");
-      setStudyAside(null);
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
+      studyMeta.className="study-head-meta";
       studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
       scheduleSaveView();
@@ -720,6 +692,7 @@
     document.querySelectorAll(".top-link").forEach(b=>b.addEventListener("click",()=>{
       activateNav(b.dataset.nav);
       if(b.dataset.nav==="graph")backToGraph();
+      else if(b.dataset.nav==="labs")renderLabsPage();
       else renderBooksPage();
     }));
     function lessonTableHTML(t){
@@ -743,7 +716,8 @@
         ${s.formula?`<div class="formula">${escapeHTML(s.formula)}</div>`:""}
         ${s.table?lessonTableHTML(s.table):""}
         ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
-        ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}</section>`).join("");
+        ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}
+        ${s.experiment?`<div class="lab-card lesson-embed"><div data-inline-lab="${escapeHTML(s.experiment)}"></div></div>`:""}</section>`).join("");
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
       const enrichment=note?`<section class="lesson-section"><h3>例子与易错点</h3>
@@ -754,10 +728,11 @@
       studyContent.innerHTML=`${draft}
         <p class="study-lead">${escapeHTML(lesson.lead)}</p>
         <div class="study-goal"><b>学习目标</b>　${escapeHTML(n.goal)}</div>${history}${sections}${enrichment}${references}
-        <div class="study-cta"><button class="primary" data-study-action="exercise">开始练习</button><button data-study-action="lab">进入交互实验</button>
-        ${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
+        <section class="lesson-section" id="lesson-practice"><h3>练习</h3>${practiceHTML(n)}</section>
+        <div class="study-cta">${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
         ${n.pre.map(id=>`<button data-related="${id}">先学：${escapeHTML(nodeById[id]?.title||id)}</button>`).join("")}</div>`;
-      studyContent.querySelectorAll("[data-study-action]").forEach(b=>b.addEventListener("click",()=>openStudy(b.dataset.studyAction,n.id)));
+      bindPractice(studyContent,n);
+      studyContent.querySelectorAll("[data-inline-lab]").forEach(host=>{if(hasLab(host.dataset.inlineLab))renderLabInto(host.dataset.inlineLab,host);});
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
     }
     function exerciseFor(n){
@@ -770,23 +745,29 @@
       const choices=Object.entries(label).map(([value,text])=>({value,text}));
       return {prompt:`「${n.title}」属于哪个知识域？`,choices,answer:[n.group],explanation:`它属于「${label[n.group]}」。`,multi:false};
     }
-    function renderPractice(n){
-      const data=exerciseFor(n),questions=data.questions??[data];
-      studyContent.innerHTML=`${questions.map((q,index)=>{
-          if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
-            ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
-            <div class="study-cta"><button class="study-button primary" data-toggle-answer="${index}" aria-expanded="false">查看答案</button></div>
-            <div class="answer-panel" id="practice-feedback-${index}" hidden><p class="answer-text">${escapeHTML(q.answerText)}</p>${q.answerTable?lessonTableHTML(q.answerTable):""}</div></div>`;
-          const choices=q.choices||q.options.map(text=>({value:text,text}));
-          return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
-            ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
-            <div class="study-cta"><button class="study-button primary" data-check-answer="${index}">检查答案</button><button class="study-button" data-show-answer="${index}">查看解析</button></div>
-            <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
-        }).join("")}`;
-      questions.forEach((q,index)=>{
-        const feedback=document.getElementById(`practice-feedback-${index}`);
+    function practiceQuestions(n){
+      const data=exerciseFor(n);
+      return data.questions??[data];
+    }
+    function practiceHTML(n){
+      return practiceQuestions(n).map((q,index)=>{
+        if(q.type==="written")return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
+          ${q.notation?`<div class="objective"><b>记号说明</b><span>${escapeHTML(q.notation)}</span></div>`:""}
+          <div class="study-cta"><button class="study-button primary" data-toggle-answer="${index}" aria-expanded="false">查看答案</button></div>
+          <div class="answer-panel" id="practice-feedback-${index}" hidden><p class="answer-text">${escapeHTML(q.answerText)}</p>${q.answerTable?lessonTableHTML(q.answerTable):""}</div></div>`;
+        const choices=q.choices||q.options.map(text=>({value:text,text}));
+        return `<div class="practice-card"><h2 class="practice-prompt">${index+1}. ${escapeHTML(q.prompt)}</h2>
+          ${choices.map((o,i)=>`<label class="answer-option"><input type="${q.multi?"checkbox":"radio"}" name="practice-answer-${index}" value="${escapeHTML(o.value)}"><span>${String.fromCharCode(65+i)}. ${escapeHTML(o.text)}</span></label>`).join("")}
+          <div class="study-cta"><button class="study-button primary" data-check-answer="${index}">检查答案</button><button class="study-button" data-show-answer="${index}">查看解析</button></div>
+          <div class="practice-feedback" id="practice-feedback-${index}" aria-live="polite"></div></div>`;
+      }).join("");
+    }
+    function bindPractice(container,n){
+      practiceQuestions(n).forEach((q,index)=>{
+        const feedback=container.querySelector(`#practice-feedback-${index}`);
+        if(!feedback)return;
         if(q.type==="written"){
-          const button=studyContent.querySelector(`[data-toggle-answer="${index}"]`);
+          const button=container.querySelector(`[data-toggle-answer="${index}"]`);
           button.addEventListener("click",()=>{
             const open=feedback.hidden;
             feedback.hidden=!open;
@@ -796,52 +777,69 @@
           return;
         }
         const choices=q.choices||q.options.map(text=>({value:text,text}));
-        studyContent.querySelector(`[data-check-answer="${index}"]`).addEventListener("click",()=>{
-          const selected=[...studyContent.querySelectorAll(`input[name="practice-answer-${index}"]:checked`)].map(x=>x.value).sort();
+        container.querySelector(`[data-check-answer="${index}"]`).addEventListener("click",()=>{
+          const selected=[...container.querySelectorAll(`input[name="practice-answer-${index}"]:checked`)].map(x=>x.value).sort();
           const answer=[...q.answer].sort(),correct=selected.length===answer.length&&selected.every((v,i)=>v===answer[i]);
           feedback.style.color=correct?"#16806f":"#b06a43";
-          feedback.textContent=correct?`回答正确。${q.explanation}`:`还不完全正确，再想一想。${q.multi?"请同时选出所有正确项。":"可以查看解析获得提示。"}`;
+          feedback.textContent=correct?`回答正确。${q.explanation}`:`还不完全正确，再想一想。${q.multi?"请同时选出所有正确项。":"可以参考答案。"}`;
         });
-        studyContent.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{
+        container.querySelector(`[data-show-answer="${index}"]`).addEventListener("click",()=>{
           feedback.style.color="#60767d";
           feedback.textContent=`参考答案：${q.answer.map(x=>choices.find(c=>c.value===x)?.text||x).join("、")}。${q.explanation}`;
         });
       });
     }
-    function renderLab(n){
-      studyContent.innerHTML=`<p class="study-lead">调整参数，先预测结果，再观察规则如何运行。</p><div class="lab-card" id="lab-root"></div>`;
-      const root=document.getElementById("lab-root");
-      if(n.id==="axiomatic-method")renderAxiomaticLab(root);
-      else if(n.id==="sets")renderMembershipLab(root);
-      else if(n.id==="set-operations")renderSetLab(root);
-      else if(n.id==="predicate-logic")renderPredicateLab(root);
-      else if(["peano-axioms","natural-numbers"].includes(n.id))renderPeanoLab(root);
-      else if(n.id==="mathematical-induction")renderInductionLab(root);
-      else if(n.id==="integers")renderIntegerLineLab(root);
-      else if(n.id==="overflow")renderOverflowLab(root);
-      else if(["place-value","base-conversion"].includes(n.id))renderConversionLab(root);
-      else if(["bits-bytes","unsigned","twos-complement"].includes(n.id))renderIntegerLab(root,n.id==="twos-complement");
-      else if(n.id==="floating-point")renderFloatLab(root);
-      else if(n.id==="character-codes")renderCharacterLab(root);
-      else if(n.id==="endianness")renderEndiannessLab(root);
-      else if(n.id==="bitwise-operations")renderBitwiseLab(root);
-      else if(["boolean-algebra","logic-gates","boolean-simplification","adders"].includes(n.id))renderLogicLab(root,n.id==="adders");
-      else if(["shortest-paths","routing"].includes(n.id))renderShortestPathLab(root);
-      else if(["graph-theory","graph-representation","bfs-dfs"].includes(n.id))renderGraphLab(root);
-      else if(n.id==="complexity")renderComplexityLab(root);
-      else if(n.id==="calculus")renderCalculusLab(root);
-      else if(n.id==="machine-learning")renderLearningLab(root);
-      else if(n.id==="sorting")renderSortingLab(root);
-      else if(["algorithm","control-flow"].includes(n.id))renderSearchLab(root);
-      else if(n.id==="trees")renderTreeLab(root);
-      else if(n.id==="cache")renderCacheLab(root);
-      else if(n.id==="cpu-pipeline")renderPipelineLab(root);
-      else if(n.id==="scheduling")renderSchedulingLab(root);
-      else if(n.id==="virtual-memory")renderVirtualMemoryLab(root);
-      else if(n.id==="databases")renderDatabaseLab(root);
-      else if(["networking","transport-protocols","application-protocols"].includes(n.id))renderPacketLab(root);
-      else if(["synchronization","processes-threads"].includes(n.id))renderRaceLab(root);
-      else renderRelationLab(root,n);
+    const LAB_IDS=["axiomatic-method","sets","set-operations","predicate-logic","peano-axioms","natural-numbers","mathematical-induction","integers","overflow","place-value","base-conversion","bits-bytes","unsigned","twos-complement","floating-point","character-codes","endianness","bitwise-operations","boolean-algebra","logic-gates","boolean-simplification","adders","shortest-paths","routing","graph-theory","graph-representation","bfs-dfs","complexity","calculus","machine-learning","sorting","algorithm","control-flow","trees","cache","cpu-pipeline","scheduling","virtual-memory","databases","networking","transport-protocols","application-protocols","synchronization","processes-threads"];
+    function hasLab(id){return LAB_IDS.includes(id);}
+    function renderLabInto(id,root){
+      if(id==="axiomatic-method")renderAxiomaticLab(root);
+      else if(id==="sets")renderMembershipLab(root);
+      else if(id==="set-operations")renderSetLab(root);
+      else if(id==="predicate-logic")renderPredicateLab(root);
+      else if(["peano-axioms","natural-numbers"].includes(id))renderPeanoLab(root);
+      else if(id==="mathematical-induction")renderInductionLab(root);
+      else if(id==="integers")renderIntegerLineLab(root);
+      else if(id==="overflow")renderOverflowLab(root);
+      else if(["place-value","base-conversion"].includes(id))renderConversionLab(root);
+      else if(["bits-bytes","unsigned","twos-complement"].includes(id))renderIntegerLab(root,id==="twos-complement");
+      else if(id==="floating-point")renderFloatLab(root);
+      else if(id==="character-codes")renderCharacterLab(root);
+      else if(id==="endianness")renderEndiannessLab(root);
+      else if(id==="bitwise-operations")renderBitwiseLab(root);
+      else if(["boolean-algebra","logic-gates","boolean-simplification","adders"].includes(id))renderLogicLab(root,id==="adders");
+      else if(["shortest-paths","routing"].includes(id))renderShortestPathLab(root);
+      else if(["graph-theory","graph-representation","bfs-dfs"].includes(id))renderGraphLab(root);
+      else if(id==="complexity")renderComplexityLab(root);
+      else if(id==="calculus")renderCalculusLab(root);
+      else if(id==="machine-learning")renderLearningLab(root);
+      else if(id==="sorting")renderSortingLab(root);
+      else if(["algorithm","control-flow"].includes(id))renderSearchLab(root);
+      else if(id==="trees")renderTreeLab(root);
+      else if(id==="cache")renderCacheLab(root);
+      else if(id==="cpu-pipeline")renderPipelineLab(root);
+      else if(id==="scheduling")renderSchedulingLab(root);
+      else if(id==="virtual-memory")renderVirtualMemoryLab(root);
+      else if(id==="databases")renderDatabaseLab(root);
+      else if(["networking","transport-protocols","application-protocols"].includes(id))renderPacketLab(root);
+      else if(["synchronization","processes-threads"].includes(id))renderRaceLab(root);
+      else renderRelationLab(root,nodeById[id]);
+    }
+    function renderLabsPage(){
+      const groups=Object.keys(groupMeta).map(key=>({key,items:catalog.nodes.filter(node=>node.group===key&&hasLab(node.id))})).filter(g=>g.items.length);
+      const cards=groups.map(g=>`<section class="lesson-section"><h3>${escapeHTML(groupMeta[g.key].title)}</h3>
+        <div class="lab-list">${g.items.map(node=>`<div class="lab-item">
+          <button class="lab-toggle" data-lab-toggle="${node.id}"><span>${escapeHTML(node.title)}</span><small>${escapeHTML(node.book)}</small></button>
+          <div class="lab-host" data-lab-host="${node.id}" hidden></div></div>`).join("")}</div></section>`).join("");
+      openOverview("实验",LAB_IDS.length+" 个已注册实验",`<p class="study-lead">下列实验来自各知识点。展开任意一项即可直接操作，作为学习工具使用。</p>${cards}`);
+      studyContent.querySelectorAll("[data-lab-toggle]").forEach(button=>{
+        button.addEventListener("click",()=>{
+          const id=button.dataset.labToggle;
+          const host=studyContent.querySelector(`[data-lab-host="${id}"]`);
+          if(host.hidden&&!host.dataset.mounted){renderLabInto(id,host);host.dataset.mounted="1";}
+          host.hidden=!host.hidden;
+          button.classList.toggle("open",!host.hidden);
+        });
+      });
     }
     function renderAxiomaticLab(root){
       const hands=["石头","剪刀","布"];
