@@ -129,7 +129,7 @@
     .edge.active { stroke:#178f83; stroke-width:2.7; opacity:1; }
     .node { cursor:pointer; transition:opacity .18s, filter .18s, transform .18s; }
     .node rect { fill:#fff; stroke:#dfe8e7; stroke-width:1.3; rx:13; filter:url(#nodeShadow); }
-    .node .node-title { font-size:12px; font-weight:700; fill:#314956; text-anchor:middle; dominant-baseline:middle; pointer-events:none; }
+    .node .node-title { font-size:12px; font-weight:700; fill:#22343a; text-anchor:middle; dominant-baseline:middle; pointer-events:none; }
     .node.pending .node-title { fill:#bf4d3c; }
     .node.pending rect { stroke:#e7c9c3; }
     .node .node-dot { r:3.5; }
@@ -474,6 +474,8 @@
     const color=Object.fromEntries(Object.entries(groupMeta).map(([k,v])=>[k,v.color]));
     const label=Object.fromEntries(Object.entries(groupMeta).map(([k,v])=>[k,v.label]));
     document.getElementById("map-legend").innerHTML=
+      '<span class="legend-item"><i class="legend-dot" style="--c:#314956"></i>已完成</span>'+
+      '<span class="legend-item"><i class="legend-dot" style="--c:#bf4d3c"></i>待补</span>'+
       '<span class="legend-item"><i class="legend-line"></i>必需前置</span>'+
       '<span class="legend-item"><i class="legend-line dashed"></i>扩展关联</span>';
     const nodeById = Object.fromEntries(nodes.map(n=>[n.id,n]));
