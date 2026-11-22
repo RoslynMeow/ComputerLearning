@@ -3,6 +3,17 @@
 
 const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+const GROUP_META = {
+  math: { label: "数学基础", icon: "∑", tone: "math" },
+  repr: { label: "信息表示", icon: "01", tone: "repr" },
+  prog: { label: "编程与算法", icon: "⌘", tone: "prog" },
+  hardware: { label: "处理器与硬件", icon: "▦", tone: "hardware" },
+  os: { label: "操作系统", icon: "◫", tone: "os" },
+  network: { label: "计算机网络", icon: "⇄", tone: "network" },
+  data: { label: "数据库", icon: "▤", tone: "data" },
+  ai: { label: "人工智能", icon: "✦", tone: "ai" }
+};
+
 function esc(value) {
   return String(value).replace(/[&<>"']/g, (ch) => ({
     "&": "&amp;",
@@ -142,6 +153,7 @@ export function mountBaseConverter(root) {
       <button class="study-button" data-bc-preset="2024|10|16">2024₁₀ → 16</button>
     </div>
     <div class="lab-output" id="bc-result"></div>
+    <div id="bc-visual"></div>
     <div id="bc-steps"></div>
     <details class="lab-help"><summary>数码表（10 以上用字母）</summary>
       <p>${DIGITS.split("").map((d, i) => `${i}→${d}`).join("　")}</p>
@@ -151,6 +163,7 @@ export function mountBaseConverter(root) {
   const fromSelect = root.querySelector("#bc-from");
   const toSelect = root.querySelector("#bc-to");
   const result = root.querySelector("#bc-result");
+  const visualBox = root.querySelector("#bc-visual");
   const stepsBox = root.querySelector("#bc-steps");
 
   const update = () => {
@@ -170,6 +183,14 @@ export function mountBaseConverter(root) {
     result.innerHTML = `
       <b>(${esc(raw.trim())})<sub>${from}</sub> = (${esc(converted)})<sub>${to}</sub></b><br>
       十进制值：${esc(decimalText(parsed))}${fracPart.exact ? "" : "（小数部分在所显示位数内未终止）"}`;
+
+    const bitCards = (digits, isFraction = false) => digits.split("").slice(0, 24).map((digit, index) => {
+      const power = isFraction ? -(index + 1) : digits.length - 1 - index;
+      return `<div class="place-card ${to === 2 ? "bit" : ""}"><b>${esc(digit)}</b><small>× ${to}<sup>${power}</sup></small></div>`;
+    }).join("");
+    const signCard = sign ? `<div class="place-card sign"><b>−</b><small>符号</small></div>` : "";
+    visualBox.innerHTML = `<div class="section-label">位权展开</div>
+      <div class="place-strip">${signCard}${bitCards(intPart.digits)}${fracPart.digits ? `<div class="place-dot">.</div>${bitCards(fracPart.digits, true)}` : ""}</div>`;
 
     const intRows = intPart.steps
       .map((s) => `<tr><td>${s.n.toString()}</td><td>÷ ${to}</td><td>${s.q.toString()}</td><td><b>${DIGITS[s.r]}</b></td></tr>`)
@@ -390,8 +411,34 @@ function setupGraphStudio(root) {
     const NS = "http://www.w3.org/2000/svg";
     svg.replaceChildren();
     const defs = document.createElementNS(NS, "defs");
-    defs.innerHTML = '<marker id="gs-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7fa8a1"></path></marker>';
+    defs.innerHTML = '<pattern id="gs-grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M 28 0 L 0 0 0 28" fill="none" stroke="#e9f2ee" stroke-width="1"></path></pattern><marker id="gs-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#7fa8a1"></path></marker>';
     svg.append(defs);
+    const background = document.createElementNS(NS, "rect");
+    background.setAttribute("width", "100%");
+    background.setAttribute("height", "100%");
+    background.setAttribute("fill", "url(#gs-grid)");
+    background.style.pointerEvents = "none";
+    svg.append(background);
+
+    const componentOf = new Map();
+    let componentIndex = 0;
+    for (const vertex of graph.vertices) {
+      if (componentOf.has(vertex.id)) continue;
+      const stack = [vertex.id];
+      componentOf.set(vertex.id, componentIndex);
+      while (stack.length) {
+        const current = stack.pop();
+        for (const edge of graph.edges) {
+          const next = edge.a === current ? edge.b : edge.b === current ? edge.a : null;
+          if (next && !componentOf.has(next)) {
+            componentOf.set(next, componentIndex);
+            stack.push(next);
+          }
+        }
+      }
+      componentIndex += 1;
+    }
+    const palette = ["#e3f4ee", "#e7eefb", "#f0e9fb", "#fbf0df", "#e3f5f7", "#f7e9ef"];
 
     for (const e of graph.edges) {
       const a = vertexById(e.a);
@@ -430,7 +477,7 @@ function setupGraphStudio(root) {
       group.setAttribute("transform", `translate(${v.x},${v.y})`);
       const circle = document.createElementNS(NS, "circle");
       circle.setAttribute("r", "17");
-      circle.setAttribute("fill", v.id === graph.selected ? "#168c81" : "#ffffff");
+      circle.setAttribute("fill", v.id === graph.selected ? "#168c81" : palette[(componentOf.get(v.id) ?? 0) % palette.length]);
       circle.setAttribute("stroke", "#7fa8a1");
       circle.setAttribute("stroke-width", "2");
       circle.dataset.id = v.id;
@@ -625,7 +672,7 @@ function setupGraphStudio(root) {
     refresh();
   });
 
-  root.querySelector("#gs-example").addEventListener("click", () => {
+  const loadExample = () => {
     graph.vertices = [
       { id: "v0", label: "A", x: 140, y: 230 },
       { id: "v1", label: "B", x: 310, y: 105 },
@@ -645,11 +692,12 @@ function setupGraphStudio(root) {
     directedInput.checked = false;
     weightedInput.checked = true;
     refresh();
-  });
+  };
 
+  root.querySelector("#gs-example").addEventListener("click", loadExample);
   directedInput.addEventListener("change", refresh);
   weightedInput.addEventListener("change", refresh);
-  refresh();
+  loadExample();
 }
 
 /* ------------------------------------------------------------------ */
@@ -707,7 +755,7 @@ function setupShortestPath(root) {
     <h3>最短路工具</h3>
     <p>编辑任意带权边表，选择起点和终点，查看 Dijkstra 的距离表与路径。边写作 <code>A-B:4</code>；有向边写作 <code>A-&gt;B:4</code>，勾选“有向”后生效。</p>
     <div class="lab-controls">
-      <label style="flex:1;min-width:320px">边表 <input id="sp-edges" value="A-B:4, A-C:2, C-B:1, B-D:5, C-D:8, C-E:10, D-E:2" style="width:100%"></label>
+      <label style="flex:1;min-width:min(320px,100%)">边表 <input id="sp-edges" value="A-B:4, A-C:2, C-B:1, B-D:5, C-D:8, C-E:10, D-E:2" style="width:100%"></label>
     </div>
     <div class="lab-controls">
       <label><input type="checkbox" id="sp-directed"> 有向图</label>
@@ -1479,7 +1527,7 @@ function setupSorting(root) {
       <label>顺序 <select id="so-order"><option value="asc">升序</option><option value="desc">降序</option></select></label>
       <button class="study-button primary" id="so-start">生成步骤</button>
     </div>
-    <div id="so-bars" style="height:190px;display:flex;align-items:flex-end;gap:9px;padding:12px 4px"></div>
+    <div id="so-bars" style="height:190px;display:flex;align-items:flex-end;justify-content:center;gap:9px;padding:12px 4px"></div>
     <div class="lab-output" id="so-caption"></div>
     <div class="lab-controls">
       <button class="study-button" id="so-prev">上一步</button>
@@ -1545,7 +1593,7 @@ function setupSorting(root) {
     if (!frames.length) return;
     const frame = frames[index];
     const max = Math.max(...frames[0].arr.map(Math.abs), 1);
-    root.querySelector("#so-bars").innerHTML = frame.arr.map((v, i) => `<div style="flex:1;max-width:58px;height:${Math.max(28, 135 * Math.abs(v) / max)}px;border-radius:8px 8px 3px 3px;background:${i === frame.a || i === frame.b ? "#e6a34b" : "#68a8a1"};display:flex;align-items:flex-start;justify-content:center;padding-top:6px;color:#fff;font-weight:750;font-size:12px">${v}</div>`).join("");
+    root.querySelector("#so-bars").innerHTML = frame.arr.map((v, i) => `<div style="flex:1;max-width:58px;height:${Math.max(28, 135 * Math.abs(v) / max)}px;border-radius:8px 8px 3px 3px;background:${i === frame.a || i === frame.b ? "linear-gradient(180deg,#f1c178,#dfa03f)" : "linear-gradient(180deg,#8fd3c4,#4aa696)"};box-shadow:0 6px 14px rgba(28,67,62,.12);display:flex;align-items:flex-start;justify-content:center;padding-top:6px;color:#fff;font-weight:750;font-size:12px">${v}</div>`).join("");
     root.querySelector("#so-caption").textContent = frame.text;
     root.querySelector("#so-counter").textContent = `${index + 1} / ${frames.length}`;
     root.querySelector("#so-step").value = index;
@@ -1658,7 +1706,7 @@ function setupTree(root) {
     <h3>二叉树遍历器</h3>
     <p>按层序输入节点（用 <code>null</code> 或 <code>-</code> 表示空位），选择前序、中序、后序或层序，逐步查看访问顺序。</p>
     <div class="lab-controls">
-      <label style="flex:1;min-width:300px">层序节点 <input id="tree-values" value="A, B, C, D, E, F, G" style="width:100%"></label>
+      <label style="flex:1;min-width:min(300px,100%)">层序节点 <input id="tree-values" value="A, B, C, D, E, F, G" style="width:100%"></label>
       <label>遍历 <select id="tree-order"><option value="pre">前序</option><option value="in">中序</option><option value="post">后序</option><option value="level">层序</option></select></label>
     </div>
     <div class="lab-controls">
@@ -2294,12 +2342,27 @@ export function mountTool(toolId, root, context = {}) {
   root.innerHTML = "";
   tool.mount(root, context);
 
+  if (context.standalone) {
+    const heading = root.querySelector("h3");
+    const intro = heading && heading.nextElementSibling?.tagName === "P" ? heading.nextElementSibling : null;
+    const meta = GROUP_META[tool.group] ?? { label: "互动工具", icon: "◇", tone: "math" };
+    const hero = document.createElement("div");
+    hero.className = `tool-hero tool-hero-${meta.tone}`;
+    hero.innerHTML = `<div class="tool-hero-icon">${esc(meta.icon)}</div>
+      <div class="tool-hero-copy"><div class="tool-eyebrow">互动工具 · ${esc(meta.label)}</div></div>
+      <span class="tool-live"><i></i>实时演算</span>`;
+    const copy = hero.querySelector(".tool-hero-copy");
+    if (heading) copy.append(heading);
+    if (intro) copy.append(intro);
+    root.prepend(hero);
+  }
+
   if (tool.formulas?.length) {
     const formulaBox = document.createElement("div");
     formulaBox.className = "lab-formulas";
     formulaBox.innerHTML = `<b>公式</b>${tool.formulas.map((tex) => `<div class="lab-formula">$$${esc(tex)}$$</div>`).join("")}`;
-    const intro = root.querySelector("p");
-    if (intro) intro.insertAdjacentElement("afterend", formulaBox);
+    const anchor = root.querySelector(".tool-hero") ?? root.querySelector("p");
+    if (anchor) anchor.insertAdjacentElement("afterend", formulaBox);
     else root.prepend(formulaBox);
   }
 
