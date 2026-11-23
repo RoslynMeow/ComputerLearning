@@ -11,6 +11,8 @@ npm run dev      # 默认 http://localhost:5180
 
 `npm run dev` 使用 Vite 开发服务器，修改 `index.html`、`data/catalog.json` 或 `src/` 后页面自动刷新。
 
+页面支持 hash 深链接，例如 `#lesson/graph-theory`、`#tool/base-converter`、`#experiments`；刷新或分享链接会恢复到对应页面。
+
 端口说明：本项目固定使用 5180。此前占用 4173 的是另一个项目（`CorrelationAnalyze` 的 vite preview），与本项目同时运行会导致打开错误站点，已停止；如仍需要那个项目，请给它换一个端口。
 
 其他脚本：
@@ -18,6 +20,7 @@ npm run dev      # 默认 http://localhost:5180
 ```powershell
 npm run build     # 输出到 dist/
 npm run preview   # 预览构建结果，http://localhost:5181
+npm run check     # 校验实验注册表、知识点覆盖、数学与编号引用
 ```
 
 不要直接用 `file://` 打开 `index.html`：页面通过 HTTP 读取 JSON，且使用 ES 模块。
@@ -34,7 +37,8 @@ npm run preview   # 预览构建结果，http://localhost:5181
 
 - 教材正文规范：`docs/LESSON_SPEC.md`
 - 新增知识点：`docs/ADD_KNOWLEDGE.md`，使用 `scripts/add-knowledge.mjs`
-- 通用工具（原实验）：注册在 `src/tools.js` 的 `TOOLS`，一个工具可服务多个知识点
+- 教材实验：按知识域注册在 `src/experiments/`，由 `src/experiments.js` 汇总；每个实验只服务一个知识点
+- 通用工具：注册在 `src/tools.js` 的 `TOOLS`，按功能类目组织，可自由探索；实验通过 `toolLinks` 引用相关工具
 - 分片合并：把片段放入 `content/fragments/`，运行 `node scripts/merge-fragments.mjs`
 
 ## 部署（GitHub Pages）

@@ -21,7 +21,7 @@ export function shell(experiment, body) {
   return `<div class="experiment-shell">
     <div class="experiment-head"><span class="experiment-badge">实验</span><b>${esc(experiment.title)}</b><p>${esc(experiment.summary)}</p></div>
     ${body}
-    <div class="experiment-footer"><span>想自己改条件、看意外结果？</span>${tools}</div>
+    ${tools ? `<div class="experiment-footer"><span>想自己改条件、看意外结果？</span>${tools}</div>` : ""}
   </div>`;
 }
 

@@ -2,6 +2,7 @@
 // 教材通过 src/experiments.js 中的小实验引用相关工具，不直接内嵌完整工具。
 
 const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
+const DEFAULT_ALPHABET = Array.from(DIGITS);
 
 
 
@@ -34,8 +35,16 @@ function setText(values) {
   return list.length ? `{${list.map(esc).join(", ")}}` : "∅";
 }
 
-function digitValue(ch, base = 36) {
-  return base <= 36 ? DIGITS.indexOf(String(ch).toUpperCase()) : DIGITS.indexOf(String(ch));
+function digitValue(ch, base = 36, alphabet = DEFAULT_ALPHABET) {
+  const exact = alphabet.indexOf(String(ch));
+  if (exact >= 0 && exact < base) return exact;
+  if (base <= 36) {
+    const upper = alphabet.indexOf(String(ch).toUpperCase());
+    if (upper >= 0 && upper < base) return upper;
+    const lower = alphabet.indexOf(String(ch).toLowerCase());
+    if (lower >= 0 && lower < base) return lower;
+  }
+  return -1;
 }
 
 function table(head, rows, caption = "") {
@@ -48,7 +57,7 @@ function table(head, rows, caption = "") {
 /* 1. 任意进制转换                                                     */
 /* ------------------------------------------------------------------ */
 
-function parseBaseValue(text, base) {
+function parseBaseValue(text, base, alphabet = DEFAULT_ALPHABET) {
   let s = String(text).trim().replace(/\s+/g, "");
   if (!s) return { ok: false, reason: "请输入数值" };
   let negative = false;
@@ -66,14 +75,14 @@ function parseBaseValue(text, base) {
   const baseBig = BigInt(base);
   let intVal = 0n;
   for (const ch of intText) {
-    const d = digitValue(ch, base);
+    const d = digitValue(ch, base, alphabet);
     if (d < 0 || d >= base) return { ok: false, reason: `数码「${ch}」不属于 ${base} 进制` };
     intVal = intVal * baseBig + BigInt(d);
   }
   let fracNum = 0n;
   let fracDen = 1n;
   for (const ch of fracText) {
-    const d = digitValue(ch, base);
+    const d = digitValue(ch, base, alphabet);
     if (d < 0 || d >= base) return { ok: false, reason: `数码「${ch}」不属于 ${base} 进制` };
     fracNum = fracNum * baseBig + BigInt(d);
     fracDen *= baseBig;
@@ -81,7 +90,7 @@ function parseBaseValue(text, base) {
   return { ok: true, negative, intVal, fracNum, fracDen };
 }
 
-function convertInteger(n, base) {
+function convertInteger(n, base, alphabet = DEFAULT_ALPHABET) {
   const b = BigInt(base);
   const steps = [];
   if (n === 0n) steps.push({ n: 0n, q: 0n, r: 0 });
@@ -93,12 +102,12 @@ function convertInteger(n, base) {
     cur = q;
   }
   return {
-    digits: steps.slice().reverse().map((s) => DIGITS[s.r]).join("") || "0",
+    digits: steps.slice().reverse().map((s) => alphabet[s.r]).join("") || "0",
     steps
   };
 }
 
-function convertFraction(num, den, base, maxDigits = 12) {
+function convertFraction(num, den, base, alphabet = DEFAULT_ALPHABET, maxDigits = 12) {
   if (num === 0n) return { digits: "", steps: [], exact: true };
   const b = BigInt(base);
   let cur = num;
@@ -114,7 +123,7 @@ function convertFraction(num, den, base, maxDigits = 12) {
       product: Number(cur) / Number(den),
       digit
     });
-    digits += DIGITS[digit];
+    digits += alphabet[digit];
     cur = rem;
   }
   return { digits, steps, exact: cur === 0n };
@@ -146,56 +155,201 @@ export function mountBaseConverter(root) {
     <div class="lab-output" id="bc-result"></div>
     <div id="bc-visual"></div>
     <div id="bc-steps"></div>
+    <details class="lab-help"><summary>自定义字符集（64 位）</summary>
+      <div class="lab-controls">
+        <label style="flex:1 1 320px">字符序列 <input id="bc-alphabet" value="${esc(DIGITS)}" style="width:100%;font-family:ui-monospace,Consolas,monospace" autocomplete="off"></label>
+        <button class="study-button" data-bc-reset>恢复默认</button>
+      </div>
+      <p class="exp-note">前 n 位用于 n 进制；必须是 64 个互不相同的字符，不能含空白、小数点或负号。修改后输入与输出都会使用这套数码。</p>
+    </details>
+    <details class="lab-help"><summary>手绘数码（可选）</summary>
+      <div class="glyph-editor">
+        <canvas id="bc-glyph-canvas" width="96" height="96" aria-label="手绘数码画布"></canvas>
+        <div>
+          <label style="display:block;color:#5e747c;font-size:11px">位数 <b id="bc-glyph-label">0</b>
+            <input id="bc-glyph-index" type="range" min="0" max="63" value="0" style="display:block;width:180px">
+          </label>
+          <div class="lab-controls">
+            <button class="study-button" data-glyph-save>保存此位</button>
+            <button class="study-button" data-glyph-clear>清除此位</button>
+            <button class="study-button" data-glyph-reset>清空全部</button>
+          </div>
+          <div class="exp-state" id="bc-glyph-state">手绘只影响显示，输入仍使用字符序列中的字符。</div>
+        </div>
+      </div>
+    </details>
     <details class="lab-help"><summary>数码表（共 64 位）</summary>
-      <p>${DIGITS.split("").map((d, i) => `${i}→${d}`).join("　")}</p>
+      <p id="bc-digits"></p>
     </details>`;
 
   const valueInput = root.querySelector("#bc-value");
   const fromSelect = root.querySelector("#bc-from");
   const toSelect = root.querySelector("#bc-to");
+  const alphabetInput = root.querySelector("#bc-alphabet");
+  const digitsBox = root.querySelector("#bc-digits");
   const result = root.querySelector("#bc-result");
   const visualBox = root.querySelector("#bc-visual");
   const stepsBox = root.querySelector("#bc-steps");
+  let alphabet = [...DEFAULT_ALPHABET];
+
+  const GLYPH_KEY = "cslearning.base-glyphs.v1";
+  const glyphCanvas = root.querySelector("#bc-glyph-canvas");
+  const glyphCtx = glyphCanvas.getContext("2d");
+  const glyphIndexInput = root.querySelector("#bc-glyph-index");
+  const glyphLabel = root.querySelector("#bc-glyph-label");
+  const glyphState = root.querySelector("#bc-glyph-state");
+  let glyphs = Array(64).fill(null);
+  try {
+    const saved = JSON.parse(localStorage.getItem(GLYPH_KEY) || "[]");
+    if (Array.isArray(saved)) glyphs = Array.from({ length: 64 }, (_, index) => typeof saved[index] === "string" ? saved[index] : null);
+  } catch {}
+  let glyphIndex = 0;
+  let drawingGlyph = false;
+
+  const resetGlyphCanvas = () => {
+    glyphCtx.clearRect(0, 0, glyphCanvas.width, glyphCanvas.height);
+    glyphCtx.lineWidth = 6;
+    glyphCtx.lineCap = "round";
+    glyphCtx.lineJoin = "round";
+    glyphCtx.strokeStyle = "#173f3a";
+  };
+  const updateGlyphLabel = () => {
+    glyphLabel.textContent = `${glyphIndex}（${alphabet[glyphIndex] ?? "?"}）`;
+  };
+  const loadGlyphEditor = () => {
+    updateGlyphLabel();
+    resetGlyphCanvas();
+    const source = glyphs[glyphIndex];
+    if (source) {
+      const image = new Image();
+      image.onload = () => glyphCtx.drawImage(image, 0, 0, glyphCanvas.width, glyphCanvas.height);
+      image.src = source;
+    }
+  };
+  const persistGlyphs = () => {
+    try { localStorage.setItem(GLYPH_KEY, JSON.stringify(glyphs)); } catch {}
+  };
+  const glyphForChar = (char) => {
+    const index = alphabet.indexOf(char);
+    return index >= 0 && glyphs[index]
+      ? `<img class="hand-glyph" src="${glyphs[index]}" alt="${esc(char)}">`
+      : `<b>${esc(char)}</b>`;
+  };
+
+  const glyphPoint = (event) => {
+    const rect = glyphCanvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - rect.left) * glyphCanvas.width / rect.width,
+      y: (event.clientY - rect.top) * glyphCanvas.height / rect.height
+    };
+  };
+  glyphCanvas.addEventListener("pointerdown", (event) => {
+    drawingGlyph = true;
+    glyphCanvas.setPointerCapture(event.pointerId);
+    const point = glyphPoint(event);
+    glyphCtx.beginPath();
+    glyphCtx.moveTo(point.x, point.y);
+    glyphCtx.lineTo(point.x + 0.1, point.y + 0.1);
+    glyphCtx.stroke();
+  });
+  glyphCanvas.addEventListener("pointermove", (event) => {
+    if (!drawingGlyph) return;
+    const point = glyphPoint(event);
+    glyphCtx.lineTo(point.x, point.y);
+    glyphCtx.stroke();
+  });
+  const stopDrawing = () => { drawingGlyph = false; };
+  glyphCanvas.addEventListener("pointerup", stopDrawing);
+  glyphCanvas.addEventListener("pointercancel", stopDrawing);
+  glyphCanvas.addEventListener("pointerleave", stopDrawing);
+  glyphIndexInput.addEventListener("input", () => {
+    glyphIndex = Number(glyphIndexInput.value);
+    loadGlyphEditor();
+  });
+  root.querySelector("[data-glyph-save]").addEventListener("click", () => {
+    glyphs[glyphIndex] = glyphCanvas.toDataURL("image/png");
+    persistGlyphs();
+    glyphState.textContent = `第 ${glyphIndex} 位已保存；输出中会用这张图代替「${alphabet[glyphIndex] ?? "?"}」。`;
+    update();
+  });
+  root.querySelector("[data-glyph-clear]").addEventListener("click", () => {
+    glyphs[glyphIndex] = null;
+    persistGlyphs();
+    resetGlyphCanvas();
+    glyphState.textContent = `第 ${glyphIndex} 位已清除。`;
+    update();
+  });
+  root.querySelector("[data-glyph-reset]").addEventListener("click", () => {
+    if (!confirm("清空全部 64 位手绘数码？")) return;
+    glyphs = Array(64).fill(null);
+    persistGlyphs();
+    resetGlyphCanvas();
+    glyphState.textContent = "已清空全部手绘数码。";
+    update();
+  });
+  loadGlyphEditor();
 
   const update = () => {
+    const chars = Array.from(alphabetInput.value);
+    if (chars.length !== 64 || new Set(chars).size !== 64 || chars.some((ch) => !ch || /\s/.test(ch) || ch === "." || ch === "-")) {
+      result.innerHTML = `<span style="color:#b4533f">字符集必须包含 64 个互不相同的字符，且不能含空白、小数点或负号。</span>`;
+      visualBox.innerHTML = "";
+      stepsBox.innerHTML = "";
+      digitsBox.textContent = "字符集无效，修正后显示数码表。";
+      return;
+    }
+    alphabet = chars;
+    updateGlyphLabel();
+    digitsBox.textContent = alphabet.map((d, i) => `${i}→${d}`).join("　");
     const raw = valueInput.value;
     const from = Number(fromSelect.value);
     const to = Number(toSelect.value);
-    const parsed = parseBaseValue(raw, from);
+    const parsed = parseBaseValue(raw, from, alphabet);
     if (!parsed.ok) {
       result.innerHTML = `<span style="color:#b4533f">无法解析：${esc(parsed.reason)}</span>`;
       stepsBox.innerHTML = "";
       return;
     }
-    const intPart = convertInteger(parsed.intVal, to);
-    const fracPart = convertFraction(parsed.fracNum, parsed.fracDen, to);
+    const intPart = convertInteger(parsed.intVal, to, alphabet);
+    const fracPart = convertFraction(parsed.fracNum, parsed.fracDen, to, alphabet);
     const sign = parsed.negative && (parsed.intVal > 0n || parsed.fracNum > 0n) ? "-" : "";
     const converted = `${sign}${intPart.digits}${fracPart.digits ? `.${fracPart.digits}` : ""}`;
+    const hasGlyphs = glyphs.some(Boolean);
+    const glyphStrip = hasGlyphs
+      ? `<div class="glyph-strip">${Array.from(converted).map((char) => char === "." ? '<span class="glyph-fallback">.</span>' : glyphForChar(char)).join("")}</div>`
+      : "";
     result.innerHTML = `
-      <b>(${esc(raw.trim())})<sub>${from}</sub> = (${esc(converted)})<sub>${to}</sub></b><br>
+      <b>(${esc(raw.trim())})<sub>${from}</sub> = (${esc(converted)})<sub>${to}</sub></b>${glyphStrip}<br>
       十进制值：${esc(decimalText(parsed))}${fracPart.exact ? "" : "（小数部分在所显示位数内未终止）"}`;
 
-    const bitCards = (digits, isFraction = false) => digits.split("").slice(0, 24).map((digit, index) => {
-      const power = isFraction ? -(index + 1) : digits.length - 1 - index;
-      return `<div class="place-card ${to === 2 ? "bit" : ""}"><b>${esc(digit)}</b><small>× ${to}<sup>${power}</sup></small></div>`;
-    }).join("");
+    const bitCards = (digits, isFraction = false) => {
+      const list = Array.from(digits).slice(0, 24);
+      return list.map((digit, index) => {
+        const power = isFraction ? -(index + 1) : list.length - 1 - index;
+        return `<div class="place-card ${to === 2 ? "bit" : ""}">${glyphForChar(digit)}<small>× ${to}<sup>${power}</sup></small></div>`;
+      }).join("");
+    };
     const signCard = sign ? `<div class="place-card sign"><b>−</b><small>符号</small></div>` : "";
     visualBox.innerHTML = `<div class="section-label">位权展开</div>
       <div class="place-strip">${signCard}${bitCards(intPart.digits)}${fracPart.digits ? `<div class="place-dot">.</div>${bitCards(fracPart.digits, true)}` : ""}</div>`;
 
     const intRows = intPart.steps
-      .map((s) => `<tr><td>${s.n.toString()}</td><td>÷ ${to}</td><td>${s.q.toString()}</td><td><b>${DIGITS[s.r]}</b></td></tr>`)
+      .map((s) => `<tr><td>${s.n.toString()}</td><td>÷ ${to}</td><td>${s.q.toString()}</td><td><b>${esc(alphabet[s.r])}</b></td></tr>`)
       .join("");
     const fracRows = fracPart.steps
-      .map((s) => `<tr><td>${s.before.toFixed(6)}</td><td>× ${to}</td><td>${s.product.toFixed(6)}</td><td><b>${DIGITS[s.digit]}</b></td></tr>`)
+      .map((s) => `<tr><td>${s.before.toFixed(6)}</td><td>× ${to}</td><td>${s.product.toFixed(6)}</td><td><b>${esc(alphabet[s.digit])}</b></td></tr>`)
       .join("");
 
     stepsBox.innerHTML = `
-      ${table(["被除数", "运算", "商", "余数"], intPart.steps.map((s) => [s.n.toString(), `÷ ${to}`, s.q.toString(), DIGITS[s.r]]), `整数部分：除 ${to} 取余，余数自下而上读`)}
-      ${fracRows ? table(["当前小数", "运算", "结果", "取整"], fracPart.steps.map((s) => [s.before.toFixed(6), `× ${to}`, s.product.toFixed(6), DIGITS[s.digit]]), `小数部分：乘 ${to} 取整，整数部分自上而下读`) : ""}`;
+      ${table(["被除数", "运算", "商", "余数"], intPart.steps.map((s) => [s.n.toString(), `÷ ${to}`, s.q.toString(), esc(alphabet[s.r])]), `整数部分：除 ${to} 取余，余数自下而上读`)}
+      ${fracRows ? table(["当前小数", "运算", "结果", "取整"], fracPart.steps.map((s) => [s.before.toFixed(6), `× ${to}`, s.product.toFixed(6), esc(alphabet[s.digit])]), `小数部分：乘 ${to} 取整，整数部分自上而下读`) : ""}`;
   };
 
   root.querySelectorAll("input,select").forEach((el) => el.addEventListener("input", update));
+  root.querySelector("[data-bc-reset]").addEventListener("click", () => {
+    alphabetInput.value = DIGITS;
+    update();
+  });
   root.querySelectorAll("[data-bc-preset]").forEach((button) => {
     button.addEventListener("click", () => {
       const [value, from, to] = button.dataset.bcPreset.split("|");

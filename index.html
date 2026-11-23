@@ -318,6 +318,12 @@
     .place-card small { display:block; margin-top:2px; color:#8a9c9f; font-size:9px; white-space:nowrap; }
     .place-card.bit b { color:#3b7fc4; }
     .place-card.sign b { color:#b46b4a; }
+    .place-card img.hand-glyph { display:block; width:24px; height:24px; margin:0 auto; object-fit:contain; }
+    .glyph-editor { display:flex; flex-wrap:wrap; align-items:flex-start; gap:14px; margin:10px 0; }
+    .glyph-editor canvas { width:96px; height:96px; border:1px dashed #b9d8d0; border-radius:10px; background:#fff; touch-action:none; cursor:crosshair; }
+    .glyph-strip { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; padding:8px; border:1px solid #e0ece8; border-radius:10px; background:#f8fcfa; }
+    .glyph-strip img { width:26px; height:26px; object-fit:contain; }
+    .glyph-strip .glyph-fallback { color:#31515a; font-family:ui-monospace,Consolas,monospace; }
     .place-dot { align-self:center; color:#8a9c9f; font-size:18px; font-weight:800; }
     .study-back-row { margin-bottom:6px; }
     .lab-list { display:flex; flex-direction:column; gap:8px; }
@@ -394,6 +400,7 @@
     .related-list { display:flex; flex-wrap:wrap; gap:7px; }
     .related-button { border:1px solid #e0e9e6; border-radius:8px; background:#fff; padding:8px 10px; color:#5b7478; font-size:11px; cursor:pointer; }
     .related-button.pending { color:#bf4d3c; border-color:#eed7d2; }
+    .tool-related { margin-top:18px; }
     .empty-state { display:none; position:absolute; inset:0; align-items:center; justify-content:center; color:#8c9b9f; font-size:13px; pointer-events:none; }
     @media (max-width:800px) {
       .topbar { padding:0 16px; gap:12px; }
@@ -543,7 +550,7 @@
     const modeToggle=document.getElementById("mode-toggle");
     const NS = "http://www.w3.org/2000/svg";
     let selected = null, filter = "all", activeTab = "intro", zoom = 1, panX = 0, panY = 0;
-    let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false, toolReturnLesson=null, toolReturnAnchor=null;
+    let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false, toolReturnLesson=null, toolReturnAnchor=null, routeLock=false;
     const VIEW_STATE_KEY="cslearning.graph-view.v3";
     let viewSaveTimer=0;
     function make(tag,attrs={}) { const el=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v); return el; }
@@ -796,6 +803,7 @@
       renderLesson(n);
       studyView.scrollTop=0;
       scheduleSaveView();
+      setRoute(`lesson/${encodeURIComponent(id)}`);
     }
     function backToGraph(){
       if(toolReturnLesson){
@@ -805,6 +813,7 @@
         if(anchor)document.getElementById(anchor)?.scrollIntoView({block:"start"});
         return;
       }
+      setRoute("graph");
       document.getElementById("study-back").textContent="← 知识图谱";
       document.body.classList.remove("focus-view");
       studyView.classList.remove("active");workspace.style.display="flex";
@@ -815,7 +824,7 @@
     }
     document.getElementById("study-back").addEventListener("click",backToGraph);
     function activateNav(name){document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav===name));}
-    function openOverview(title,meta,html){
+    function openOverview(title,meta,html,route=null){
       toolReturnLesson=null;
       toolReturnAnchor=null;
       document.getElementById("study-back").textContent="← 知识图谱";
@@ -825,6 +834,7 @@
       studyMeta.textContent=meta;studyContent.innerHTML=html;studyView.scrollTop=0;applyMath(studyContent);
       studyContent.querySelectorAll("[data-open-lesson]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.openLesson)));
       scheduleSaveView();
+      if(route)setRoute(route);
     }
     function renderBooksPage(){
       const groups=new Map();
@@ -835,7 +845,7 @@
       openOverview("教材目录",`${groups.size} 本自编教材 · ${nodes.length} 个知识点`,`<div class="study-kicker">BOOKS · 由知识图谱组织</div>
         <h1 class="study-title">教材与讲义</h1><p class="study-lead">教材章节不规定唯一学习顺序。你可以从这里按教材浏览，也可以回到知识图谱按先修关系探索。</p>${cards}
         <section class="lesson-section"><h3>PDF 试读</h3><p>目前有一份位置记数法的 LaTeX 样稿。</p>
-        <a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">打开 PDF 讲义 ↗</a></section>`);
+        <a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">打开 PDF 讲义 ↗</a></section>`,"books");
     }
     function renderExperimentsPage(){
       const groupKeys=[...Object.keys(groupMeta), ...new Set(EXPERIMENTS.map(experiment=>nodeById[experiment.nodeId]?.group??experiment.domain).filter(key=>!groupMeta[key]))];
@@ -844,7 +854,7 @@
         .filter(group=>group.items.length);
       const sections=groups.map(group=>`<details class="lab-group" open>
         <summary><span>${escapeHTML(groupMeta[group.key]?.label??group.key)}</span><small>${group.items.length} 个实验</small></summary>
-        <div class="lab-grid">${group.items.map(experiment=>`<button class="lab-card" data-experiment="${experiment.id}" data-search="${escapeHTML([experiment.title, nodeById[experiment.nodeId]?.title ?? "", experiment.summary].join(" ")).toLowerCase()}">
+        <div class="lab-grid">${group.items.map(experiment=>`<button class="lab-card" data-experiment="${experiment.id}" data-group="${group.key}" data-search="${escapeHTML([experiment.title, nodeById[experiment.nodeId]?.title ?? "", experiment.summary].join(" ")).toLowerCase()}">
           <b>${escapeHTML(experiment.title)}</b>
           <small>${escapeHTML(nodeById[experiment.nodeId]?.title ?? experiment.nodeId)} · ${experiment.steps} 步</small>
           <small>${escapeHTML(experiment.summary)}</small></button>`).join("")}</div></details>`).join("");
@@ -853,34 +863,42 @@
         <h1 class="study-title">实验</h1>
         <p class="study-lead">每个实验只服务教材里的一个知识点，1–3 步完成。点击实验会进入对应知识点，实验就在正文的对应位置；想自由改条件，去工具页。</p>
         <div class="lab-controls"><label>搜索实验 <input id="experiment-search" placeholder="实验、知识点、关键词" style="width:260px"></label></div>
+        <div class="lab-controls" id="experiment-filters"><button class="study-button primary" data-exp-filter="all">全部 ${EXPERIMENTS.length}</button>${groups.map(group=>`<button class="study-button" data-exp-filter="${group.key}">${escapeHTML(groupMeta[group.key]?.label??group.key)} ${group.items.length}</button>`).join("")}</div>
         <div id="experiment-list">${sections || '<p class="study-lead">还没有实验。</p>'}</div>
-        <p class="study-lead" id="experiment-empty" hidden>没有匹配的实验。试着换个关键词。</p>`);
+        <p class="study-lead" id="experiment-empty" hidden>没有匹配的实验。试着换个关键词或知识域。</p>`,"experiments");
       const search=studyContent.querySelector("#experiment-search");
-      if(search){
-        search.addEventListener("input",()=>{
-          const q=search.value.trim().toLowerCase();
-          studyContent.querySelectorAll("[data-experiment]").forEach(card=>{
-            card.style.display=!q||card.dataset.search.includes(q)?"":"none";
-          });
-          studyContent.querySelectorAll("#experiment-list .lab-group").forEach(group=>{
-            const visible=[...group.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
-            group.style.display=visible?"":"none";
-          });
-          const anyVisible=[...studyContent.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
-          const empty=studyContent.querySelector("#experiment-empty");
-          if(empty)empty.hidden=anyVisible;
+      let activeDomain="all";
+      const applyFilters=()=>{
+        const q=search?.value.trim().toLowerCase()??"";
+        studyContent.querySelectorAll("[data-experiment]").forEach(card=>{
+          const domainMatch=activeDomain==="all"||card.dataset.group===activeDomain;
+          card.style.display=domainMatch&&(!q||card.dataset.search.includes(q))?"":"none";
         });
-      }
+        studyContent.querySelectorAll("#experiment-list .lab-group").forEach(group=>{
+          const visible=[...group.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
+          group.style.display=visible?"":"none";
+        });
+        const anyVisible=[...studyContent.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
+        const empty=studyContent.querySelector("#experiment-empty");
+        if(empty)empty.hidden=anyVisible;
+      };
+      search?.addEventListener("input",applyFilters);
+      studyContent.querySelectorAll("[data-exp-filter]").forEach(button=>button.addEventListener("click",()=>{
+        activeDomain=button.dataset.expFilter;
+        studyContent.querySelectorAll("[data-exp-filter]").forEach(item=>item.classList.toggle("primary",item===button));
+        applyFilters();
+      }));
       studyContent.querySelectorAll("[data-experiment]").forEach(button=>{
-        button.addEventListener("click",()=>{
-          const experiment=EXPERIMENT_BY_ID[button.dataset.experiment];
-          if(!experiment)return;
-          activateNav("experiments");
-          openStudy("lesson",experiment.nodeId);
-          document.getElementById("lesson-experiment")?.scrollIntoView({block:"start"});
-          requestAnimationFrame(()=>document.getElementById("lesson-experiment")?.scrollIntoView({block:"start"}));
-        });
+        button.addEventListener("click",()=>openExperiment(button.dataset.experiment));
       });
+    }
+    function openExperiment(experimentId){
+      const experiment=EXPERIMENT_BY_ID[experimentId];
+      if(!experiment)return;
+      activateNav("experiments");
+      openStudy("lesson",experiment.nodeId);
+      document.getElementById("lesson-experiment")?.scrollIntoView({block:"start"});
+      requestAnimationFrame(()=>document.getElementById("lesson-experiment")?.scrollIntoView({block:"start"}));
     }
     document.querySelectorAll(".top-link").forEach(b=>b.addEventListener("click",()=>{
       activateNav(b.dataset.nav);
@@ -1014,18 +1032,24 @@
         });
       });
     }
+    function experimentsForTool(toolId){
+      return EXPERIMENTS.filter(experiment=>(experiment.toolLinks??[]).includes(toolId));
+    }
     function renderLabsPage(){
       const categories=[...TOOL_CATEGORIES, ...new Set(TOOLS.map(tool=>tool.category).filter(category=>!TOOL_CATEGORIES.includes(category)))];
       const groups=categories.map(category=>({category,tools:TOOLS.filter(tool=>tool.category===category)})).filter(group=>group.tools.length);
       const sections=groups.map(group=>`<details class="lab-group" open>
         <summary><span>${escapeHTML(group.category)}</span><small>${group.tools.length} 个工具</small></summary>
-        <div class="lab-grid">${group.tools.map(tool=>`<button class="lab-card" data-open-tool="${tool.id}" data-tool-group="${tool.group}">
+        <div class="lab-grid">${group.tools.map(tool=>{
+          const related=experimentsForTool(tool.id).length;
+          return `<button class="lab-card" data-open-tool="${tool.id}" data-tool-group="${tool.group}">
           <b>${escapeHTML(tool.title)}</b><small>${escapeHTML(tool.summary)}</small>
-          ${tool.nodes.length>1?`<small>关联 ${tool.nodes.length} 个知识点</small>`:""}</button>`).join("")}</div></details>`).join("");
+          <small>${related} 个相关实验${tool.nodes.length>1?` · 关联 ${tool.nodes.length} 个知识点`:""}</small></button>`;
+        }).join("")}</div></details>`).join("");
       openOverview("工具",`${TOOLS.length} 个工具 · ${groups.length} 个类目`,
         `<div class="study-kicker">TOOLS · 自由探索</div>
         <h1 class="study-title">工具</h1>
-        <p class="study-lead">工具按功能类目组织，不绑定单个知识点。打开后可以自由改条件、试极端值，观察会出现什么意外结果。教材里的实验会在旁边给出相关工具入口。</p>${sections}`);
+        <p class="study-lead">工具按功能类目组织，不绑定单个知识点。打开后可以自由改条件、试极端值，观察会出现什么意外结果。教材里的实验会在旁边给出相关工具入口。</p>${sections}`,"labs");
       studyContent.querySelectorAll("[data-open-tool]").forEach(button=>{
         button.addEventListener("click",()=>openLab(button.dataset.openTool));
       });
@@ -1039,12 +1063,37 @@
       if(is3D)graph3D?.pause();
       setStudyTitle(tool.title,tool.summary);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
-      studyContent.innerHTML=`<div class="lab-card tool-page-card" id="lab-single"></div>`;
+      const related=experimentsForTool(toolId);
+      const relatedSection=related.length?`<section class="lesson-section tool-related"><div class="section-label">相关实验</div><div class="related-list">${related.map(experiment=>`<button class="related-button" data-related-experiment="${experiment.id}">${escapeHTML(experiment.title)}</button>`).join("")}</div></section>`:"";
+      studyContent.innerHTML=`<div class="lab-card tool-page-card" id="lab-single"></div>${relatedSection}`;
       mountTool(toolId,studyContent.querySelector("#lab-single"),{applyMath,standalone:true});
+      studyContent.querySelectorAll("[data-related-experiment]").forEach(button=>button.addEventListener("click",()=>openExperiment(button.dataset.relatedExperiment)));
       applyMath(studyContent);
       studyView.scrollTop=0;
       scheduleSaveView();
+      setRoute(`tool/${encodeURIComponent(toolId)}`);
     }
+    function setRoute(route){
+      if(!route)return;
+      const target=`#${route}`;
+      if(location.hash===target)return;
+      routeLock=true;
+      location.hash=route;
+    }
+    function applyRoute(raw){
+      let route=raw||"";
+      try{route=decodeURIComponent(route);}catch{}
+      if(route.startsWith("lesson/")){openStudy("lesson",route.slice(7));return;}
+      if(route.startsWith("tool/")){openLab(route.slice(5));return;}
+      if(route==="experiments"){renderExperimentsPage();return;}
+      if(route==="labs"){renderLabsPage();return;}
+      if(route==="books"){renderBooksPage();return;}
+      backToGraph();
+    }
+    window.addEventListener("hashchange",()=>{
+      if(routeLock){routeLock=false;return;}
+      applyRoute(location.hash.slice(1));
+    });
     function chip(id,type) {
       const n=nodeById[id]; if(!n)return "";
       return `<button class="rel-chip ${type}" data-jump="${id}">${n.title} ↗</button>`;
@@ -1110,6 +1159,7 @@
     applyResponsiveLayout(true);
     setDefaultMapView();
     restoreViewState();
+    if(location.hash)applyRoute(location.hash.slice(1));
     window.addEventListener("resize",()=>{applyResponsiveLayout();if(graph3D)update3DData();scheduleSaveView();});
     window.addEventListener("beforeunload",saveViewState);
   </script>
