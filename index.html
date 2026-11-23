@@ -262,6 +262,21 @@
     .exp-table th, .exp-table td { padding:5px 9px; font-size:11px; }
     .study-button[disabled] { opacity:.55; cursor:default; }
     .exp-note { margin:8px 0 0; color:#60767d; font-size:12px; line-height:1.8; }
+    .exp-output { margin:10px 0; padding:10px 12px; border-radius:10px; background:#f0f7f4; color:#315e59; font-size:12px; line-height:1.8; }
+    .exp-sequence { padding:10px 12px; border:1px dashed #cfe0da; border-radius:10px; background:#f8fcfa; color:#31515a; font-size:13px; line-height:1.9; text-align:center; overflow-wrap:anywhere; }
+    .exp-dominoes { display:flex; align-items:flex-end; justify-content:center; gap:8px; padding:12px 6px; }
+    .exp-domino { width:16px; border-radius:3px; background:linear-gradient(180deg,#8fd3c4,#4aa696); }
+    .exp-array { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
+    .exp-cell { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:46px; padding:8px 6px; border:1px solid #dce8e4; border-radius:9px; background:#fff; color:#31515a; font-size:12px; cursor:default; }
+    button.exp-cell { cursor:pointer; font:inherit; }
+    .exp-cell small { color:#93a2a8; font-size:9px; }
+    .exp-cell.current { border-color:#168c81; background:#eef8f4; }
+    .exp-cell.best { border-color:#dfa03f; background:#fdf6e9; }
+    .exp-buckets { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+    .exp-bucket { display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 4px; border:1px solid #e0ebe7; border-radius:9px; background:#f8fcfa; color:#6e8580; font-size:9px; line-height:1.5; text-align:center; overflow-wrap:anywhere; }
+    .exp-bucket b { color:#31515a; font-size:11px; }
+    .exp-matrix { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; }
+    .exp-matrix .exp-cell { min-width:0; padding:6px 2px; }
     .exp-bars { display:flex; align-items:flex-end; justify-content:center; gap:10px; height:130px; padding:8px 4px; }
     .exp-bar { flex:1; max-width:52px; min-width:34px; border-radius:8px 8px 3px 3px; background:linear-gradient(180deg,#8fd3c4,#4aa696); display:flex; align-items:flex-start; justify-content:center; padding-top:6px; color:#fff; font-size:12px; font-weight:800; box-shadow:0 6px 14px rgba(28,67,62,.12); }
     .exp-bar span { pointer-events:none; }
@@ -915,7 +930,7 @@
         ${s.table?lessonTableHTML(s.table):""}
         ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
         ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}
-        ${s.experiment&&(EXPERIMENT_BY_ID[s.experiment]||NODE_EXPERIMENT[s.experiment])?`<div class="lab-card lesson-embed"><div data-inline-experiment="${escapeHTML(EXPERIMENT_BY_ID[s.experiment]?.id??NODE_EXPERIMENT[s.experiment])}"></div></div>`:""}</section>`);
+        ${s.experiment&&(EXPERIMENT_BY_ID[s.experiment]||NODE_EXPERIMENT[s.experiment])?`<div class="lab-card lesson-embed lesson-experiment" id="lesson-experiment"><div data-inline-experiment="${escapeHTML(EXPERIMENT_BY_ID[s.experiment]?.id??NODE_EXPERIMENT[s.experiment])}"></div></div>`:""}</section>`);
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
       const enrichment=note?`<section class="lesson-section"><h3>例子与易错点</h3>

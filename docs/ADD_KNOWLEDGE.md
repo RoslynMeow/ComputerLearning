@@ -61,7 +61,7 @@ node scripts/add-knowledge.mjs `
 
 内容分三层：
 
-1. **教材实验**：注册在 `src/experiments.js` 的 `EXPERIMENTS` 数组，只服务一个知识点，1–3 步，有检查与解释。
+1. **教材实验**：按知识域注册在 `src/experiments/` 下的文件中，由 `src/experiments.js` 汇总；每个实验只服务一个知识点，1–3 步，有检查与解释。
 2. **实验页**：由实验注册表自动生成，按知识点所属知识域分组，支持搜索；点击实验进入对应教材位置并定位到实验。
 3. **工具**：注册在 `src/tools.js` 的 `TOOLS` 数组，按功能类目分组，是完整、可自由修改条件的沙盒，不要求完成步骤。
 
@@ -76,9 +76,18 @@ node scripts/add-knowledge.mjs `
 | `summary` | 一句话说明实验要观察什么 |
 | `steps` | 步骤数，显示在实验页卡片上 |
 | `toolLinks` | 相关工具 id 数组，实验底部显示“打开某工具”入口 |
-| `mount(root, context)` | 把实验挂载到 `root` 的函数；`context.openTool(toolId)` 可打开工具 |
+| `mount(root, context, experiment)` | 把实验挂载到 `root` 的函数；`context.openTool(toolId)` 可打开工具 |
 
 教材默认只内嵌每个知识点的一个主实验：注册实验后自动插在“本节要点”“小结”或“总结”之前；若正文某节写了 `experiment` 字段，则以该字段中的**实验 id** 为准，在该节位置内嵌。知识点正文不再直接挂载完整工具。
+
+实验文件按知识域拆分：`graph.js`、`numbers.js`、`repr.js`、`prog.js`、`hardware.js`、`os.js`、`network.js` 等。共用外壳和交互模板在 `src/experiments/shared.js`：
+
+- `shell(experiment, body)`：实验标题、简介与工具入口；
+- `mountChoiceSteps(...)`：逐步预测 / 判断，答对后揭示；
+- `mountStepper(...)`：先逐步执行过程，最后回答一个问题；
+- `table`、`visual`、`chips`、`choiceButtons`：常用小部件。
+
+需要特殊图形或滑块时，可以直接用 `shell` 加自己的状态与事件绑定。所有实验只依赖 `root`，不要引用教材正文或全局 DOM。
 
 ### 工具
 
