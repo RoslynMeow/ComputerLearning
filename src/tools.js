@@ -1,7 +1,7 @@
-// 通用学习工具：与单个知识点解耦，可被多个知识点复用。
-// 每个工具由 index.html 的实验页与知识点正文共同挂载。
+// 通用学习工具：与单个知识点解耦，在工具页按功能类目挂载。
+// 教材通过 src/experiments.js 中的小实验引用相关工具，不直接内嵌完整工具。
 
-const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/";
 
 
 
@@ -34,8 +34,8 @@ function setText(values) {
   return list.length ? `{${list.map(esc).join(", ")}}` : "∅";
 }
 
-function digitValue(ch) {
-  return DIGITS.indexOf(String(ch).toUpperCase());
+function digitValue(ch, base = 36) {
+  return base <= 36 ? DIGITS.indexOf(String(ch).toUpperCase()) : DIGITS.indexOf(String(ch));
 }
 
 function table(head, rows, caption = "") {
@@ -66,14 +66,14 @@ function parseBaseValue(text, base) {
   const baseBig = BigInt(base);
   let intVal = 0n;
   for (const ch of intText) {
-    const d = digitValue(ch);
+    const d = digitValue(ch, base);
     if (d < 0 || d >= base) return { ok: false, reason: `数码「${ch}」不属于 ${base} 进制` };
     intVal = intVal * baseBig + BigInt(d);
   }
   let fracNum = 0n;
   let fracDen = 1n;
   for (const ch of fracText) {
-    const d = digitValue(ch);
+    const d = digitValue(ch, base);
     if (d < 0 || d >= base) return { ok: false, reason: `数码「${ch}」不属于 ${base} 进制` };
     fracNum = fracNum * baseBig + BigInt(d);
     fracDen *= baseBig;
@@ -131,11 +131,11 @@ function decimalText(parsed) {
 export function mountBaseConverter(root) {
   root.innerHTML = `
     <h3>任意进制转换</h3>
-    <p>支持 2–36 进制、负数和小数。整数部分按“除基取余”演算，小数部分按“乘基取整”演算；10 以上的数码用 A–Z 表示。</p>
+    <p>支持 2–64 进制、负数和小数。整数部分按“除基取余”演算，小数部分按“乘基取整”演算；10 以上用 A–Z，36 以上继续用 a–z、+、/，并区分大小写。</p>
     <div class="lab-controls">
       <label>数值 <input id="bc-value" value="19" style="width:130px" autocomplete="off"></label>
-      <label>原进制 <select id="bc-from">${Array.from({ length: 35 }, (_, i) => i + 2).map((b) => `<option value="${b}" ${b === 10 ? "selected" : ""}>${b}</option>`).join("")}</select></label>
-      <label>目标进制 <select id="bc-to">${Array.from({ length: 35 }, (_, i) => i + 2).map((b) => `<option value="${b}" ${b === 2 ? "selected" : ""}>${b}</option>`).join("")}</select></label>
+      <label>原进制 <select id="bc-from">${Array.from({ length: 63 }, (_, i) => i + 2).map((b) => `<option value="${b}" ${b === 10 ? "selected" : ""}>${b}</option>`).join("")}</select></label>
+      <label>目标进制 <select id="bc-to">${Array.from({ length: 63 }, (_, i) => i + 2).map((b) => `<option value="${b}" ${b === 2 ? "selected" : ""}>${b}</option>`).join("")}</select></label>
     </div>
     <div class="lab-controls">
       <button class="study-button" data-bc-preset="19|10|2">19₁₀ → 2</button>
@@ -146,7 +146,7 @@ export function mountBaseConverter(root) {
     <div class="lab-output" id="bc-result"></div>
     <div id="bc-visual"></div>
     <div id="bc-steps"></div>
-    <details class="lab-help"><summary>数码表（10 以上用字母）</summary>
+    <details class="lab-help"><summary>数码表（共 64 位）</summary>
       <p>${DIGITS.split("").map((d, i) => `${i}→${d}`).join("　")}</p>
     </details>`;
 
@@ -2294,7 +2294,7 @@ export const TOOLS = [
   { id: "successor", title: "后继与递归加法器", group: "numbers", summary: "用后继函数逐步展开自然数加法。", nodes: ["peano-axioms", "natural-numbers"], mount: setupSuccessor },
   { id: "induction", title: "归纳验证器", group: "numbers", summary: "检查基础步、归纳假设与归纳步，并数值核对结论。", nodes: ["mathematical-induction"], mount: setupInduction },
   { id: "number-line", title: "数轴加减器", group: "numbers", summary: "在数轴上观察正负数加减的移动方向。", nodes: ["integers"], mount: setupNumberLine },
-  { id: "base-converter", title: "任意进制转换", group: "numbers", summary: "2–36 进制互换，支持负数与小数，并展示完整演算。", nodes: ["place-value", "base-conversion"], mount: mountBaseConverter },
+  { id: "base-converter", title: "任意进制转换", group: "numbers", summary: "2–64 进制互换，支持负数与小数，并展示完整演算。", nodes: ["place-value", "base-conversion"], mount: mountBaseConverter },
   { id: "integer-codes", title: "整数编码器", group: "repr", summary: "任意位宽下查看无符号、原码、反码与补码。", nodes: ["bits-bytes", "unsigned", "twos-complement"], mount: setupIntegerCodes },
   { id: "overflow", title: "定长加法与溢出", group: "repr", summary: "执行定长加法，查看 CF、OF 与位串结果。", nodes: ["overflow"], mount: setupOverflow },
   { id: "boolean", title: "布尔运算与加法器", group: "repr", summary: "查看逻辑运算真值表或一位全加器的和与进位。", nodes: ["boolean-algebra", "logic-gates", "boolean-simplification", "adders"], mount: setupBoolean },
@@ -2323,9 +2323,57 @@ for (const tool of TOOLS) {
   if (FORMULAS[tool.id]) tool.formulas = FORMULAS[tool.id];
 }
 
-export const TOOL_BY_ID = Object.fromEntries(TOOLS.map((tool) => [tool.id, tool]));
+const CATEGORY_BY_GROUP = {
+  math: "数学与逻辑",
+  repr: "数制与编码",
+  prog: "图与算法",
+  graph: "图与算法",
+  hardware: "计算机系统",
+  os: "计算机系统",
+  network: "网络与数据",
+  data: "网络与数据",
+  ai: "人工智能"
+};
 
-export const NODE_TOOL = Object.fromEntries(TOOLS.flatMap((tool) => tool.nodes.map((nodeId) => [nodeId, tool.id])));
+const TOOL_CATEGORY = {
+  "rule-system": "数学与逻辑",
+  "set-toolbox": "数学与逻辑",
+  "quantifier": "数学与逻辑",
+  "successor": "数学与逻辑",
+  "induction": "数学与逻辑",
+  "number-line": "数学与逻辑",
+  "derivative": "数学与逻辑",
+  "base-converter": "数制与编码",
+  "integer-codes": "数制与编码",
+  "overflow": "数制与编码",
+  "boolean": "数制与编码",
+  "float": "数制与编码",
+  "unicode": "数制与编码",
+  "endianness": "数制与编码",
+  "bitwise": "数制与编码",
+  "graph-studio": "图与算法",
+  "shortest-path": "图与算法",
+  "growth": "图与算法",
+  "sorting": "图与算法",
+  "trace": "图与算法",
+  "tree": "图与算法",
+  "cache": "计算机系统",
+  "pipeline": "计算机系统",
+  "scheduling": "计算机系统",
+  "paging": "计算机系统",
+  "race": "计算机系统",
+  "relational": "网络与数据",
+  "encapsulation": "网络与数据",
+  "gradient": "人工智能"
+};
+
+for (const tool of TOOLS) {
+  tool.category ??= TOOL_CATEGORY[tool.id] ?? CATEGORY_BY_GROUP[tool.group] ?? "其他";
+}
+
+export const TOOL_CATEGORIES = ["数制与编码", "图与算法", "计算机系统", "网络与数据", "数学与逻辑", "人工智能"];
+
+export const TOOL_BY_ID = Object.fromEntries(TOOLS.map((tool) => [tool.id, tool]));
 
 export function mountTool(toolId, root, context = {}) {
   const tool = TOOL_BY_ID[toolId];

@@ -41,6 +41,7 @@
     .top-links { display:flex; gap:23px; color:#778994; font-size:13px; }
     .top-link { border:0; padding:8px 0; background:transparent; color:#778994; font-size:13px; cursor:pointer; }
     .top-link.active { color:#167e75; font-weight:700; }
+    .mobile-nav { display:none; }
     .top-spacer { flex:1; }
     .search {
       display:flex; align-items:center; gap:9px; width:260px; height:37px; padding:0 12px;
@@ -244,6 +245,30 @@
     .lab-card small { color:#93a2a8; font-size:10px; }
     .lab-card svg { min-width:0; }
     .lab-card .lesson-fig { max-width:100%; overflow-x:auto; overflow-y:hidden; }
+    .experiment-shell { display:grid; gap:12px; }
+    .experiment-head { display:flex; flex-direction:column; gap:4px; }
+    .experiment-badge { align-self:flex-start; padding:3px 7px; border-radius:999px; background:#eaf7f3; color:#16877e; font-size:9px; font-weight:800; letter-spacing:.12em; }
+    .experiment-head b { color:#2c4a52; font-size:16px; letter-spacing:-.01em; }
+    .experiment-head p { margin:0; color:#62787f; font-size:12px; line-height:1.8; }
+    .exp-visual { border:1px solid #e5ece9; border-radius:12px; background:#fbfdfc; padding:6px; }
+    .exp-graph { display:block; width:100%; height:auto; }
+    .exp-question { color:#31515a; font-size:13px; font-weight:700; line-height:1.8; }
+    .exp-choices { display:flex; flex-wrap:wrap; gap:8px; }
+    .exp-feedback { min-height:22px; color:#52716d; font-size:12px; line-height:1.8; }
+    .exp-state { color:#839399; font-size:10px; }
+    .exp-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .exp-chip { padding:4px 8px; border-radius:999px; background:#f2f8f5; border:1px solid #e0ece7; color:#5c7b75; font-size:10px; }
+    .exp-table { margin:4px 0; }
+    .exp-table th, .exp-table td { padding:5px 9px; font-size:11px; }
+    .study-button[disabled] { opacity:.55; cursor:default; }
+    .exp-note { margin:8px 0 0; color:#60767d; font-size:12px; line-height:1.8; }
+    .exp-bars { display:flex; align-items:flex-end; justify-content:center; gap:10px; height:130px; padding:8px 4px; }
+    .exp-bar { flex:1; max-width:52px; min-width:34px; border-radius:8px 8px 3px 3px; background:linear-gradient(180deg,#8fd3c4,#4aa696); display:flex; align-items:flex-start; justify-content:center; padding-top:6px; color:#fff; font-size:12px; font-weight:800; box-shadow:0 6px 14px rgba(28,67,62,.12); }
+    .exp-bar span { pointer-events:none; }
+    .experiment-footer { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding-top:8px; border-top:1px dashed #e5ece9; color:#89999e; font-size:10px; }
+    .experiment-footer .study-button { padding:6px 9px; font-size:10px; }
+    .lesson-experiment { scroll-margin-top:18px; }
+    #experiment-list { display:grid; gap:10px; }
     .lab-formulas { margin:12px 0 4px; padding:12px 14px; border:1px solid #e3eee9; border-radius:11px; background:#f7fbf9; }
     .lab-formulas > b { display:block; margin-bottom:4px; color:#4f6b70; font-size:10px; letter-spacing:.08em; }
     .lab-formula { margin:6px 0; overflow-x:auto; overflow-y:hidden; color:#31515a; }
@@ -326,7 +351,7 @@
     .study-cta button,.study-button { border:1px solid #dce8e4; background:#fff; border-radius:9px; padding:10px 13px; color:#52716e; font-size:11px; font-weight:700; cursor:pointer; }
     .study-cta .primary,.study-button.primary { border-color:#168c81; background:#168c81; color:#fff; }
     .practice-card,.lab-card { margin-top:24px; border:1px solid #e5ece9; border-radius:15px; background:#fbfcfb; padding:20px; }
-    .practice-prompt { margin:0 0 17px; font-size:16px; line-height:1.7; overflow-wrap:anywhere; }
+    .practice-prompt { margin:0 0 17px; font-size:16px; line-height:1.7; overflow-wrap:anywhere; overflow-x:auto; overflow-y:hidden; }
     .answer-option { display:flex; align-items:flex-start; gap:10px; padding:11px 12px; margin:7px 0; border:1px solid #e7eeeb; border-radius:10px; background:#fff; color:#526871; font-size:12px; cursor:pointer; }
     .answer-option:hover { border-color:#b5d8cd; }
     .answer-panel { margin-top:10px; padding:12px 15px; border-left:3px solid #168c81; border-radius:0 9px 9px 0; background:#f4faf7; color:#3f5c5a; font-size:12.5px; line-height:1.95; }
@@ -359,6 +384,10 @@
       .topbar { padding:0 16px; gap:12px; }
       .brand { min-width:unset; }
       .brand-sub,.top-links,.search kbd { display:none; }
+      .mobile-nav { display:flex; gap:6px; padding:0 2px 9px; overflow-x:auto; scrollbar-width:none; }
+      .mobile-nav::-webkit-scrollbar { display:none; }
+      .mobile-nav .top-link { flex:0 0 auto; padding:6px 11px; border:1px solid #e2ebe8; border-radius:999px; background:#fff; font-size:11px; }
+      .mobile-nav .top-link.active { border-color:#b9ddd4; background:#eef8f4; }
       .search { width:min(42vw,220px); margin-left:auto; }
       .page { height:calc(100vh - 72px); height:calc(100dvh - 72px); padding:10px; }
       .workspace { height:auto; min-height:0; flex:1; }
@@ -389,6 +418,7 @@
     <nav class="top-links">
       <button class="top-link active" data-nav="graph">知识图谱</button>
       <button class="top-link" data-nav="books">教材</button>
+      <button class="top-link" data-nav="experiments">实验</button>
       <button class="top-link" data-nav="labs">工具</button>
     </nav>
     <div class="top-spacer"></div>
@@ -396,6 +426,12 @@
     <div class="avatar" title="访客">访</div>
   </header>
   <main class="page">
+    <nav class="mobile-nav" aria-label="主导航">
+      <button class="top-link active" data-nav="graph">知识图谱</button>
+      <button class="top-link" data-nav="books">教材</button>
+      <button class="top-link" data-nav="experiments">实验</button>
+      <button class="top-link" data-nav="labs">工具</button>
+    </nav>
     <section class="workspace" aria-label="计算机知识图谱">
       <div class="map-toolbar">
         <div class="legend legend-top" id="map-legend" aria-label="知识关系线图例"></div>
@@ -457,7 +493,8 @@
   </main>
   <script type="module">
     import { KnowledgeGraph3D } from "./src/graph3d.js";
-    import { TOOLS, TOOL_BY_ID, NODE_TOOL, mountTool } from "./src/tools.js";
+    import { TOOLS, TOOL_BY_ID, TOOL_CATEGORIES, mountTool } from "./src/tools.js";
+    import { EXPERIMENTS, EXPERIMENT_BY_ID, NODE_EXPERIMENT, mountExperiment } from "./src/experiments.js";
     import katex from "./vendor/katex/katex.js";
     const catalog = await fetch("./data/catalog.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("无法载入知识图谱数据");return r.json();});
     const {nodes,groupMeta,lessonLibrary,lessonNotes,exerciseBank}=catalog;
@@ -491,7 +528,7 @@
     const modeToggle=document.getElementById("mode-toggle");
     const NS = "http://www.w3.org/2000/svg";
     let selected = null, filter = "all", activeTab = "intro", zoom = 1, panX = 0, panY = 0;
-    let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false;
+    let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false, toolReturnLesson=null, toolReturnAnchor=null;
     const VIEW_STATE_KEY="cslearning.graph-view.v3";
     let viewSaveTimer=0;
     function make(tag,attrs={}) { const el=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v); return el; }
@@ -733,6 +770,9 @@
     }
     function openStudy(mode,id){
       const n=nodeById[id];if(!n)return;
+      toolReturnLesson=null;
+      toolReturnAnchor=null;
+      document.getElementById("study-back").textContent="← 知识图谱";
       selected=id;
       if(is3D)graph3D?.pause();
       document.body.classList.remove("focus-view");
@@ -743,6 +783,14 @@
       scheduleSaveView();
     }
     function backToGraph(){
+      if(toolReturnLesson){
+        const id=toolReturnLesson, anchor=toolReturnAnchor;
+        toolReturnLesson=null;toolReturnAnchor=null;
+        openStudy("lesson",id);
+        if(anchor)document.getElementById(anchor)?.scrollIntoView({block:"start"});
+        return;
+      }
+      document.getElementById("study-back").textContent="← 知识图谱";
       document.body.classList.remove("focus-view");
       studyView.classList.remove("active");workspace.style.display="flex";
       if(is3D)graph3D?.resume();
@@ -753,6 +801,9 @@
     document.getElementById("study-back").addEventListener("click",backToGraph);
     function activateNav(name){document.querySelectorAll(".top-link").forEach(x=>x.classList.toggle("active",x.dataset.nav===name));}
     function openOverview(title,meta,html){
+      toolReturnLesson=null;
+      toolReturnAnchor=null;
+      document.getElementById("study-back").textContent="← 知识图谱";
       document.body.classList.remove("focus-view");
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
       studyMeta.className="study-head-meta";
@@ -771,10 +822,56 @@
         <section class="lesson-section"><h3>PDF 试读</h3><p>目前有一份位置记数法的 LaTeX 样稿。</p>
         <a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">打开 PDF 讲义 ↗</a></section>`);
     }
+    function renderExperimentsPage(){
+      const groupKeys=[...Object.keys(groupMeta), ...new Set(EXPERIMENTS.map(experiment=>nodeById[experiment.nodeId]?.group??experiment.domain).filter(key=>!groupMeta[key]))];
+      const groups=groupKeys
+        .map(key=>({key,items:EXPERIMENTS.filter(experiment=>(nodeById[experiment.nodeId]?.group??experiment.domain)===key)}))
+        .filter(group=>group.items.length);
+      const sections=groups.map(group=>`<details class="lab-group" open>
+        <summary><span>${escapeHTML(groupMeta[group.key]?.label??group.key)}</span><small>${group.items.length} 个实验</small></summary>
+        <div class="lab-grid">${group.items.map(experiment=>`<button class="lab-card" data-experiment="${experiment.id}" data-search="${escapeHTML([experiment.title, nodeById[experiment.nodeId]?.title ?? "", experiment.summary].join(" ")).toLowerCase()}">
+          <b>${escapeHTML(experiment.title)}</b>
+          <small>${escapeHTML(nodeById[experiment.nodeId]?.title ?? experiment.nodeId)} · ${experiment.steps} 步</small>
+          <small>${escapeHTML(experiment.summary)}</small></button>`).join("")}</div></details>`).join("");
+      openOverview("实验",`${EXPERIMENTS.length} 个实验 · 点击进入对应知识点`,
+        `<div class="study-kicker">EXPERIMENTS · 教材内实验</div>
+        <h1 class="study-title">实验</h1>
+        <p class="study-lead">每个实验只服务教材里的一个知识点，1–3 步完成。点击实验会进入对应知识点，实验就在正文的对应位置；想自由改条件，去工具页。</p>
+        <div class="lab-controls"><label>搜索实验 <input id="experiment-search" placeholder="实验、知识点、关键词" style="width:260px"></label></div>
+        <div id="experiment-list">${sections || '<p class="study-lead">还没有实验。</p>'}</div>
+        <p class="study-lead" id="experiment-empty" hidden>没有匹配的实验。试着换个关键词。</p>`);
+      const search=studyContent.querySelector("#experiment-search");
+      if(search){
+        search.addEventListener("input",()=>{
+          const q=search.value.trim().toLowerCase();
+          studyContent.querySelectorAll("[data-experiment]").forEach(card=>{
+            card.style.display=!q||card.dataset.search.includes(q)?"":"none";
+          });
+          studyContent.querySelectorAll("#experiment-list .lab-group").forEach(group=>{
+            const visible=[...group.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
+            group.style.display=visible?"":"none";
+          });
+          const anyVisible=[...studyContent.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
+          const empty=studyContent.querySelector("#experiment-empty");
+          if(empty)empty.hidden=anyVisible;
+        });
+      }
+      studyContent.querySelectorAll("[data-experiment]").forEach(button=>{
+        button.addEventListener("click",()=>{
+          const experiment=EXPERIMENT_BY_ID[button.dataset.experiment];
+          if(!experiment)return;
+          activateNav("experiments");
+          openStudy("lesson",experiment.nodeId);
+          document.getElementById("lesson-experiment")?.scrollIntoView({block:"start"});
+          requestAnimationFrame(()=>document.getElementById("lesson-experiment")?.scrollIntoView({block:"start"}));
+        });
+      });
+    }
     document.querySelectorAll(".top-link").forEach(b=>b.addEventListener("click",()=>{
       activateNav(b.dataset.nav);
-      if(b.dataset.nav==="graph")backToGraph();
+      if(b.dataset.nav==="graph"){toolReturnLesson=null;toolReturnAnchor=null;backToGraph();}
       else if(b.dataset.nav==="labs")renderLabsPage();
+      else if(b.dataset.nav==="experiments")renderExperimentsPage();
       else renderBooksPage();
     }));
     function applyMath(root){
@@ -818,21 +915,21 @@
         ${s.table?lessonTableHTML(s.table):""}
         ${s.proof?`<div class="proof-block"><b>${escapeHTML(s.proof.label||"证明")}</b>${s.proof.text.split("\n").map((line,i,arr)=>`<p style="margin:4px 0">${escapeHTML(line)}${i===arr.length-1&&s.proof.qed!==false?"　□":""}</p>`).join("")}</div>`:""}
         ${s.example?`<div class="worked-example"><b>${escapeHTML(s.exampleLabel||"例题")}</b>${escapeHTML(s.example)}</div>`:""}
-        ${s.experiment?`<div class="lab-card lesson-embed"><div data-inline-lab="${escapeHTML(s.experiment)}"></div></div>`:""}</section>`);
+        ${s.experiment&&(EXPERIMENT_BY_ID[s.experiment]||NODE_EXPERIMENT[s.experiment])?`<div class="lab-card lesson-embed"><div data-inline-experiment="${escapeHTML(EXPERIMENT_BY_ID[s.experiment]?.id??NODE_EXPERIMENT[s.experiment])}"></div></div>`:""}</section>`);
       const history=lesson.history?`<aside class="history-note"><b>历史一瞥</b><br>${escapeHTML(lesson.history)}</aside>`:"";
       const note=lessonNotes[n.id];
       const enrichment=note?`<section class="lesson-section"><h3>例子与易错点</h3>
         <div class="worked-example"><b>具体例子</b>${escapeHTML(note.worked)}</div>
         <aside class="pitfall-note"><b>容易混淆</b>${escapeHTML(note.pitfall)}</aside></section>`:"";
       const references=lesson.references?.length?`<section class="lesson-section"><h3>延伸阅读</h3><ul class="reference-list">${lesson.references.map(r=>`<li>${escapeHTML(r)}</li>`).join("")}</ul></section>`:"";
-      const hasInlineExperiment=lesson.sections.some(s=>s.experiment);
-      const tool=TOOL_BY_ID[NODE_TOOL[n.id]];
-      const inlineTool=!hasInlineExperiment&&tool?`<section class="lesson-section lesson-tool-section">
-        <div class="section-label">工具</div>
-        <div class="lab-card lesson-embed" data-inline-tool="${tool.id}"></div></section>`:"";
-      if(inlineTool){
+      const hasSectionExperiment=lesson.sections.some(s=>s.experiment&&(EXPERIMENT_BY_ID[s.experiment]||NODE_EXPERIMENT[s.experiment]));
+      const experiment=EXPERIMENT_BY_ID[NODE_EXPERIMENT[n.id]];
+      const experimentSection=experiment&&!hasSectionExperiment?`<section class="lesson-section lesson-experiment" id="lesson-experiment">
+        <div class="section-label">实验</div>
+        <div class="lab-card lesson-embed" data-inline-experiment="${experiment.id}"></div></section>`:"";
+      if(experimentSection){
         const summaryIndex=lesson.sections.findIndex(s=>/(本节要点|小结|总结)/.test(s.title));
-        sectionHTML.splice(summaryIndex>=0?summaryIndex:sectionHTML.length,0,inlineTool);
+        sectionHTML.splice(summaryIndex>=0?summaryIndex:sectionHTML.length,0,experimentSection);
       }
       const sections=sectionHTML.join("");
       const draft=n.contentStatus==="draft"?'<div class="draft-banner">新知识点脚手架 · 正文、例题与专属练习待补充</div>':"";
@@ -843,8 +940,7 @@
         <div class="study-cta">${n.id==="place-value"?'<a class="study-button" href="drafts/01-from-numbers-to-bits.pdf" target="_blank" rel="noopener">下载 PDF 讲义</a>':""}
         ${n.pre.map(id=>`<button data-related="${id}">先学：${escapeHTML(nodeById[id]?.title||id)}</button>`).join("")}</div>`;
       bindPractice(studyContent,n);
-      studyContent.querySelectorAll("[data-inline-lab]").forEach(host=>{if(hasLab(host.dataset.inlineLab))renderLabInto(host.dataset.inlineLab,host);});
-      studyContent.querySelectorAll("[data-inline-tool]").forEach(host=>mountTool(host.dataset.inlineTool,host,{applyMath}));
+      studyContent.querySelectorAll("[data-inline-experiment]").forEach(host=>mountExperiment(host.dataset.inlineExperiment,host,{applyMath,openTool:(toolId)=>openLab(toolId,n.id,"lesson-experiment")}));
       studyContent.querySelectorAll("[data-related]").forEach(b=>b.addEventListener("click",()=>openStudy("lesson",b.dataset.related)));
       applyMath(studyContent);
     }
@@ -903,30 +999,28 @@
         });
       });
     }
-    function hasLab(id){return Boolean(NODE_TOOL[id]||TOOL_BY_ID[id]);}
-    function renderLabInto(id,root){
-      const toolId=NODE_TOOL[id]??(TOOL_BY_ID[id]?id:null);
-      if(!toolId)return;
-      mountTool(toolId,root,{applyMath});
-    }
     function renderLabsPage(){
-      const groups=Object.keys(groupMeta).map(key=>({key,tools:TOOLS.filter(tool=>tool.group===key)})).filter(group=>group.tools.length);
+      const categories=[...TOOL_CATEGORIES, ...new Set(TOOLS.map(tool=>tool.category).filter(category=>!TOOL_CATEGORIES.includes(category)))];
+      const groups=categories.map(category=>({category,tools:TOOLS.filter(tool=>tool.category===category)})).filter(group=>group.tools.length);
       const sections=groups.map(group=>`<details class="lab-group" open>
-        <summary><span>${escapeHTML(groupMeta[group.key].label)}</span><small>${group.tools.length} 个工具</small></summary>
+        <summary><span>${escapeHTML(group.category)}</span><small>${group.tools.length} 个工具</small></summary>
         <div class="lab-grid">${group.tools.map(tool=>`<button class="lab-card" data-open-tool="${tool.id}" data-tool-group="${tool.group}">
           <b>${escapeHTML(tool.title)}</b><small>${escapeHTML(tool.summary)}</small>
-          ${tool.nodes.length>1?`<small>可服务 ${tool.nodes.length} 个知识点</small>`:""}</button>`).join("")}</div></details>`).join("");
-      openOverview("工具",`${TOOLS.length} 个通用工具 · ${Object.keys(NODE_TOOL).length} 个知识点已接入`,
-        `<div class="study-kicker">TOOLS · 通用工具</div>
+          ${tool.nodes.length>1?`<small>关联 ${tool.nodes.length} 个知识点</small>`:""}</button>`).join("")}</div></details>`).join("");
+      openOverview("工具",`${TOOLS.length} 个工具 · ${groups.length} 个类目`,
+        `<div class="study-kicker">TOOLS · 自由探索</div>
         <h1 class="study-title">工具</h1>
-        <p class="study-lead">工具与单个知识点解耦：同一个工具可以服务多个知识点，也可以脱离课程单独使用。选择工具进入独立页面。</p>${sections}`);
+        <p class="study-lead">工具按功能类目组织，不绑定单个知识点。打开后可以自由改条件、试极端值，观察会出现什么意外结果。教材里的实验会在旁边给出相关工具入口。</p>${sections}`);
       studyContent.querySelectorAll("[data-open-tool]").forEach(button=>{
         button.addEventListener("click",()=>openLab(button.dataset.openTool));
       });
     }
-    function openLab(toolId){
+    function openLab(toolId,returnLessonId=null,returnAnchor=null){
       const tool=TOOL_BY_ID[toolId];
       if(!tool)return;
+      toolReturnLesson=returnLessonId;
+      toolReturnAnchor=returnAnchor;
+      document.getElementById("study-back").textContent=returnLessonId?"← 返回知识点":"← 知识图谱";
       if(is3D)graph3D?.pause();
       setStudyTitle(tool.title,tool.summary);
       detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
