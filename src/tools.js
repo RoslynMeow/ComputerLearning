@@ -611,9 +611,15 @@ function setupGraphStudio(root) {
       <button class="study-button" id="gs-delete">删除选中顶点</button>
       <span id="gs-hint" style="color:#8c9b9f"></span>
     </div>
-    <svg id="gs-canvas" viewBox="0 0 760 460" style="width:100%;height:auto;background:#fbfdfc;border:1px solid #e5ece9;border-radius:12px;cursor:crosshair;touch-action:none"></svg>
-    <div class="lab-output" id="gs-analysis"></div>
-    <div id="gs-edges"></div>`;
+    <div class="gs-layout">
+      <div class="gs-main">
+        <svg id="gs-canvas" viewBox="0 0 760 460" style="width:100%;height:auto;background:#fbfdfc;border:1px solid #e5ece9;border-radius:12px;cursor:crosshair;touch-action:none"></svg>
+      </div>
+      <aside class="gs-side">
+        <div class="lab-output" id="gs-analysis"></div>
+        <div id="gs-edges"></div>
+      </aside>
+    </div>`;
 
   const svg = root.querySelector("#gs-canvas");
   const analysisBox = root.querySelector("#gs-analysis");
@@ -817,6 +823,21 @@ function setupGraphStudio(root) {
     updateHint();
   };
 
+  const activateVertex = (id) => {
+    if (!graph.selected) graph.selected = id;
+    else if (graph.selected === id) graph.selected = null;
+    else {
+      const matches = (e) => directedInput.checked
+        ? e.a === graph.selected && e.b === id
+        : (e.a === graph.selected && e.b === id) || (e.a === id && e.b === graph.selected);
+      const index = graph.edges.findIndex(matches);
+      if (index >= 0) graph.edges.splice(index, 1);
+      else graph.edges.push({ a: graph.selected, b: id, w: 1 });
+      graph.selected = null;
+    }
+    refresh();
+  };
+
   svg.addEventListener("pointerdown", (event) => {
     const id = event.target?.dataset?.id;
     if (!id) return;
@@ -825,7 +846,7 @@ function setupGraphStudio(root) {
     const point = toSvg(event);
     drag = { id, dx: vertex.x - point.x, dy: vertex.y - point.y, startX: point.x, startY: point.y };
     moved = false;
-    svg.setPointerCapture?.(event.pointerId);
+    try { svg.setPointerCapture?.(event.pointerId); } catch {}
     event.preventDefault();
   });
 
@@ -841,33 +862,25 @@ function setupGraphStudio(root) {
     drawCanvas();
   });
 
-  svg.addEventListener("pointerup", () => {
-    if (moved) suppressClick = true;
+  const finishDrag = (event) => {
+    if (!drag) return;
+    const id = drag.id;
+    const wasMoved = moved;
     drag = null;
     moved = false;
-  });
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 0);
+    if (!wasMoved) activateVertex(id);
+  };
+  svg.addEventListener("pointerup", finishDrag);
+  svg.addEventListener("pointercancel", () => { drag = null; moved = false; });
 
   svg.addEventListener("click", (event) => {
     if (suppressClick) {
       suppressClick = false;
       return;
     }
-    const id = event.target?.dataset?.id;
-    if (id) {
-      if (!graph.selected) graph.selected = id;
-      else if (graph.selected === id) graph.selected = null;
-      else {
-        const matches = (e) => directedInput.checked
-          ? e.a === graph.selected && e.b === id
-          : (e.a === graph.selected && e.b === id) || (e.a === id && e.b === graph.selected);
-        const index = graph.edges.findIndex(matches);
-        if (index >= 0) graph.edges.splice(index, 1);
-        else graph.edges.push({ a: graph.selected, b: id, w: 1 });
-        graph.selected = null;
-      }
-      refresh();
-      return;
-    }
+    if (event.target?.dataset?.id) return;
     const point = toSvg(event);
     const vertex = { id: `v${graph.nextLabel}`, label: labelFor(graph.nextLabel), x: point.x, y: point.y };
     graph.nextLabel += 1;
@@ -1151,7 +1164,7 @@ function setupQuantifier(root) {
     root.querySelector("#q-domain-view").innerHTML = domain.map((x) => `<span class="lab-token ${holds(x) ? "active" : ""}">${x}</span>`).join("") || "<span style='color:#8c9b9f'>论域为空</span>";
     root.querySelector("#q-output").innerHTML = `
       满足 P(x) 的对象：${truths.length ? `{${truths.join(", ")}}` : "∅"}<br>
-      ∀x∈D P(x)：<b>${truths.length === domain.length && domain.length > 0 ? "真" : "假"}</b>${falses.length ? `（反例：${falses[0]}）` : ""}<br>
+      ∀x∈D P(x)：<b>${falses.length === 0 ? "真" : "假"}</b>${falses.length ? `（反例：${falses[0]}）` : domain.length ? "" : "（空论域上为真）"}<br>
       ∃x∈D P(x)：<b>${truths.length > 0 ? "真" : "假"}</b>${truths.length ? `（见证：${truths[0]}）` : ""}`;
   };
   root.querySelectorAll("input,select").forEach((el) => el.addEventListener("input", update));
@@ -1636,18 +1649,20 @@ function setupGrowth(root) {
       ["n", n, "#68a9d2"],
       ["n log₂ n", Math.round(n * Math.log2(n)), "#8f80cb"],
       ["n²", n * n, "#e6a14a"],
-      ["2ⁿ", 2 ** n, "#c96b6b"]
+      ["2ⁿ", 1n << BigInt(n), "#c96b6b"]
     ];
-    const max = Math.max(...values.map(([, v]) => v), 2);
+    const numeric = (value) => typeof value === "bigint" ? Number(value) : value;
+    const display = (value) => typeof value === "bigint" ? value.toLocaleString("en-US") : Number(value).toLocaleString("en-US");
+    const max = Math.max(...values.map(([, value]) => numeric(value)), 2);
     const bars = values.map(([name, value, color]) => {
-      const percent = Math.max(2, Math.min(100, (Math.log2(value + 1) / Math.log2(max + 1)) * 100));
-      return `<div style="margin:8px 0">${name}：${value.toLocaleString("en-US")}
+      const percent = Math.max(2, Math.min(100, (Math.log2(numeric(value) + 1) / Math.log2(max + 1)) * 100));
+      return `<div style="margin:8px 0">${name}：${display(value)}
         <div style="height:7px;width:${percent}%;background:${color};border-radius:8px"></div></div>`;
     }).join("");
     root.querySelector("#gr-output").innerHTML = bars;
     root.querySelector("#gr-table").innerHTML = table(
       ["函数", "n = " + n, "相对 n"],
-      values.map(([name, value]) => [name, value.toLocaleString("en-US"), (value / Math.max(1, n)).toFixed(2)]),
+      values.map(([name, value]) => [name, display(value), (numeric(value) / Math.max(1, n)).toFixed(2)]),
       "增长量对照"
     );
   };
@@ -1731,7 +1746,8 @@ function setupGradient(root) {
       history.push({ step: i, w, loss: (w - target) ** 2, grad: 2 * (w - target) });
     }
     const last = history[history.length - 1];
-    root.querySelector("#gd-output").innerHTML = `最终参数 w = <b>${last.w.toFixed(6)}</b>，损失 L = <b>${last.loss.toFixed(8)}</b>${Number.isFinite(last.loss) ? "" : "（发散）"}`;
+    const diverged = rate >= 1 || !Number.isFinite(last.loss) || !Number.isFinite(last.w) || Math.abs(last.w) > 1e5 || last.loss > 1e6;
+    root.querySelector("#gd-output").innerHTML = `最终参数 w = <b>${last.w.toFixed(6)}</b>，损失 L = <b>${last.loss.toFixed(8)}</b>${diverged ? "（发散：学习率过大）" : ""}`;
     root.querySelector("#gd-table").innerHTML = table(
       ["迭代", "w", "L(w)", "梯度"],
       history.map((row) => [String(row.step), row.w.toFixed(6), row.loss.toFixed(8), row.grad.toFixed(6)]),
@@ -1770,7 +1786,16 @@ function setupSorting(root) {
   const compare = (x, y, order) => order === "asc" ? x > y : x < y;
   const build = () => {
     const values = splitList(root.querySelector("#so-values").value).map(Number).filter(Number.isFinite).slice(0, 12);
-    if (!values.length) return;
+    if (!values.length) {
+      frames = [];
+      index = 0;
+      root.querySelector("#so-bars").innerHTML = '<div style="color:#93a2a8;font-size:12px;padding:70px 0">请输入至少一个数字</div>';
+      root.querySelector("#so-caption").textContent = "请输入至少一个数字后再生成步骤。";
+      root.querySelector("#so-counter").textContent = "0 / 0";
+      root.querySelector("#so-step").max = 0;
+      root.querySelector("#so-step").value = 0;
+      return;
+    }
     const arr = values.slice();
     const method = root.querySelector("#so-method").value;
     const order = root.querySelector("#so-order").value;
@@ -1864,7 +1889,15 @@ function setupTrace(root) {
     const target = Number(root.querySelector("#tr-target").value);
     const mode = root.querySelector("#tr-mode").value;
     frames = [];
-    if (!values.length) return;
+    if (!values.length) {
+      index = 0;
+      root.querySelector("#tr-items").innerHTML = '<span style="color:#93a2a8;font-size:12px">请输入至少一个数字</span>';
+      root.querySelector("#tr-state").textContent = "请输入至少一个数字后再生成步骤。";
+      root.querySelector("#tr-counter").textContent = "0 / 0";
+      root.querySelector("#tr-step").max = 0;
+      root.querySelector("#tr-step").value = 0;
+      return;
+    }
     if (mode === "linear") {
       frames.push({ values, active: -1, done: [], text: `准备从索引 0 开始比较目标 ${target}。` });
       for (let i = 0; i < values.length; i++) {
@@ -1943,9 +1976,15 @@ function setupTree(root) {
       <button class="study-button primary" id="tree-next">下一步</button>
       <button class="study-button" id="tree-reset">重置</button>
     </div>
-    <svg id="tree-svg" viewBox="0 0 760 300" style="width:100%;height:auto;background:#fbfdfc;border:1px solid #e5ece9;border-radius:12px"></svg>
-    <div class="lab-step" id="tree-nodes"></div>
-    <div class="lab-output" id="tree-state"></div>`;
+    <div class="tool-split">
+      <div class="tool-split-main">
+        <svg id="tree-svg" viewBox="0 0 760 300" style="width:100%;height:auto;background:#fbfdfc;border:1px solid #e5ece9;border-radius:12px"></svg>
+      </div>
+      <aside class="tool-split-side">
+        <div class="lab-step" id="tree-nodes"></div>
+        <div class="lab-output" id="tree-state"></div>
+      </aside>
+    </div>`;
 
   let nodes = [];
   let order = [];
@@ -2627,11 +2666,11 @@ export function mountTool(toolId, root, context = {}) {
   }
 
   if (tool.formulas?.length) {
-    const formulaBox = document.createElement("div");
+    const formulaBox = document.createElement("details");
     formulaBox.className = "lab-formulas";
-    formulaBox.innerHTML = `<b>公式</b>${tool.formulas.map((tex) => `<div class="lab-formula">$$${esc(tex)}$$</div>`).join("")}`;
+    formulaBox.innerHTML = `<summary>公式 · ${tool.formulas.length}</summary>${tool.formulas.map((tex) => `<div class="lab-formula">$$${esc(tex)}$$</div>`).join("")}`;
     if (context.standalone) {
-      root.prepend(formulaBox);
+      root.append(formulaBox);
     } else {
       const anchor = root.querySelector("p");
       if (anchor) anchor.insertAdjacentElement("afterend", formulaBox);

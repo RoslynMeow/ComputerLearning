@@ -76,6 +76,7 @@ export function mountChoiceSteps(root, experiment, config) {
       answered = correct;
       feedback = correct ? (step.correctText ?? "正确。") : (step.wrongText ?? "再试一次。");
       render();
+      if (correct && last) root.dispatchEvent(new CustomEvent("experiment-complete", { bubbles: true }));
     }));
     root.querySelector("[data-next-step]")?.addEventListener("click", () => {
       index += 1;
@@ -122,6 +123,7 @@ export function mountStepper(root, experiment, config) {
       const correct = String(button.dataset.expChoice) === String(config.correct);
       feedback = correct ? (config.correctText ?? "正确。") : (config.wrongText ?? "再试一次。");
       render();
+      if (correct && atEnd) root.dispatchEvent(new CustomEvent("experiment-complete", { bubbles: true }));
     }));
   };
   render();

@@ -14,9 +14,9 @@ import { EXPERIMENTS as OS } from "./experiments/os.js";
 import { EXPERIMENTS as NETWORK } from "./experiments/network.js";
 import { EXPERIMENTS as APPLIED } from "./experiments/applied.js";
 import { EXPERIMENTS as PROG } from "./experiments/prog.js";
-import { markExperimentDone, isExperimentDone, experimentDoneCount } from "./experiments/progress.js";
+import { markExperimentDone, isExperimentDone, experimentDoneCount, PROGRESS_KEY } from "./experiments/progress.js";
 
-export { isExperimentDone, experimentDoneCount };
+export { isExperimentDone, experimentDoneCount, PROGRESS_KEY };
 
 export const EXPERIMENTS = [
   ...GRAPH,
@@ -41,28 +41,30 @@ export const NODE_EXPERIMENT = Object.fromEntries(EXPERIMENTS.map((experiment) =
 export function mountExperiment(experimentId, root, context = {}) {
   const experiment = EXPERIMENT_BY_ID[experimentId];
   if (!experiment) return false;
+  const completeExperiment = () => {
+    const first = markExperimentDone(experiment.id);
+    root.querySelector(".experiment-done")?.removeAttribute("hidden");
+    if (first) window.dispatchEvent(new CustomEvent("experiment-progress-change", { detail: { id: experiment.id } }));
+  };
   root.innerHTML = "";
-  experiment.mount(root, context, experiment);
+  experiment.mount(root, { ...context, complete: completeExperiment }, experiment);
+  const checkCompletion = () => {
+    const feedback = root.querySelector("[data-feedback]");
+    if (!feedback || !feedback.textContent.trim().startsWith("正确")) return;
+    if (root.querySelector("[data-next-step]")) return;
+    const step = root.querySelector("[data-step]");
+    if (step && !step.disabled) return;
+    completeExperiment();
+  };
   root.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-exp-tool]");
     if (button) {
       context.openTool?.(button.dataset.expTool);
       return;
     }
-    const check = () => {
-      const feedback = root.querySelector("[data-feedback]");
-      if (!feedback || !feedback.textContent.trim().startsWith("正确")) return;
-      if (root.querySelector("[data-next-step]")) return;
-      const step = root.querySelector("[data-step]");
-      if (step && !step.disabled) return;
-      markExperimentDone(experiment.id);
-      root.querySelector(".experiment-done")?.removeAttribute("hidden");
-    };
-    setTimeout(check, 0);
+    checkCompletion();
+    queueMicrotask(checkCompletion);
   });
-  root.addEventListener("experiment-complete", () => {
-    markExperimentDone(experiment.id);
-    root.querySelector(".experiment-done")?.removeAttribute("hidden");
-  });
+  root.addEventListener("experiment-complete", completeExperiment);
   return true;
 }

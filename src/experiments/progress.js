@@ -1,5 +1,7 @@
 const PROGRESS_KEY = "cslearning.experiments.progress.v1";
 
+export { PROGRESS_KEY };
+
 function readProgress() {
   try {
     const value = JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
@@ -18,11 +20,12 @@ export function isExperimentDone(id) {
 }
 
 export function markExperimentDone(id) {
-  if (!id) return;
+  if (!id) return false;
   const progress = readProgress();
-  if (progress[id]) return;
+  if (progress[id]) return false;
   progress[id] = { at: Date.now() };
   writeProgress(progress);
+  return true;
 }
 
 export function experimentDoneCount(experiments = null) {
