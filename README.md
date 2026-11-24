@@ -11,7 +11,7 @@ npm run dev      # 默认 http://localhost:5180
 
 `npm run dev` 使用 Vite 开发服务器，修改 `index.html`、`data/catalog.json` 或 `src/` 后页面自动刷新。
 
-页面支持 hash 深链接，例如 `#lesson/graph-theory`、`#tool/base-converter`、`#experiments`；刷新或分享链接会恢复到对应页面。
+页面支持 hash 深链接，例如 `#lesson/graph-theory`、`#experiment/graph-bfs`、`#tool/base-converter`、`#experiments`；刷新或分享链接会恢复到对应页面。
 
 端口说明：本项目固定使用 5180。此前占用 4173 的是另一个项目（`CorrelationAnalyze` 的 vite preview），与本项目同时运行会导致打开错误站点，已停止；如仍需要那个项目，请给它换一个端口。
 

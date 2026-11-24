@@ -14,6 +14,9 @@ import { EXPERIMENTS as OS } from "./experiments/os.js";
 import { EXPERIMENTS as NETWORK } from "./experiments/network.js";
 import { EXPERIMENTS as APPLIED } from "./experiments/applied.js";
 import { EXPERIMENTS as PROG } from "./experiments/prog.js";
+import { markExperimentDone, isExperimentDone, experimentDoneCount } from "./experiments/progress.js";
+
+export { isExperimentDone, experimentDoneCount };
 
 export const EXPERIMENTS = [
   ...GRAPH,
@@ -42,7 +45,24 @@ export function mountExperiment(experimentId, root, context = {}) {
   experiment.mount(root, context, experiment);
   root.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-exp-tool]");
-    if (button) context.openTool?.(button.dataset.expTool);
+    if (button) {
+      context.openTool?.(button.dataset.expTool);
+      return;
+    }
+    const check = () => {
+      const feedback = root.querySelector("[data-feedback]");
+      if (!feedback || !feedback.textContent.trim().startsWith("正确")) return;
+      if (root.querySelector("[data-next-step]")) return;
+      const step = root.querySelector("[data-step]");
+      if (step && !step.disabled) return;
+      markExperimentDone(experiment.id);
+      root.querySelector(".experiment-done")?.removeAttribute("hidden");
+    };
+    setTimeout(check, 0);
+  });
+  root.addEventListener("experiment-complete", () => {
+    markExperimentDone(experiment.id);
+    root.querySelector(".experiment-done")?.removeAttribute("hidden");
   });
   return true;
 }

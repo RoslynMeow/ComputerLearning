@@ -172,7 +172,14 @@ export function mountBaseConverter(root) {
           <div class="lab-controls">
             <button class="study-button" data-glyph-save>保存此位</button>
             <button class="study-button" data-glyph-clear>清除此位</button>
+            <button class="study-button" data-glyph-undo>撤销</button>
+            <button class="study-button" data-glyph-eraser aria-pressed="false">橡皮擦</button>
+          </div>
+          <div class="lab-controls">
+            <button class="study-button" data-glyph-export>导出全部</button>
+            <button class="study-button" data-glyph-import>导入</button>
             <button class="study-button" data-glyph-reset>清空全部</button>
+            <input id="bc-glyph-import" type="file" accept="application/json,.json" hidden>
           </div>
           <div class="exp-state" id="bc-glyph-state">手绘只影响显示，输入仍使用字符序列中的字符。</div>
         </div>
@@ -205,8 +212,18 @@ export function mountBaseConverter(root) {
   } catch {}
   let glyphIndex = 0;
   let drawingGlyph = false;
+  let eraser = false;
+  let glyphUndo = [];
 
+  const applyGlyphBrush = () => {
+    glyphCtx.globalCompositeOperation = eraser ? "destination-out" : "source-over";
+    glyphCtx.lineWidth = eraser ? 16 : 6;
+    glyphCtx.lineCap = "round";
+    glyphCtx.lineJoin = "round";
+    glyphCtx.strokeStyle = "#173f3a";
+  };
   const resetGlyphCanvas = () => {
+    glyphCtx.globalCompositeOperation = "source-over";
     glyphCtx.clearRect(0, 0, glyphCanvas.width, glyphCanvas.height);
     glyphCtx.lineWidth = 6;
     glyphCtx.lineCap = "round";
@@ -216,15 +233,29 @@ export function mountBaseConverter(root) {
   const updateGlyphLabel = () => {
     glyphLabel.textContent = `${glyphIndex}（${alphabet[glyphIndex] ?? "?"}）`;
   };
+  const drawGlyphSource = (source, after = () => {}) => {
+    resetGlyphCanvas();
+    if (!source) {
+      after();
+      return;
+    }
+    const image = new Image();
+    image.onload = () => {
+      glyphCtx.save();
+      glyphCtx.globalCompositeOperation = "source-over";
+      glyphCtx.drawImage(image, 0, 0, glyphCanvas.width, glyphCanvas.height);
+      glyphCtx.restore();
+      after();
+    };
+    image.src = source;
+  };
   const loadGlyphEditor = () => {
     updateGlyphLabel();
-    resetGlyphCanvas();
-    const source = glyphs[glyphIndex];
-    if (source) {
-      const image = new Image();
-      image.onload = () => glyphCtx.drawImage(image, 0, 0, glyphCanvas.width, glyphCanvas.height);
-      image.src = source;
-    }
+    drawGlyphSource(glyphs[glyphIndex], applyGlyphBrush);
+  };
+  const snapshotGlyph = () => {
+    glyphUndo.push(glyphCanvas.toDataURL("image/png"));
+    if (glyphUndo.length > 20) glyphUndo.shift();
   };
   const persistGlyphs = () => {
     try { localStorage.setItem(GLYPH_KEY, JSON.stringify(glyphs)); } catch {}
@@ -245,7 +276,9 @@ export function mountBaseConverter(root) {
   };
   glyphCanvas.addEventListener("pointerdown", (event) => {
     drawingGlyph = true;
+    snapshotGlyph();
     glyphCanvas.setPointerCapture(event.pointerId);
+    applyGlyphBrush();
     const point = glyphPoint(event);
     glyphCtx.beginPath();
     glyphCtx.moveTo(point.x, point.y);
@@ -264,6 +297,7 @@ export function mountBaseConverter(root) {
   glyphCanvas.addEventListener("pointerleave", stopDrawing);
   glyphIndexInput.addEventListener("input", () => {
     glyphIndex = Number(glyphIndexInput.value);
+    glyphUndo = [];
     loadGlyphEditor();
   });
   root.querySelector("[data-glyph-save]").addEventListener("click", () => {
@@ -273,17 +307,67 @@ export function mountBaseConverter(root) {
     update();
   });
   root.querySelector("[data-glyph-clear]").addEventListener("click", () => {
+    snapshotGlyph();
     glyphs[glyphIndex] = null;
     persistGlyphs();
-    resetGlyphCanvas();
+    drawGlyphSource(null, applyGlyphBrush);
     glyphState.textContent = `第 ${glyphIndex} 位已清除。`;
     update();
+  });
+  root.querySelector("[data-glyph-undo]").addEventListener("click", () => {
+    const previous = glyphUndo.pop();
+    if (!previous) {
+      glyphState.textContent = "没有可撤销的笔画。";
+      return;
+    }
+    drawGlyphSource(previous, applyGlyphBrush);
+    glyphState.textContent = "已撤销上一笔；记得重新保存。";
+  });
+  const eraserButton = root.querySelector("[data-glyph-eraser]");
+  eraserButton.addEventListener("click", () => {
+    eraser = !eraser;
+    eraserButton.classList.toggle("primary", eraser);
+    eraserButton.setAttribute("aria-pressed", String(eraser));
+    applyGlyphBrush();
+    glyphState.textContent = eraser ? "橡皮擦已开启，拖动可擦除。" : "已切回画笔。";
+  });
+  root.querySelector("[data-glyph-export]").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify({ version: 1, glyphs }, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "cslearning-glyphs.json";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    glyphState.textContent = "已导出全部手绘数码。";
+  });
+  const importInput = root.querySelector("#bc-glyph-import");
+  root.querySelector("[data-glyph-import]").addEventListener("click", () => importInput.click());
+  importInput.addEventListener("change", async () => {
+    const file = importInput.files?.[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const list = Array.isArray(data) ? data : data?.glyphs;
+      if (!Array.isArray(list)) throw new Error("bad format");
+      glyphs = Array.from({ length: 64 }, (_, index) => typeof list[index] === "string" ? list[index] : null);
+      glyphUndo = [];
+      persistGlyphs();
+      loadGlyphEditor();
+      update();
+      glyphState.textContent = `已导入 ${glyphs.filter(Boolean).length} 位手绘。`;
+    } catch {
+      glyphState.textContent = "导入失败：需要 JSON 数组或 { glyphs: [...] }。";
+    } finally {
+      importInput.value = "";
+    }
   });
   root.querySelector("[data-glyph-reset]").addEventListener("click", () => {
     if (!confirm("清空全部 64 位手绘数码？")) return;
     glyphs = Array(64).fill(null);
+    glyphUndo = [];
     persistGlyphs();
-    resetGlyphCanvas();
+    loadGlyphEditor();
     glyphState.textContent = "已清空全部手绘数码。";
     update();
   });

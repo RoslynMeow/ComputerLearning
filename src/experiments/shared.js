@@ -4,6 +4,7 @@
 // 需要特殊图形时，实验文件可以直接用 shell + 自己的事件绑定。
 
 import { TOOL_BY_ID } from "../tools.js";
+import { isExperimentDone } from "./progress.js";
 
 export const esc = (value) => String(value).replace(/[&<>"']/g, (ch) => ({
   "&": "&amp;",
@@ -19,7 +20,10 @@ export function shell(experiment, body) {
     return `<button class="study-button" data-exp-tool="${esc(toolId)}">打开${esc(tool?.title ?? "工具")}</button>`;
   }).join("");
   return `<div class="experiment-shell">
-    <div class="experiment-head"><span class="experiment-badge">实验</span><b>${esc(experiment.title)}</b><p>${esc(experiment.summary)}</p></div>
+    <div class="experiment-head">
+      <div class="experiment-meta"><span class="experiment-badge">实验</span>${isExperimentDone(experiment.id) ? '<span class="experiment-done">已完成</span>' : '<span class="experiment-done" hidden>已完成</span>'}</div>
+      <b>${esc(experiment.title)}</b><p>${esc(experiment.summary)}</p>
+    </div>
     ${body}
     ${tools ? `<div class="experiment-footer"><span>想自己改条件、看意外结果？</span>${tools}</div>` : ""}
   </div>`;

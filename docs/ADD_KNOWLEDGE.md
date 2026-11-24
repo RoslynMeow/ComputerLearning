@@ -80,6 +80,8 @@ node scripts/add-knowledge.mjs `
 
 教材默认只内嵌每个知识点的一个主实验：注册实验后自动插在“本节要点”“小结”或“总结”之前；若正文某节写了 `experiment` 字段，则以该字段中的**实验 id** 为准，在该节位置内嵌。知识点正文不再直接挂载完整工具。
 
+实验完成状态保存在浏览器 `localStorage`，实验页可按“已完成 / 未完成”筛选；从实验打开工具再返回时，会保留当前实验的交互状态。
+
 实验文件按知识域拆分：`graph.js`、`numbers.js`、`repr.js`、`prog.js`、`hardware.js`、`os.js`、`network.js` 等。共用外壳和交互模板在 `src/experiments/shared.js`：
 
 - `shell(experiment, body)`：实验标题、简介与工具入口；
@@ -102,7 +104,7 @@ node scripts/add-knowledge.mjs `
 | `formulas` | 可选，工具页公式区要展示的 LaTeX 字符串数组 |
 | `mount(root, context)` | 把工具挂载到 `root` 的函数 |
 
-工具页把标题和简介放在顶栏，卡片内直接以公式区开始，并按 `TOOL_CATEGORIES` 的固定顺序分组。工具页会自动列出通过 `toolLinks` 引用它的实验，工具卡片显示相关实验数。公式均由 KaTeX 渲染。工具动态输出的文本也可以直接写 `$...$` 或 `$$...$$`；`mountTool` 会监听 DOM 变化并重新排版公式。
+工具页把标题和简介放在顶栏，卡片内直接以公式区开始，并按 `TOOL_CATEGORIES` 的固定顺序分组；工具页支持搜索。工具页会自动列出通过 `toolLinks` 引用它的实验，工具卡片显示相关实验数。公式均由 KaTeX 渲染。工具动态输出的文本也可以直接写 `$...$` 或 `$$...$$`；`mountTool` 会监听 DOM 变化并重新排版公式。
 
 新增工具时：
 
@@ -118,6 +120,7 @@ node scripts/add-knowledge.mjs `
 页面状态会写入 URL hash，可以直接分享或在刷新后恢复：
 
 - `#lesson/<知识点 id>`
+- `#experiment/<实验 id>`
 - `#tool/<工具 id>`
 - `#experiments`
 - `#labs`

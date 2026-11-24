@@ -243,11 +243,16 @@
     .lab-card[data-tool-group="ai"] { border-top-color:#b8528a; }
     .lab-card b { color:#2f4e56; font-size:12px; font-weight:650; }
     .lab-card small { color:#93a2a8; font-size:10px; }
+    .lab-card.done { border-color:#cfe6d2; background:#fbfefb; }
+    .lab-card .exp-card-done { color:#3d7a45; font-weight:700; }
     .lab-card svg { min-width:0; }
     .lab-card .lesson-fig { max-width:100%; overflow-x:auto; overflow-y:hidden; }
     .experiment-shell { display:grid; gap:12px; }
     .experiment-head { display:flex; flex-direction:column; gap:4px; }
     .experiment-badge { align-self:flex-start; padding:3px 7px; border-radius:999px; background:#eaf7f3; color:#16877e; font-size:9px; font-weight:800; letter-spacing:.12em; }
+    .experiment-meta { display:flex; align-items:center; gap:6px; }
+    .experiment-done { padding:3px 7px; border-radius:999px; background:#e8f5e8; color:#3d7a45; font-size:9px; font-weight:750; }
+    .experiment-done[hidden] { display:none; }
     .experiment-head b { color:#2c4a52; font-size:16px; letter-spacing:-.01em; }
     .experiment-head p { margin:0; color:#62787f; font-size:12px; line-height:1.8; }
     .exp-visual { border:1px solid #e5ece9; border-radius:12px; background:#fbfdfc; padding:6px; }
@@ -516,7 +521,7 @@
   <script type="module">
     import { KnowledgeGraph3D } from "./src/graph3d.js";
     import { TOOLS, TOOL_BY_ID, TOOL_CATEGORIES, mountTool } from "./src/tools.js";
-    import { EXPERIMENTS, EXPERIMENT_BY_ID, NODE_EXPERIMENT, mountExperiment } from "./src/experiments.js";
+    import { EXPERIMENTS, EXPERIMENT_BY_ID, NODE_EXPERIMENT, mountExperiment, isExperimentDone, experimentDoneCount } from "./src/experiments.js";
     import katex from "./vendor/katex/katex.js";
     const catalog = await fetch("./data/catalog.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("无法载入知识图谱数据");return r.json();});
     const {nodes,groupMeta,lessonLibrary,lessonNotes,exerciseBank}=catalog;
@@ -551,6 +556,7 @@
     const NS = "http://www.w3.org/2000/svg";
     let selected = null, filter = "all", activeTab = "intro", zoom = 1, panX = 0, panY = 0;
     let gesture = null, mobileLayout = null, mobileViewHeight = 0, graph3D=null, is3D=false, toolReturnLesson=null, toolReturnAnchor=null, routeLock=false;
+    const experimentCache = new Map();
     const VIEW_STATE_KEY="cslearning.graph-view.v3";
     let viewSaveTimer=0;
     function make(tag,attrs={}) { const el=document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs)) el.setAttribute(k,v); return el; }
@@ -790,8 +796,9 @@
       studyMeta.className=title?"study-head-title":"study-head-meta";
       studyMeta.innerHTML=title?`${escapeHTML(title)}${summary?`<span class="study-head-sub">${escapeHTML(summary)}</span>`:""}`:"";
     }
-    function openStudy(mode,id){
+    function openStudy(mode,id,preserveExperiment=false){
       const n=nodeById[id];if(!n)return;
+      if(!preserveExperiment)experimentCache.clear();
       toolReturnLesson=null;
       toolReturnAnchor=null;
       document.getElementById("study-back").textContent="← 知识图谱";
@@ -809,10 +816,17 @@
       if(toolReturnLesson){
         const id=toolReturnLesson, anchor=toolReturnAnchor;
         toolReturnLesson=null;toolReturnAnchor=null;
-        openStudy("lesson",id);
+        openStudy("lesson",id,true);
+        studyContent.querySelectorAll("[data-inline-experiment]").forEach(host=>{
+          const cached=experimentCache.get(host.dataset.inlineExperiment);
+          if(cached)host.replaceWith(cached);
+        });
+        experimentCache.clear();
+        applyMath(studyContent);
         if(anchor)document.getElementById(anchor)?.scrollIntoView({block:"start"});
         return;
       }
+      experimentCache.clear();
       setRoute("graph");
       document.getElementById("study-back").textContent="← 知识图谱";
       document.body.classList.remove("focus-view");
@@ -827,6 +841,7 @@
     function openOverview(title,meta,html,route=null){
       toolReturnLesson=null;
       toolReturnAnchor=null;
+      experimentCache.clear();
       document.getElementById("study-back").textContent="← 知识图谱";
       document.body.classList.remove("focus-view");
       selected=null;if(is3D)graph3D?.pause();detail.classList.remove("open");workspace.style.display="none";studyView.classList.add("active");
@@ -854,25 +869,29 @@
         .filter(group=>group.items.length);
       const sections=groups.map(group=>`<details class="lab-group" open>
         <summary><span>${escapeHTML(groupMeta[group.key]?.label??group.key)}</span><small>${group.items.length} 个实验</small></summary>
-        <div class="lab-grid">${group.items.map(experiment=>`<button class="lab-card" data-experiment="${experiment.id}" data-group="${group.key}" data-search="${escapeHTML([experiment.title, nodeById[experiment.nodeId]?.title ?? "", experiment.summary].join(" ")).toLowerCase()}">
+        <div class="lab-grid">${group.items.map(experiment=>`<button class="lab-card ${isExperimentDone(experiment.id)?"done":""}" data-experiment="${experiment.id}" data-group="${group.key}" data-done="${isExperimentDone(experiment.id)?"1":"0"}" data-search="${escapeHTML([experiment.title, nodeById[experiment.nodeId]?.title ?? "", experiment.summary].join(" ")).toLowerCase()}">
           <b>${escapeHTML(experiment.title)}</b>
           <small>${escapeHTML(nodeById[experiment.nodeId]?.title ?? experiment.nodeId)} · ${experiment.steps} 步</small>
+          ${isExperimentDone(experiment.id)?'<small class="exp-card-done">✓ 已完成</small>':""}
           <small>${escapeHTML(experiment.summary)}</small></button>`).join("")}</div></details>`).join("");
-      openOverview("实验",`${EXPERIMENTS.length} 个实验 · 点击进入对应知识点`,
+      openOverview("实验",`${EXPERIMENTS.length} 个实验 · 已完成 ${experimentDoneCount(EXPERIMENTS)}`,
         `<div class="study-kicker">EXPERIMENTS · 教材内实验</div>
         <h1 class="study-title">实验</h1>
         <p class="study-lead">每个实验只服务教材里的一个知识点，1–3 步完成。点击实验会进入对应知识点，实验就在正文的对应位置；想自由改条件，去工具页。</p>
         <div class="lab-controls"><label>搜索实验 <input id="experiment-search" placeholder="实验、知识点、关键词" style="width:260px"></label></div>
         <div class="lab-controls" id="experiment-filters"><button class="study-button primary" data-exp-filter="all">全部 ${EXPERIMENTS.length}</button>${groups.map(group=>`<button class="study-button" data-exp-filter="${group.key}">${escapeHTML(groupMeta[group.key]?.label??group.key)} ${group.items.length}</button>`).join("")}</div>
+        <div class="lab-controls" id="experiment-progress-filters"><button class="study-button primary" data-progress-filter="all">全部进度</button><button class="study-button" data-progress-filter="done">已完成 ${experimentDoneCount(EXPERIMENTS)}</button><button class="study-button" data-progress-filter="todo">未完成 ${EXPERIMENTS.length - experimentDoneCount(EXPERIMENTS)}</button></div>
         <div id="experiment-list">${sections || '<p class="study-lead">还没有实验。</p>'}</div>
         <p class="study-lead" id="experiment-empty" hidden>没有匹配的实验。试着换个关键词或知识域。</p>`,"experiments");
       const search=studyContent.querySelector("#experiment-search");
       let activeDomain="all";
+      let activeProgress="all";
       const applyFilters=()=>{
         const q=search?.value.trim().toLowerCase()??"";
         studyContent.querySelectorAll("[data-experiment]").forEach(card=>{
           const domainMatch=activeDomain==="all"||card.dataset.group===activeDomain;
-          card.style.display=domainMatch&&(!q||card.dataset.search.includes(q))?"":"none";
+          const doneMatch=activeProgress==="all"||(activeProgress==="done"&&card.dataset.done==="1")||(activeProgress==="todo"&&card.dataset.done!=="1");
+          card.style.display=domainMatch&&doneMatch&&(!q||card.dataset.search.includes(q))?"":"none";
         });
         studyContent.querySelectorAll("#experiment-list .lab-group").forEach(group=>{
           const visible=[...group.querySelectorAll("[data-experiment]")].some(card=>card.style.display!=="none");
@@ -886,6 +905,11 @@
       studyContent.querySelectorAll("[data-exp-filter]").forEach(button=>button.addEventListener("click",()=>{
         activeDomain=button.dataset.expFilter;
         studyContent.querySelectorAll("[data-exp-filter]").forEach(item=>item.classList.toggle("primary",item===button));
+        applyFilters();
+      }));
+      studyContent.querySelectorAll("[data-progress-filter]").forEach(button=>button.addEventListener("click",()=>{
+        activeProgress=button.dataset.progressFilter;
+        studyContent.querySelectorAll("[data-progress-filter]").forEach(item=>item.classList.toggle("primary",item===button));
         applyFilters();
       }));
       studyContent.querySelectorAll("[data-experiment]").forEach(button=>{
@@ -1042,14 +1066,31 @@
         <summary><span>${escapeHTML(group.category)}</span><small>${group.tools.length} 个工具</small></summary>
         <div class="lab-grid">${group.tools.map(tool=>{
           const related=experimentsForTool(tool.id).length;
-          return `<button class="lab-card" data-open-tool="${tool.id}" data-tool-group="${tool.group}">
+          const search=[tool.title,tool.summary,group.category,...tool.nodes.map(id=>nodeById[id]?.title??id)].join(" ").toLowerCase();
+          return `<button class="lab-card" data-open-tool="${tool.id}" data-tool-group="${tool.group}" data-search="${escapeHTML(search)}">
           <b>${escapeHTML(tool.title)}</b><small>${escapeHTML(tool.summary)}</small>
           <small>${related} 个相关实验${tool.nodes.length>1?` · 关联 ${tool.nodes.length} 个知识点`:""}</small></button>`;
         }).join("")}</div></details>`).join("");
       openOverview("工具",`${TOOLS.length} 个工具 · ${groups.length} 个类目`,
         `<div class="study-kicker">TOOLS · 自由探索</div>
         <h1 class="study-title">工具</h1>
-        <p class="study-lead">工具按功能类目组织，不绑定单个知识点。打开后可以自由改条件、试极端值，观察会出现什么意外结果。教材里的实验会在旁边给出相关工具入口。</p>${sections}`,"labs");
+        <p class="study-lead">工具按功能类目组织，不绑定单个知识点。打开后可以自由改条件、试极端值，观察会出现什么意外结果。教材里的实验会在旁边给出相关工具入口。</p>
+        <div class="lab-controls"><label>搜索工具 <input id="tool-search" placeholder="工具、类目、知识点" style="width:260px"></label></div>${sections}
+        <p class="study-lead" id="tool-empty" hidden>没有匹配的工具。试着换个关键词。</p>`,"labs");
+      const toolSearch=studyContent.querySelector("#tool-search");
+      const applyToolFilter=()=>{
+        const q=toolSearch.value.trim().toLowerCase();
+        studyContent.querySelectorAll("[data-open-tool]").forEach(card=>{
+          card.style.display=!q||card.dataset.search.includes(q)?"":"none";
+        });
+        studyContent.querySelectorAll(".lab-group").forEach(group=>{
+          const visible=[...group.querySelectorAll("[data-open-tool]")].some(card=>card.style.display!=="none");
+          group.style.display=visible?"":"none";
+        });
+        const empty=studyContent.querySelector("#tool-empty");
+        if(empty)empty.hidden=[...studyContent.querySelectorAll("[data-open-tool]")].some(card=>card.style.display!=="none");
+      };
+      toolSearch.addEventListener("input",applyToolFilter);
       studyContent.querySelectorAll("[data-open-tool]").forEach(button=>{
         button.addEventListener("click",()=>openLab(button.dataset.openTool));
       });
@@ -1057,6 +1098,11 @@
     function openLab(toolId,returnLessonId=null,returnAnchor=null){
       const tool=TOOL_BY_ID[toolId];
       if(!tool)return;
+      if(returnLessonId){
+        studyContent.querySelectorAll("[data-inline-experiment]").forEach(host=>{
+          experimentCache.set(host.dataset.inlineExperiment,host);
+        });
+      }
       toolReturnLesson=returnLessonId;
       toolReturnAnchor=returnAnchor;
       document.getElementById("study-back").textContent=returnLessonId?"← 返回知识点":"← 知识图谱";
@@ -1083,7 +1129,13 @@
     function applyRoute(raw){
       let route=raw||"";
       try{route=decodeURIComponent(route);}catch{}
-      if(route.startsWith("lesson/")){openStudy("lesson",route.slice(7));return;}
+      if(route.startsWith("lesson/")){
+        const id=route.slice(7);
+        if(toolReturnLesson===id){backToGraph();return;}
+        openStudy("lesson",id);
+        return;
+      }
+      if(route.startsWith("experiment/")){openExperiment(route.slice(11));return;}
       if(route.startsWith("tool/")){openLab(route.slice(5));return;}
       if(route==="experiments"){renderExperimentsPage();return;}
       if(route==="labs"){renderLabsPage();return;}
